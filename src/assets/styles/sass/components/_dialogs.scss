@@ -1,0 +1,31 @@
+.info-button .mat-button-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .info-button-icon {
+        display: block;
+        width: 28px;
+        height: 28px;
+        -webkit-filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.8));
+        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.8));
+    }
+}
+
+.dialog-title {
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: row;
+    .mat-dialog-title {
+        margin: 0;
+        flex: 1;
+        line-height: 40px;
+    }
+}
+
+.dialog-content {
+    margin-bottom: 36px;
+    h3 {
+        font-weight: bold;
+        padding-bottom: 8px;
+    }
+}

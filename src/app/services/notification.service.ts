@@ -1,0 +1,27 @@
+import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material';
+import { TranslateService } from '@ngx-translate/core';
+
+@Injectable({
+	providedIn: 'root'
+})
+export class NotificationService {
+
+	constructor(
+		public snackBar: MatSnackBar,
+		private translateService: TranslateService
+	) { }
+
+	// #region || DISPLAY NOTIFICATION
+	displayNotification(value, duration?) {
+		// Translating notification and opens snackBar with value
+		let milliseconds: number = duration ? duration : 2000;
+		
+		this.translateService.get(value).subscribe((notificationValue: string) => {
+			this.snackBar.open(notificationValue, '', {
+				duration: milliseconds
+			});
+		});
+	}
+	// #endregion
+}

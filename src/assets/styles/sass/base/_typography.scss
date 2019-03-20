@@ -1,0 +1,33 @@
+body {
+	font-family: 'Roboto', sans-serif;
+	line-height: normal;
+	text-rendering: geometricPrecision;
+}
+
+h1 {
+	letter-spacing: 0.1px;
+	// text-rendering: geometricPrecision;
+}
+
+h2 {
+	font-size: 20px;
+	font-weight: 500;
+	letter-spacing: .005em;
+}
+
+.text-discreet {
+    color: $discreet;
+}
+
+.text-link {
+    cursor: pointer;
+	// color: #0D47A1;
+	color: #43aaa0;
+    text-decoration: none;
+}
+
+.ruler-discreet {
+	border: 0;
+	border-bottom: 1px solid #e6e6e6;
+	flex: 1;
+}

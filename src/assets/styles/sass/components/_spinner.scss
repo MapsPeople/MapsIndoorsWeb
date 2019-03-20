@@ -1,0 +1,22 @@
+.mat-progress-spinner {
+    width: 40px !important;
+    height: 40px !important;
+    svg {
+        width: 40px !important;
+        height: 40px !important;
+        circle,
+        .mat-spinner circle {
+            stroke: $color-gray-light;
+        }
+    }
+}
+
+.mat-list-item-content {
+	transition: all .2s; //FIXME: Use variables for transitions. Not sure if the class should be more specific
+}
+.list-item-disabled {
+    .mat-list-item-content {
+        cursor: not-allowed;
+		color: $color-gray-light;
+    }
+}

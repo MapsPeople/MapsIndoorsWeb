@@ -1,0 +1,246 @@
+.sidenav-container {
+    height: 100%;
+}
+
+.sidenav {
+    width: 320px;
+    box-shadow: 3px 0 6px rgba(0, 0, 0, .24);
+}
+
+// Fix for overwriting angular border
+.mat-drawer-side {
+	border-right: 0;
+}
+
+#sidebar {
+    height: 100%;
+    display: flex;
+	flex-direction: column;
+	overflow-x: hidden;
+    ul.tiles {
+        // width: 100%;
+        padding: 0 8px;
+        display: block;
+        li {
+            width: 100%;
+            height: 150px;
+            margin-top: 8px;
+            overflow: hidden;
+            position: relative;
+            a {
+                position: absolute;
+                width: 100%;
+				height: 100%;
+				background: #000000;
+                &:hover {
+                    cursor: pointer;
+                    img {
+						opacity: .84;
+                    }
+                }
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: $transition-primary;
+                }
+                .tile-title {
+                    width: 100%;
+                    position: absolute;
+                    bottom: 0px;
+                    left: 0;
+                    color: #fff;
+                    line-height: 36px;
+                    padding: 0 16px;
+                    background: rgba(0, 0, 0, 0.3);
+                    box-sizing: border-box;
+                }
+			}
+			&:last-child {
+				margin-bottom: 8px;
+			}
+		}
+    }
+    .mat-nav-list {
+        .mat-list-item {
+            height: 52px;
+            .list-icon {
+				height: 40px;
+				width: 40px;
+				margin-right: 16px;
+                .material-icons {
+                    width: 40px;
+                    height: 100%;
+					object-fit: contain;
+                }
+            }
+            .list-text {
+                display: flex;
+				flex-direction: column;
+    			overflow: hidden;
+                .list-title {
+                    font-size: 16px;
+                    line-height: normal;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+					max-width: 216px;
+                }
+                .list-sub-title {
+                    font-size: 11px;
+                    line-height: normal;
+                    margin: 5px 0 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+					max-width: 216px;
+					
+					span:not(:last-child)::after {
+						content:", ";
+					}
+                }
+            }
+            .list-spinner {
+                width: 24px;
+                height: 24px;
+                margin-right: 16px;
+                .mat-progress-spinner,
+                .mat-progress-spinner svg {
+                    width: 24px !important;
+                    height: 24px !important;
+                }
+            }
+        }
+    }
+    header {
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: $transition-primary;
+        position: relative;
+        .hero {
+            width: 100%;
+            height: 172px;
+            .hero-nav {
+                width: calc(320px - 16px);
+                height: 64px;
+                margin: 0 8px; // padding: 0 16px;
+                position: absolute;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                color: $color-white;
+                // text-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+                .mat-icon {
+                    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+                    &:hover {
+                        cursor: pointer;
+                    }
+                }
+            }
+            h1 {
+                position: absolute;
+                bottom: 16px;
+                left: 16px;
+                color: $color-white;
+                font-size: 20px;
+                font-weight: bold;
+				text-shadow: 0 0 10px rgba(0, 0, 0, .8);
+            }
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+        .sidebar-image {
+            height: 172px;
+        }
+    }
+    .search {
+        // height: 104px;
+        .mat-form-field {
+            flex-grow: 1;
+            margin-left: 16px;
+        }
+    }
+    .content-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        .content {
+            padding: 20px 0;
+			overflow-y: auto;
+			overflow-x: hidden;
+            flex: 1;
+        }
+        .footer-content .content-text {
+            justify-content: space-between;
+        }
+        .content-text {
+            padding: 16px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            &.center {
+                justify-content: center;
+            }
+            .content-icon {
+                width: 40px;
+                height: 40px;
+                padding-right: 16px;
+                font-size: 40px;
+                color: $color-icon;
+            } // Used for long text fields like description
+            &.icon-top {
+                align-items: flex-start;
+            } // .search-hint {
+            // 	display: flex;
+            // 	flex-direction: column;
+            // 	justify-content: center;
+            // 	text-align: center;
+            // }
+            .hint {
+                // min-height: 64px;
+				// padding: 8px 16px 0 16px;
+				width: 100%;
+                font-size: 100%;
+                line-height: 150%;
+                text-align: center;
+                color: rgb(160, 160, 160);
+                display: flex;
+                flex: 1;
+                flex-direction: column;
+                justify-content: center;
+                p {
+                    word-break: break-word; // Fix for breaking loooong words
+                }
+                &::before {
+                    font-family: 'Material Icons';
+                    font-size: 96px;
+                    line-height: 100%;
+                    display: block;
+                    visibility: visible;
+                }
+                &.warning::before {
+                    content: 'warning';
+                }
+                &.error::before {
+                    content: 'error';
+                }
+                &.search::before {
+                    content: 'search';
+                }
+                &.info::before {
+                    content: 'info';
+                }
+            }
+        }
+    }
+    img.powered-by-google {
+        width: 30%;
+        margin: 5px;
+    }
+}

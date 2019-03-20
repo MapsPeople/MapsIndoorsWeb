@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.2 (57519) - http://www.bohemiancoding.com/sketch -->
+    <title>elevator</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M2,9.39130435 L16,9.39130435 C17.1045695,9.39130435 18,10.2867348 18,11.3913043 L18,22 C18,23.1045695 17.1045695,24 16,24 L2,24 C0.8954305,24 1.11632554e-15,23.1045695 0,22 L0,11.3913043 C-1.3527075e-16,10.2867348 0.8954305,9.39130435 2,9.39130435 Z M3.375,12.5217391 L3.375,20.8695652 L14.625,20.8695652 L14.625,12.5217391 L3.375,12.5217391 Z M15.1875,7.31301299 L12.9375,7.31301299 L12.9375,5.02041526 L10.125,5.02041526 L14.0638218,2.75552404e-14 L18.0026436,5.02041526 L15.1875,5.02041526 L15.1875,7.31301299 Z M2.81514359,-2.84e-14 L5.06514359,-2.84e-14 L5.06514359,2.29259772 L7.87764359,2.29259772 L3.93882179,7.31301299 L0,2.29259772 L2.81514359,2.29259772 L2.81514359,-2.84e-14 Z" id="path-1"></path>
+    </defs>
+    <g id="elevator" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="pictogram/elevator" transform="translate(3.000000, 0.000000)">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <use id="Mask" fill="#FEFEFE" fill-rule="evenodd" xlink:href="#path-1"></use>
+            <g id="black" mask="url(#mask-2)" fill="#333333" fill-rule="evenodd">
+                <g transform="translate(-13.500000, -7.000000)" id="Rectangle">
+                    <rect x="0" y="0" width="45" height="40"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

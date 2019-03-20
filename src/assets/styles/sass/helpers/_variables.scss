@@ -1,0 +1,35 @@
+﻿// Descriptive color variables
+$blue: rgb(33,150,243);
+$yellow:#FFC400;
+$black: #000;
+$white: #fff;
+
+// Functional color variables
+$color-primary:			$blue;
+$color-primary-accent: 	$yellow;
+$color-secondary:		$blue;
+$color-tertiary:		$blue;
+$color-gray-dark: 		rgba($black,.87);
+$color-gray: 			rgba($black,.54);
+$color-gray-light: 		rgba($black,.38);
+$color-gray-lighter:	rgba($black,.10);
+$color-white: 			$white;
+
+$color-icon: 			$color-gray;
+
+// Transitions
+$transition-primary: 	all ease .4s;
+
+
+// // Typography variables
+// $font-stack: 'Roboto', sans-serif;
+// $font-size-base: 14px;
+// $font-size-small: 12px;
+
+
+
+// // Helper variables
+// $spacing: 16px;
+// $base-rounding: 2px;
+
+// $list-item-active: #E0F7FA;

@@ -1,0 +1,157 @@
+    .ie-segment-wrap {
+        padding: 16px 16px;
+        display: inline-block;
+        width: 288px;
+        border-bottom: 1px solid #f1f1f1;
+        &.listActive {
+            background-color: $listActive;
+        }
+        &:hover {
+            background-color: $listHover;
+        }
+        .ie-segment-headline {
+            font-size: 16px;
+            font-weight: 400;
+            padding-bottom: 8px;
+            letter-spacing: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 288px;
+            span {
+                color: rgba(0, 0, 0, .54);
+                font-size: .9em;
+                font-weight: 200;
+            }
+        }
+
+        .a-wrap {
+            .a-icon {
+                width: 32px;
+                padding-top: 8px;
+				float: left;
+				color: #777;
+            }
+            .a-text {
+                width: 256px;
+                float: left;
+                .ie-headsign-wrap {
+                    width: 256px;
+                    height: 24px;
+                    padding-top: 8px;
+                    float: left;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+					white-space: nowrap;
+					font-size: 13px;
+					line-height: 24px;
+                    .ie-short-name {
+                        height: 15px;
+                        margin-right: 8px;
+                        padding: 0px 8px;
+                        border-radius: 50px;
+                        margin-right: 5px;
+                        box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.4);
+                        text-transform: capitalize;
+					}
+					
+                }
+                .ie-duration-wrap {
+                    float: left;
+                    margin-bottom: 16px;
+                    font-size: 13px;
+                }
+            }
+        }
+        .ie-instruction-toggle {
+            color: $discreet;
+            float: left;
+        }
+        .ie-instructions {
+            padding-top: 4px;
+        }
+        .ie-ruler-discreet {
+            border: 0;
+            border-bottom: 1px solid #e6e6e6;
+        }
+        .adp-maneuver {
+            background-size: 19px 630px;
+            width: 30px;
+            height: 16px;
+            background-repeat: no-repeat;
+            display: block;
+            float: left;
+            &.ferry {
+                background-position: 0 -614px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.ferry-train {
+                background-position: 0 -566px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.merge {
+                background-position: 0 -143px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.straight {
+                background-position: 0 -534px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.fork-left {
+                background-position: 0 -550px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.ramp-left {
+                background-position: 0 -598px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.roundabout-left {
+                background-position: 0 -197px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.turn-left {
+                background-position: 0 -413px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.turn-sharp-left {
+                background-position: 0 0;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.turn-slight-left {
+                background-position: 0 -378px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.uturn-left {
+                background-position: 0 -305px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.fork-right {
+                background-position: 0 -499px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.ramp-right {
+                background-position: 0 -429px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.roundabout-right {
+                background-position: 0 -232px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.turn-right {
+                background-position: 0 -483px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.turn-sharp-right {
+                background-position: 0 -582px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.turn-slight-right {
+                background-position: 0 -51px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+            &.uturn-right {
+                background-position: 0 -35px;
+                background-image: url(/assets/images/maneuvers.png);
+            }
+        }
+    }

@@ -1,0 +1,68 @@
+{
+	"Venues": {
+		"Title": "Select venue"	
+	},
+	"InfoDialog": {
+		"Title": "About",
+		"AppName": "App Name",
+		"Supplier": "Supplier",
+		"AppVersion": "App Version",
+		"SdkVersion": "SDK Version"
+	},
+	"ShareDialog": {
+		"Title": "Share location",
+		"Text": "Copy the link below to share the location of"
+	},
+	"Search": {
+		"SearchPlaces": "Search places",
+		"SearchIn": "Search in {{category}}"
+	},
+	"SearchHint": {
+		"Hint": "Use the search to search across",
+		"EmptyCategory": "has no {{category}}. Use search to find {{category}} across",
+		"NoResults": "Sorry, we couldn't find any results matching \"{{query}}\"",
+		"NoResultsInCategory": "Sorry, we couldn't find any results matching \"{{query}}\" in {{category}}"
+	},
+	"Direction": {
+		"Directions": "Directions",
+		"From": "From",
+		"To": "To",
+		"AvoidStairs": "Avoid stairs",
+		"MyPosition": "My Position",
+		"EnableMyPosition": "Enable location sharing to use your position"
+	},
+	"DirectionRoute": {
+		"Start": "Start",
+		"End": "End",
+		"Next": "Next",
+		"Previous": "Previous",
+		"ToDestination": "to destination",
+		"Walk":  "Walk",
+		"Ride": "Ride",
+		"Drive": "Drive",
+		"Directions": "Directions",
+		"AgencyInfo": "Agency Info",
+		"Phone": "Phone",
+		"Website": "Website"
+	},
+	"DirectionHint": {
+		"searchHint": "Search for locations indoors or outdoors",
+		"NoMatchingResults": "Sorry, we couldn't find any results matching",
+		"FromAndTo": "Please select a start and end location",
+		"NoRoute": "Sorry, no route was found"
+	},
+	"Buttons": {
+		"ZoomForDetails": "Zoom for more details",
+		"ReturnTo": "Return to",
+		"ClearMap": "Clear map",
+		"Directions": "Directions",
+		"ShowOnMap": "Show on Map",
+		"LoadMore": "Load more",
+		"CopyLink": "Copy link"
+	},
+	"Notification": {
+		"LinkCopied": "Link added to clipboard",
+		"LinkCopiedError": "This browser does not support this function",
+		"GeoLocationError": "Enable location sharing to use your position"
+	}
+}

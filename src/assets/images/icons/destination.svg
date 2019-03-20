@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.2 (57519) - http://www.bohemiancoding.com/sketch -->
+    <title>room-unknown</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <circle id="path-1" cx="8" cy="8" r="8"></circle>
+    </defs>
+    <g id="room-unknown" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="pictogram/dot" transform="translate(4.000000, 4.000000)">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <use id="Mask" fill="#2E2E2E" fill-rule="evenodd" xlink:href="#path-1"></use>
+            <g id="black" mask="url(#mask-2)" fill="#333333" fill-rule="evenodd">
+                <g transform="translate(-18.666667, -18.666667)" id="Rectangle">
+                    <rect x="0" y="0" width="53" height="53"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

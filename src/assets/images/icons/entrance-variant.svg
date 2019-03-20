@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.2 (57519) - http://www.bohemiancoding.com/sketch -->
+    <title>entrance-variant</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M20,20 L20,4 L12,4 L12,1.99840144e-15 L24,1.99840144e-15 L24,4 L24,24 L20,24 L12,24 L12,20 L20,20 Z M0,9.95999908 L9.95999908,9.95999908 L9.95999908,6 L17.1599991,12.0026965 L9.95999908,18 L9.95999908,13.9983295 L0,13.9983295 L0,9.95999908 Z" id="path-1"></path>
+    </defs>
+    <g id="entrance-variant" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="pictogram/entrance">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <use id="Mask" fill="#FF0000" fill-rule="evenodd" xlink:href="#path-1"></use>
+            <g id="black" mask="url(#mask-2)" fill="#333333" fill-rule="evenodd">
+                <g transform="translate(-9.600000, -12.000000)" id="Rectangle">
+                    <rect x="0" y="0" width="48" height="48"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

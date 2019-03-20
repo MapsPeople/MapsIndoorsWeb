@@ -1,0 +1,83 @@
+.nav-travel-mode {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+	color: $color-white;
+	
+	.travel-mode .mat-icon-button {
+		opacity: .6; 
+		// color: rgba( $color-white, .6 );
+		&.active {
+			opacity: 1;
+			// color: $color-white;
+		}
+	}
+}
+
+.searchbox-container {
+    padding-left: 14px;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    justify-content: left;
+	background-color: whitesmoke;
+	user-select: none;
+	// Dots
+    .dots-wrap {
+		width: 30px;
+		padding-bottom: 36px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        div {
+            height: 24px;
+            width: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            &:last-child {
+                padding-top: 4px;
+            }
+            span {
+                &.circle {
+                    border: 2px solid $color-white;
+                    // background: $color-primary;
+                    border-radius: 50%;
+                    display: block;
+					height: 10px;
+					width: 10px;
+					box-sizing: border-box;
+                }
+                &.dots {
+                    height: 28px;
+                    border-left: 4px dotted $color-white;
+                }
+                &.pin .mat-icon {
+                    width: 16px;
+                    height: 16px;
+                    font-size: 16px;
+                    color: $color-white;
+                }
+            }
+        }
+	} 
+
+	.checkbox {
+		padding-bottom: 4px;
+		color: $color-white;
+		.mat-checkbox-frame {
+			border-color: $color-white;
+		}
+	}
+
+	// Switch
+    .switch-direction {
+		padding-bottom: 36px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        color: $color-white;
+    }
+}

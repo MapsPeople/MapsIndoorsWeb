@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.2 (57519) - http://www.bohemiancoding.com/sketch -->
+    <title>exit-variant</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M4,23.9919998 L4,24 L0,24 L0,4 L0,0 L12,0 L12,4 L4,4 L4,19.9919998 L12,19.9919998 L12,23.9919998 L4,23.9919998 Z M6,9.95999908 L15.9599991,9.95999908 L15.9599991,6 L23.1599991,12.0026965 L15.9599991,18 L15.9599991,13.9983295 L6,13.9983295 L6,9.95999908 Z" id="path-1"></path>
+    </defs>
+    <g id="exit-variant" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="pictogram/exit">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <use id="Mask" fill="#FF0000" fill-rule="evenodd" xlink:href="#path-1"></use>
+            <g id="black" mask="url(#mask-2)" fill="#333333" fill-rule="evenodd">
+                <g transform="translate(-13.200000, -12.000000)" id="Rectangle">
+                    <rect x="0" y="0" width="48" height="48"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,19 @@
+// Share url form
+.share-url-wrapper {
+	margin-top: 20px;
+	display: flex;
+	flex-direction: row;
+
+	.mat-icon-button {
+		margin-right: 8px;
+	}
+
+	.share-url-input {
+		height: 36px;
+		padding: 0 8px;
+		display: flex;
+		flex: 1;
+		font-size: 16px;
+	}
+}
+

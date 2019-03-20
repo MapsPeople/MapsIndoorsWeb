@@ -1,0 +1,18 @@
+<div class="dialog-title">
+	<h2 mat-dialog-title>{{ 'ShareDialog.Title' | translate }}</h2>
+	<button mat-icon-button tabIndex="-1" (click)="dialogRef.close()">
+		<mat-icon aria-label="Close dialog">close</mat-icon>
+	</button>
+</div>
+<mat-dialog-content>
+	<div class="dialog-content">
+		<p>{{ 'ShareDialog.Text' | translate }} {{dialogData.locationName}}</p>
+		<div class="share-url-wrapper">
+			<button mat-button (click)="copyUrl()" tabIndex="-1">
+				<mat-icon aria-label="Copy file">content_copy</mat-icon>
+				{{ 'Buttons.CopyLink' | translate }}
+			</button>
+			<input id="shareUrl" type="text" onfocus="this.select()" class="share-url-input" value="{{dialogData.url}}">
+		</div>
+	</div>
+</mat-dialog-content>

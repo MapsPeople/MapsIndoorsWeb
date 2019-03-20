@@ -1,0 +1,31 @@
+<div class="dialog-title">
+	<h2 mat-dialog-title>{{ 'InfoDialog.Title' | translate }}</h2>
+	<button mat-icon-button (click)="dialogRef.close()">
+		<mat-icon aria-label="Close dialog">close</mat-icon>
+	</button>
+</div>
+<mat-dialog-content>
+	<div class="dialog-content">
+		<h3>{{ 'InfoDialog.AppName' | translate }}:</h3>
+		<p>{{dialogData.appTitle}}</p>
+	</div>
+	<div class="dialog-content">
+		<h3>{{ 'InfoDialog.Supplier' | translate }}:</h3>
+		<p>
+			<a class="text-link" href="https://www.mapspeople.com" target="_blank">MapsPeople A/S</a>
+		</p>
+	</div>
+	<div class="dialog-content">
+		<h3>{{ 'InfoDialog.AppVersion' | translate }}:</h3>
+		<p>{{dialogData.appVersion}}</p>
+	</div>
+	
+	<div class="dialog-content">
+		<h3>{{ 'InfoDialog.SdkVersion' | translate }}:</h3>
+		<p>{{dialogData.sdkVersion}}</p>
+	</div>
+	<!-- <div class="dialog-content">
+		<h3>User agent:</h3>
+		<p></p>
+	</div> -->
+</mat-dialog-content>

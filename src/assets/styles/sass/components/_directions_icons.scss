@@ -1,0 +1,74 @@
+
+
+.segment-headline-icon,
+.segment-destination-icon {
+    width: 24px;
+    height: 24px;
+    background-color: #fff;
+    border: 2px solid $discreet;
+    border-radius: 50px;
+    box-sizing: border-box;
+    .icon {
+        &-start {}
+        &-enter {
+            -webkit-mask: url(/assets/images/icons/entrance-variant.svg) no-repeat center center;
+            mask: url(/assets/images/icons/entrance-variant.svg) no-repeat center center;
+            mask-image: url(/assets/images/icons/entrance-variant.svg) no-repeat center center;
+            width: 60%;
+            height: 60%;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            background-color: $discreet;
+        }
+        &-exit {
+            -webkit-mask: url(/assets/images/icons/exit-variant.svg) no-repeat center center;
+            mask: url(/assets/images/icons/exit-variant.svg) no-repeat center center;
+            mask-image: url(/assets/images/icons/exit-variant.svg) no-repeat center center;
+            width: 60%;
+            height: 60%;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            background-color: $discreet;
+        }
+        &-elevator {
+            -webkit-mask: url(/assets/images/icons/elevator.svg) no-repeat center center;
+            mask: url(/assets/images/icons/elevator.svg) no-repeat center center;
+            mask-image: url(/assets/images/icons/elevator.svg) no-repeat center center;
+            width: 60%;
+            height: 60%;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            background-color: $discreet;
+        }
+        &-stairs {
+            -webkit-mask: url(/assets/images/icons/stairs.svg) no-repeat center center;
+            mask: url(/assets/images/icons/stairs.svg) no-repeat center center;
+            mask-image: url(/assets/images/icons/stairs.svg) no-repeat center center;
+            width: 60%;
+            height: 60%;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            background-color: $discreet;
+        }
+        &-escalator {
+            -webkit-mask: url(/assets/images/icons/escalator.svg) no-repeat center center;
+            mask: url(/assets/images/icons/escalator.svg) no-repeat center center;
+            mask-image: url(/assets/images/icons/escalator.svg) no-repeat center center;
+            width: 60%;
+            height: 60%;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            background-color: $discreet;
+        }
+        &-destination {
+            -webkit-mask: url(/assets/images/icons/place.svg) no-repeat center center;
+            mask: url(/assets/images/icons/place.svg) no-repeat center center;
+            mask-image: url(/assets/images/icons/place.svg) no-repeat center center;
+            width: 60%;
+            height: 60%;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            background-color: $discreet;
+        }
+    }
+}

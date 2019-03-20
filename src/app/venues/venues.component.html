@@ -1,0 +1,22 @@
+<aside id="sidebar" *ngIf="statusOk">
+	<section class="elevation-z2">
+		<mat-toolbar [style.background-color]="colors.primary">
+			<!-- <nav>
+				<mat-icon [style.color]="colors.onPrimary">location_city</mat-icon>
+			</nav> -->
+			<!-- <h1 [style.color]="colors.onPrimary">Select venue</h1> -->
+			<h1 [style.color]="colors.onPrimary">{{ 'Venues.Title' | translate }}</h1>
+		</mat-toolbar>
+	</section>
+
+	<section *ngIf="venues">
+		<ul class="tiles">
+			<li *ngFor="let venue of venues">
+				<a (click)="setVenue(venue)" [style.background-color]="venue.image.length < 0 ? colors.primary : black">
+					<img *ngIf="venue.image.length > 0" src="{{venue.image}}" />
+					<h2 class="tile-title">{{venue.venueInfo.name}}</h2>
+				</a>
+			</li>
+		</ul>
+	</section>
+</aside>

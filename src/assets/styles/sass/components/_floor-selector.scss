@@ -1,0 +1,70 @@
+.mapsindoors.floor-selector {
+	margin: 0 10px;
+	padding: 0px;
+	min-width: 48px;
+	max-height: 292px;
+	overflow-y: auto;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+	box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+	background-color: rgb(255, 255, 255);
+	border-radius: 2px;
+	user-select: none;
+	scrollbar-width: thin;
+	overflow-x: hidden;
+	-ms-overflow-style: -ms-autohiding-scrollbar;
+	
+	a {
+		width: 48px;
+		height: 42px;
+		line-height: 42px;
+		display: block;
+		color: #666666;
+		font-size: 15px;
+		font-weight: 500;
+		text-align: center;
+		cursor: pointer;
+		z-index: 0;
+		transition: all .3s ease;
+		&:hover {
+			background: #ccc;
+			// border-color: #999;
+			z-index: 2;
+		}
+		&.active {
+			// color: black;
+			color: #43aaa0;
+			font-weight: 900;
+			background: #f0f0f0;
+			// border-color: #00b1ff;
+			z-index: 2;
+		}
+	}
+	&:before {
+        width: inherit;
+        font-family: 'Material Icons';
+        content: '\E53B';
+        color: #666666;
+        font-size: 40px;
+        display: block;
+        text-align: center;
+        transform: scale(1, 0.7);
+        z-index: 99;
+	}
+}
+
+
+.zoom-indicator {
+	background-color: rgba(255, 255, 255, .8);
+	border-radius: 2px;
+	padding: 4px 16px;
+	position: absolute;
+	top: 16px;
+	left: 50%;
+	transform: translate(-50%, 0px);
+}
+
+
+
+
+
+

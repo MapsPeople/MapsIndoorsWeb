@@ -1,0 +1,68 @@
+{
+	"Venues": {
+		"Title": "Vælg sted"	
+	},
+	"InfoDialog": {
+		"Title": "App information",
+		"AppName": "App navn",
+		"Supplier": "Leverandør",
+		"AppVersion": "App version",
+		"SdkVersion": "SDK version"
+	},
+	"ShareDialog": {
+		"Title": "Del placering",
+		"Text": "Kopier linket nedenfor for at dele"
+	},
+	"Search": {
+		"SearchPlaces": "Søg",
+		"SearchIn": "Søg i {{category}}"
+	},
+	"SearchHint": {
+		"Hint": "Brug søgefeltet til at søge på tværs af",
+		"EmptyCategory": "har ikke nogle {{category}}. Brug søgefeltet til at finde {{category}} på tværs af",
+		"NoResults": "Ingen resultater for \"{{query}}\"",
+		"NoResultsInCategory": "Ingen resultater for \"{{query}}\" i {{category}}"
+	},
+	"Direction": {
+		"Directions": "Rute",
+		"From": "Fra",
+		"To": "Til",
+		"AvoidStairs": "Undgå trapper",
+		"MyPosition": "Min placering",
+		"EnableMyPosition": "Slå lokationsdeling til for at bruge din position"
+	},
+	"DirectionRoute": {
+		"Start": "Start",
+		"End": "Slut",
+		"Next": "Næste",
+		"Previous": "Forrige",
+		"ToDestination": "til destination",
+		"Walk":  "Gå",
+		"Ride": "Kør",
+		"Drive": "Kør",
+		"Directions": "Instrukser",
+		"AgencyInfo": "Bureau information",
+		"Phone": "Telefon",
+		"Website": "Web"
+	},
+	"DirectionHint": {
+		"searchHint": "Søg efter indendørs og udendørs lokationer",
+		"NoMatchingResults": "Ingen resultater for",
+		"FromAndTo": "Vælg en start og slut lokation",
+		"NoRoute": "Fandt ingen rute"
+	},
+	"Buttons": {
+		"ZoomForDetails": "Zoom ind for detaljer",
+		"ReturnTo": "Vend tilbage til",
+		"ClearMap": "Ryd kort",
+		"Directions": "Instrukser",
+		"ShowOnMap": "Vis på kort",
+		"LoadMore": "Indlæs flere",
+		"CopyLink": "Kopier linket"
+	},
+	"Notification": {
+		"LinkCopied": "Kopieret til dit clipboard",
+		"LinkCopiedError": "Din browser understøtter ikke denne funktion",
+		"GeoLocationError": "Slå lokationsdeling til for at bruge din position"
+	}
+}
