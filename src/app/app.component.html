@@ -10,10 +10,10 @@
 			 *ngIf="isHandset">
 				<mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
 			</button>
-			<div class="flex-space-between">
+			<div class="flex-space-between flex-v-center">
 				<h1 [style.color]="colors.onPrimary">{{pageTitle}}</h1>
 				<button mat-icon-button [style.color]="colors.onPrimary" class="btn-clear-map" *ngIf="mapsIndoorsService.isMapDirty"
-				 (click)="clearMap()">
+				 (click)="clearMap()" [eventTracker]='{"category":"Clear map", "action":"Clear map"}'>
 					<mat-icon aria-label="Clear">close</mat-icon>
 				</button>
 			</div>

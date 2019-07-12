@@ -8,15 +8,19 @@
 					<button mat-icon-button (click)="goBack()">
 						<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
 					</button>
-					<button id="shareDialogOpenButton" mat-icon-button (click)="openShareUrlDialog()">
+					<button id="shareDialogOpenButton" mat-icon-button (click)="openShareUrlDialog()" [eventTracker]='{"category":"Details", "action":"Share POI", "label":"Open"}'>
 						<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">share</mat-icon>
 					</button>
 				</nav>
 				<h1 [style.color]="colors.onPrimary">
-					<!-- <img src="{{location.properties.icon}}"> -->
 					{{location.properties.name}}
 				</h1>
-				<img src="{{location.properties.imageURL}}" />
+				<div class="hero-img">
+					<location-img [imageURL]="location.properties.imageURL"
+					[apiKey]="'AIzaSyBOUv8R8xOta4bQ0nAEyb_jJdwI7sB7DHg'"
+					[streetViewConfig]="location.properties.streetViewConfig ? location.properties.streetViewConfig : null">
+					</location-img>
+				</div>
 			</div>
 		</header>
 	</section>
@@ -89,7 +93,7 @@
 			<footer class="footer-content">
 				<nav class="content-text">
 					<span>
-						<button class="mat-raised-button" *ngIf="isHandset" (click)="sidenav.close()">
+						<button class="mat-raised-button" *ngIf="isHandset" (click)="sidenav.close()" [eventTracker]='{"category":"Details", "action":"Show on map"}'>
 							{{ 'Buttons.ShowOnMap' | translate }}
 						</button>
 					</span>

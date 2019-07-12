@@ -12,7 +12,8 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { SolutionService } from '../services/solution.service';
 
-declare var mapsindoors: any;
+declare const mapsindoors: any;
+declare const ga: Function;
 
 // interface step {
 // 	maneuver: string;
@@ -99,6 +100,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	originSearchSubscription: Subscription;
 	destinationSearchSubscription: Subscription;
 	legIndexSubscription: Subscription;
+	appConfigSubscription: Subscription;
+	themeServiceSubscription: Subscription;
 
 	constructor(
 		private route: ActivatedRoute,
@@ -114,35 +117,37 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		private venueService: VenueService,
 		private directionService: DirectionService,
 	) {
+		this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
+		this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
+
 		this.originSearchSubscription = this.debounceSearchOrigin
 			.pipe(debounceTime(500)) // wait XX ms after the last event before emitting this event
 			.pipe(distinctUntilChanged()) // only emit if value is different from previous value
-			.subscribe(value => {
-				this.originSearch(value)
+			.subscribe((value) => {
+				this.originSearch(value);
 			});
 
 		this.destinationSearchSubscription = this.debounceSearchDestination
 			.pipe(debounceTime(500)) // wait XX ms after the last event before emitting this event
 			.pipe(distinctUntilChanged()) // only emit if value is different from previous value
-			.subscribe(value => {
-				this.destinationSearch(value)
+			.subscribe((value) => {
+				this.destinationSearch(value);
 			});
 
-		this.legIndexSubscription = this.directionService.getLegIndex().subscribe(index => {
+		this.legIndexSubscription = this.directionService.getLegIndex().subscribe((index) => {
 			this.currentLegIndex = index;
 		});
 	}
 
-	async ngOnInit() {
+	ngOnInit() {
 		this.ie11 = (navigator.userAgent.match(/Trident/g) || navigator.userAgent.match(/MSIE/g)) ? true : false;
 		this.isViewActive = true;
-		this.appConfig = await this.appConfigService.getConfig();
 		this.checkForVenue();
-		this.colors = await this.themeService.getThemeColors();
 		this.pageTitleSubscription = this.translateService.get("Direction.Directions").subscribe((value: string) => {
 			this.mapsIndoorsService.setPageTitle(value);
 		});
 		this.populateFields();
+		this.mapsIndoorsService.mapsIndoors.filter(null, false); // Clear filter if any
 		window["angularComponentRef"] = { component: this, zone: this._ngZone };
 		this.mapsIndoorsService.isMapDirty = true; // Show clear map button
 		this.statusOk = true;
@@ -150,11 +155,11 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
 	// #region || SET VENUE
 	async checkForVenue() {
-		let self = this;
-		let venueIdFromURL = this.route.snapshot.params.venueId;
-		let venueRequest = this.venueService.venue ? this.venueService.venue : {};
-		let urlVenueId = await venueIdFromURL;
-		let venue = await venueRequest;
+		const self = this;
+		const venueIdFromURL = this.route.snapshot.params.venueId;
+		const venueRequest = this.venueService.venue ? this.venueService.venue : {};
+		const urlVenueId = await venueIdFromURL;
+		const venue = await venueRequest;
 
 		// If the user comes from a previous page
 		if (venue && venue.id === urlVenueId) {
@@ -163,8 +168,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		}
 		// If direct url
 		else {
-			let venue = await self.venueService.getVenueById(urlVenueId)
-			this.venueService.setVenue(venue, self.appConfig).then(result => {
+			const venue = await self.venueService.getVenueById(urlVenueId);
+			this.venueService.setVenue(venue, self.appConfig).then((result) => {
 				self.venue = result;
 			});
 			this.countVenues();
@@ -173,9 +178,9 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	}
 
 	async countVenues() {
-		let venuesLength = await this.venueService.getVenuesLength()
+		const venuesLength = await this.venueService.getVenuesLength();
 		// If only one venue then hide non relevant elements
-		this.venue.onlyVenue = venuesLength == 1 ? true : false;
+		this.venue.onlyVenue = venuesLength === 1 ? true : false;
 	}
 	// #endregion
 
@@ -194,20 +199,20 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	}
 
 	async originSearch(query) {
-		let self = this;
-		this.inputState = 'start'
+		const self = this;
+		this.inputState = 'start';
 		this.error = null;
 		// If query is the same as before
 		if (this.start.query === this.start.previousQuery) {
-			return
+			return;
 		}
-		else if (this.start.query && this.start.query != '' && query.length > 1) {
+		else if (this.start.query && this.start.query !== '' && query.length > 1) {
 			this.loading = true;
 			// this.directionService.directionsLegs = [];
 			this.clearRoute();
 			this.userPosition.show = false;
-			let results = <Array<Array<any>>>await Promise.all([this.getLocations(self.start.query), this.getGooglePlaces(self.start.query)]);
-			let locations = results[0].concat(results[1]);
+			const results: any[] = await Promise.all([this.getLocations(self.start.query), this.getGooglePlaces(self.start.query)]);
+			const locations = results[0].concat(results[1]);
 			if (locations.length > 0) {
 				this.searchResults = locations;
 			}
@@ -216,7 +221,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				self.userPosition.show = true;
 			}
 			else {
-				this.error = "NoMatchingResults"
+				this.error = "NoMatchingResults";
 				this.searchResults = [];
 			}
 			this.start.previousQuery = self.start.query;
@@ -231,67 +236,77 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	async setOrigin() {
-		let originId = await this.route.snapshot.params.from;
-		// If URL contains both from and to then get origin from that
-		if (originId) {
-			this.userPosition.show = false;
-			let origin = await this.locationService.getLocationById(originId);
-			this.start.query = origin.properties.name;
-			this.start.location = origin;
-			return;
-		}
-		// else use user position
-		else {
-			await this.setUserPosition();
-			return;
-		}
+	setOrigin() {
+		return new Promise(async (resolve, reject) => {
+			const originId: string = await this.route.snapshot.params.from;
+			// If URL contains both from and to then get origin from that e.g.
+			// https://.../route/from/5683d817423b7d1380c0ec7a/to/5683d817423b7d1380c0ec7a
+			if (originId) {
+				this.userPosition.show = false;
+				this.locationService.getLocationById(originId)
+					.then((origin: any) => {
+						this.start.query = origin.properties.name;
+						this.start.location = origin;
+						resolve();
+					})
+					.catch(() => {
+						reject();
+					});
+			}
+			// else use user position
+			else {
+				await this.setUserPosition();
+				resolve();
+			}
+		});
 	}
 
 	// #region - USER POSITION
-	async setUserPosition() {
-		this.loading = true;
-		const configPositionSettings: any = this.appConfig.appSettings.positioningDisabled;
-		// Check if position is disabled by app config-file
-		if (configPositionSettings == '1') {
-			this.userPositionError.bind(this);
-			this.userPosition.disabledInConfig = true;
-			this.loading = false;
-			return
-		}
-		// If users position already is set
-		else if (this.userPosition.coordinates) {
-			this.start.query = this.userPosition.name;
-			this.start.location = {
-				properties: { name: this.userPosition.name },
-				geometry: { coordinates: this.userPosition.coordinates }
-			};
-			this.userPosition.show = false;
-			return
-		}
-		// Get users position by browser
-		else {
-			let self = this;
-			await new Promise(async (resolve, reject) => {
-				navigator.geolocation.getCurrentPosition((position) => {
-					let coords = position.coords;
-					self.userPosition.ready = true;
-					self.userPosition.name = "My Position"
-					self.userPosition.coordinates = [coords.longitude, coords.latitude];
-					return resolve()
-				}, this.userPositionError.bind(this));
-			})
-			this.start.query = this.userPosition.name;
-			this.start.location = {
-				properties: { name: this.userPosition.name },
-				geometry: { coordinates: this.userPosition.coordinates }
-			};
-			this.userPosition.show = false;
-			return
-		}
+	setUserPosition() {
+		return new Promise(async (resolve, reject) => {
+			this.loading = true;
+			const configPositionSettings: any = this.appConfig.appSettings.positioningDisabled;
+			// Check if position is disabled by app config-file
+			if (configPositionSettings === '1') {
+				this.userPositionError.bind(this);
+				this.userPosition.disabledInConfig = true;
+				this.loading = false;
+				resolve();
+			}
+			// If users position already is set
+			else if (this.userPosition.coordinates) {
+				this.start.query = this.userPosition.name;
+				this.start.location = {
+					properties: { name: this.userPosition.name },
+					geometry: { coordinates: this.userPosition.coordinates }
+				};
+				this.userPosition.show = false;
+				resolve();
+			}
+			// Get users position by browser
+			else {
+				const self = this;
+				await new Promise((resolve, reject) => {
+					navigator.geolocation.getCurrentPosition((position) => {
+						const coords = position.coords;
+						self.userPosition.ready = true;
+						self.userPosition.name = "My Position";
+						self.userPosition.coordinates = [coords.longitude, coords.latitude];
+						return resolve();
+					}, this.userPositionError.bind(this));
+				});
+				this.start.query = this.userPosition.name;
+				this.start.location = {
+					properties: { name: this.userPosition.name },
+					geometry: { coordinates: this.userPosition.coordinates }
+				};
+				this.userPosition.show = false;
+				resolve();
+			}
+		});
 	}
 
-	async userPositionError(err?) {
+	userPositionError(err?) {
 		this.userPosition.show = true;
 		this.userPosition.ready = true;
 		this.userPosition.disabledByUser = true;
@@ -312,23 +327,25 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	// #endregion
 
 	// #region - || DESTINATION
-	async setDestination() {
-		let locationId = await this.route.snapshot.params.id ? this.route.snapshot.params.id : this.route.snapshot.params.to;
-		let location = await this.locationService.getLocationById(locationId);
+	setDestination() {
+		return new Promise(async (resolve, reject) => {
+			const locationId = await this.route.snapshot.params.id ? this.route.snapshot.params.id : this.route.snapshot.params.to;
+			this.locationService.getLocationById(locationId)
+				.then((location: any) => {
+					// NOTE: Support for old POI-objects
+					// let coordinates = location.properties.anchor ? location.properties.anchor.coordinates : location.geometry.coordinates;
+					// this.googleMapService.googleMap.panTo({ lat: coordinates[1], lng: coordinates[0] });
 
-		const latLng = location.properties.anchor ?
-			// For new poi objects
-			{ lat: location.properties.anchor.coordinates[1], lng: location.properties.anchor.coordinates[0] } :
-			// For old poi objects
-			{ lat: location.geometry.coordinates[1], lng: location.geometry.coordinates[0] };
-		this.googleMapService.googleMap.setCenter(latLng);
-
-		const building = location.properties.building ? (location.properties.building + ', ') : "";
-		this.destination.query = location.properties.name + ', Level ' + location.properties.floorName + ', ' + building + location.properties.venue;
-		this.destination.location = location;
-		this.directionService.destinationQuery = this.destination.query; // Used for horizontal directions
-
-		return
+					const building = location.properties.building ? (location.properties.building + ', ') : "";
+					this.destination.query = location.properties.name + ', Level ' + location.properties.floorName + ', ' + building + location.properties.venue;
+					this.destination.location = location;
+					this.directionService.destinationQuery = this.destination.query; // Used for horizontal directions
+					resolve();
+				})
+				.catch(() => {
+					reject();
+				});
+		});
 	}
 
 	destinationSearchValueChanged(value: string) {
@@ -337,20 +354,20 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	}
 
 	async destinationSearch(query) {
-		this.inputState = 'dest'
+		this.inputState = 'dest';
 		this.error = null;
-		if (query && query.length > 0 && query != '') {
+		if (query && query.length > 0 && query !== '') {
 			this.loading = true;
 			// this.directionService.directionsLegs = [];
 			this.clearRoute();
-			let results = <Array<Array<any>>>await Promise.all([this.getLocations(query), this.getGooglePlaces(query)]);
-			let locations = results[0].concat(results[1]);
+			const results: any[] = await Promise.all([this.getLocations(query), this.getGooglePlaces(query)]);
+			const locations = results[0].concat(results[1]);
 			if (locations.length > 0) {
 				this.error = null;
 				this.searchResults = locations;
 			}
 			else {
-				this.error = "NoMatchingResults"
+				this.error = "NoMatchingResults";
 				this.searchResults = [];
 			}
 			this.destination.previousQuery = query;
@@ -376,12 +393,12 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	// #endregion
 
 	// #region - SWITCH ORIGIN AND DESTINATION
-	async switchOriginAndDest() {
-		let start = this.start.location;
-		let startQ = this.start.query;
-		let dest = this.destination.location;
-		let destQ = this.destination.query;
-		this.start.location = dest
+	switchOriginAndDest() {
+		const start = this.start.location;
+		const startQ = this.start.query;
+		const dest = this.destination.location;
+		const destQ = this.destination.query;
+		this.start.location = dest;
 		this.start.query = destQ;
 		this.destination.query = startQ;
 		this.destination.location = start;
@@ -425,12 +442,12 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	// #region - GOOGLE PLACES
 	getGooglePlaces(query) {
 		if (query.length > 3) {
-			var self = this;
+			const self = this;
 			return new Promise((resolve, reject) => {
 				this.autocompleteService.getPlacePredictions({ input: query, componentRestrictions: this.appConfig.appSettings.countryCode ? { country: this.appConfig.appSettings.countryCode } : null }, (results, status) => {
 					// var floor = self.mapsIndoorsService.mapsIndoors.getFloor();
-					let iconPoi = '/assets/images/icons/google-poi.png';
-					let places = (results || []).map(function (result) {
+					const iconPoi = '/assets/images/icons/google-poi.png';
+					const places = (results || []).map((result) => {
 						return {
 							type: 'Feature',
 							properties: {
@@ -454,7 +471,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
 	showPoweredByGoogle() {
 		if (this.searchResults.length > 0) {
-			let googlePlace = this.searchResults.find(function (item) {
+			const googlePlace = this.searchResults.find((item) => {
 				return item.properties.type === 'google_places';
 			});
 			this.poweredByGoogle = (googlePlace ? true : false);
@@ -473,26 +490,26 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
 	// Get MapsIndoors locations
 	async getLocations(query) {
-		let self = this;
+		const self = this;
 		let nearPosition;
 		// If user provides a position
 		if (this.userPosition.ready && this.userPosition.position) {
-			let lat = self.userPosition.position.geometry.coordinates[1];
-			let lng = self.userPosition.position.geometry.coordinates[0];
-			nearPosition = { toUrlValue: function () { return 'lat:' + lat + ', lng:' + lng } };
+			const lat = self.userPosition.position.geometry.coordinates[1];
+			const lng = self.userPosition.position.geometry.coordinates[0];
+			nearPosition = { toUrlValue: function () { return 'lat:' + lat + ', lng:' + lng; } };
 		}
 		// Else take venue anchor point
 		else {
-			let venueId = await this.route.snapshot.params.venueId;
-			nearPosition = { toUrlValue: function () { return 'venue:' + venueId; } }
+			const venueId = await this.route.snapshot.params.venueId;
+			nearPosition = { toUrlValue: function () { return 'venue:' + venueId; } };
 		}
-		let parameters = { q: query, take: 10, near: nearPosition };
-		return this.locationService.getLocations(parameters)
+		const parameters = { q: query, take: 10, near: nearPosition };
+		return this.locationService.getLocations(parameters);
 	}
 
 	// Format selected location and set
 	selectLocation(location) {
-		let self = this;
+		const self = this;
 		this.searchResults = [];
 
 		if (this.inputState === 'start') {
@@ -502,13 +519,13 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 			if (location.properties.type === 'google_places') {
 				this.start.query = location.properties.name + ', ' + location.properties.subtitle;
 				this.start.previousQuery = this.start.query;
-				// Getting coordinates for google place 
+				// Getting coordinates for google place
 				this.geoCodingService.geocode({ 'placeId': location.properties.placeId }, (results, status) => {
 					if (results.length > 0) {
 						location.geometry = {
 							type: 'point',
 							coordinates: [results[0].geometry.location.lng(), results[0].geometry.location.lat()]
-						}
+						};
 						self.start.location = location;
 						self.getRoute();
 					}
@@ -528,6 +545,9 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				this.start.location = location;
 				this.getRoute();
 			}
+			// Google Analytics
+			ga('send', 'event', 'Directions', 'Origin Search', self.start.query);
+
 		}
 		else if (this.inputState === 'dest') {
 			this.poweredByGoogle = false;
@@ -535,13 +555,13 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 			if (location.properties.type === 'google_places') {
 				this.destination.query = location.properties.name + ', ' + location.properties.subtitle;
 				this.destination.previousQuery = this.destination.query;
-				// Getting coordinates for google place 
+				// Getting coordinates for google place
 				this.geoCodingService.geocode({ 'placeId': location.properties.placeId }, (results, status) => {
 					if (results.length > 0) {
 						location.geometry = {
 							type: 'point',
 							coordinates: [results[0].geometry.location.lng(), results[0].geometry.location.lat()]
-						}
+						};
 						self.destination.location = location;
 						self.getRoute();
 					}
@@ -559,12 +579,14 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				this.destination.location = location;
 				this.getRoute();
 			}
+			// Google Analytics
+			ga('send', 'event', 'Directions', 'Destination Search', self.destination.query);
 		}
 	}
 
 	// Show or hide userPosition
 	inputFocus(boolean) {
-		if (this.userPosition.show != boolean) {
+		if (this.userPosition.show !== boolean) {
 			this.searchResults = [];
 			this.error = null;
 		}
@@ -575,11 +597,11 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	// #region - || ROUTE REQUEST AND INTERACTIONS
 
 	// #region - GET ROUTE DATA
-	async getRoute() {
-		if (Object.keys(this.start.location).length != 0 && Object.keys(this.destination.location).length != 0) {
-			let self = this;
+	getRoute() {
+		if (Object.keys(this.start.location).length !== 0 && Object.keys(this.destination.location).length !== 0) {
+			const self = this;
 			this.searchResults = [];
-			this._ngZone.run(async () => {
+			this._ngZone.run(() => {
 				this.loading = true;
 			});
 			this.venueService.returnBtnActive = false;
@@ -598,7 +620,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				{ lat: self.destination.location.properties.anchor.coordinates[1], lng: self.destination.location.properties.anchor.coordinates[0], floor: self.destination.location.properties.floor } :
 				// For old poi objects
 				{ lat: self.destination.location.geometry.coordinates[1], lng: self.destination.location.geometry.coordinates[0], floor: self.destination.location.properties.floor };
-			let args = {
+			const args = {
 				origin: start,
 				destination: dest,
 				mode: self.travelMode.toUpperCase(),
@@ -606,26 +628,26 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 			};
 			this.locationService.routeState = true;
 			this.request(args)
-				.then(data => {
+				.then((data) => {
 					if (this.isViewActive) {
 						this._ngZone.run(async () => {
 
 							await this.getAgencyInfo(data)
 								.then((agencies: any) => {
 									this.agencies = agencies;
-								})
+								});
 
 							this.getTotalDistance(data)
 								.then(async (distance) => {
 									// Transform distance value into text
-									let transformedDistance = await this.distanceAsText(distance);
+									const transformedDistance = await this.distanceAsText(distance);
 									this.totalTravelDistance = transformedDistance;
-								})
+								});
 
 							this.getTotalDuration(data)
 								.then(async (duration) => {
 									// Transform duration value into text
-									let transformedDuration = await this.durationAsText(duration);
+									const transformedDuration = await this.durationAsText(duration);
 									this.totalTravelDuration = transformedDuration;
 								});
 
@@ -641,7 +663,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 						});
 					}
 				})
-				.catch(err => {
+				.catch((err) => {
 					console.log(err);
 					this.loading = false;
 					this.error = "NoRoute";
@@ -656,11 +678,11 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		return new Promise((resolve, reject) => {
 			this.miDirectionsService.getRoute(args)
 				.then(async (data) => {
-					let legs = JSON.parse(JSON.stringify(data.routes[0])).legs;
-					let legsExtended = [];
-					for (let leg of legs) {
+					const legs = JSON.parse(JSON.stringify(data.routes[0])).legs;
+					const legsExtended = [];
+					for (const leg of legs) {
 						if (leg.departure_time) {
-							for (let step of leg.steps) {
+							for (const step of leg.steps) {
 								step._mi = { type: "google.maps.DirectionsLeg" };
 								legsExtended.push(step);
 							}
@@ -668,13 +690,13 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 						else legsExtended.push(leg);
 					}
 					await this.setIndexForLegs(legsExtended).then((data) => {
-						resolve(data)
+						resolve(data);
 					});
 				})
-				.catch(err => {
+				.catch((err) => {
 					reject(err);
-				})
-		})
+				});
+		});
 	}
 
 	async setUnitsPreference() {
@@ -686,13 +708,13 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	getAgencyInfo(legs) {
 		let agenciesArray = [];
 		return new Promise((resolve, reject) => {
-			for (let leg of legs) {
+			for (const leg of legs) {
 				if (leg.transit) {
 					// If agency info is provided
 					if (leg.transit.line.agencies) {
-						let agencies = leg.transit.line.agencies.map(agency => {
+						const agencies = leg.transit.line.agencies.map((agency) => {
 							if (agency.url) {
-								var a = document.createElement('a');
+								const a = document.createElement('a');
 								a.href = agency.url;
 								agency.website = a;
 								return agency;
@@ -702,65 +724,65 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 					}
 				}
 			}
-			resolve(agenciesArray)
+			resolve(agenciesArray);
 		});
 	}
 
 	setIndexForLegs(legsExtended) {
 		let legIndex: number = 0;
 		return new Promise((resolve, reject) => {
-			for (let leg of legsExtended) {
+			for (const leg of legsExtended) {
 				leg.index = legIndex ? legIndex : 0;
 				legIndex = ++legIndex;
 			}
 			resolve(legsExtended);
-		})
+		});
 	}
 
 	getTotalDistance(legs) {
 		let totalDistance: number = 0;
 		return new Promise((resolve, reject) => {
-			for (let leg of legs) {
+			for (const leg of legs) {
 				// Counting up total travel distance
 				totalDistance += leg.distance.value;
 			}
 			resolve(totalDistance);
-		})
+		});
 	}
 
 	getTotalDuration(legs) {
 		let totalDuration: number = 0;
 		return new Promise((resolve, reject) => {
-			for (let leg of legs) {
+			for (const leg of legs) {
 				// Counting up total travel time
 				totalDuration += leg.duration.value;
 			}
 			resolve(totalDuration);
-		})
+		});
 	}
 
 	addMissingData(legs) {
-		let self = this;
-		let isOutside = /^outside/i;
-		let isInside = /^inside/i;
-		let entranceOrExits = [];
+		const self = this;
+		const isOutside = /^outside/i;
+		const isInside = /^inside/i;
+		const entranceOrExits = [];
 
 		return new Promise(async (resolve, reject) => {
-			for (let leg of legs) {
+			for (const leg of legs) {
 				if (!leg.transit) {
 					leg.distance.text = await this.distanceAsText(leg.distance.value);
 					leg.duration.text = await this.durationAsText(leg.duration.value);
 
-					for (let step of leg.steps) {
-						self.addMissingManeuver(step)
+					for (const step of leg.steps) {
+						self.addMissingManeuver(step);
 						step.distance.text = await this.distanceAsText(step.distance.value);
 						step.duration.text = await this.durationAsText(step.duration.value);
 					}
 
 					// all MI legs
-					if (leg._mi.type == 'mapsindoors.DirectionsLeg') {
-						// Get previous leg for setting instruction 
-						let prev = leg.index > 0 ? legs[leg.index - 1] : null;
+					if (leg._mi.type === 'mapsindoors.DirectionsLeg') {
+						// Get previous leg for setting instruction
+						const prev = leg.index > 0 ? legs[leg.index - 1] : null;
 
 						if (prev && prev._mi.type !== 'mapsindoors.DirectionsLeg' && leg._mi.type === 'mapsindoors.DirectionsLeg') {
 							leg.steps[0].instructions = '<span class="action">Enter:</span>';
@@ -794,23 +816,42 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 						}
 					}
 				}
+
+				// For being able to set correct floor for Google Maps Directions legs, set the end and start zLevel from the next and previous legs if they exist.
+				if (leg._mi.type === 'google.maps.DirectionsLeg') {
+					if (
+						legs[leg.index + 1] &&
+						legs[leg.index + 1].steps &&
+						legs[leg.index + 1].steps.some(step => 'zLevel' in step.start_location)
+					) {
+						leg.end_location.zLevel = legs[leg.index + 1].steps.find(step => 'zLevel' in step.start_location).end_location.zLevel;
+					}
+
+					if (
+						legs[leg.index - 1] &&
+						legs[leg.index - 1].steps &&
+						legs[leg.index - 1].steps.some(step => 'zLevel' in step.end_location)
+					) {
+						leg.start_location.zLevel = legs[leg.index - 1].steps.find(step => 'zLevel' in step.end_location).end_location.zLevel;
+					}
+				}
 			}
 
-			// Getting venue with lat lng for steps 
+			// Getting venue with lat lng for steps
 			// Then adding building- or venuename to step.instruction
-			await this.miGeoCodeService.reverseGeoCode(entranceOrExits.map(step => {
+			await this.miGeoCodeService.reverseGeoCode(entranceOrExits.map((step) => {
 				return { lat: step.start_location.lat, lng: step.start_location.lng };
-			})).then(results => {
-				entranceOrExits.forEach(function (step, index) {
-					let building = results[index].building || {};
-					let venue = results[index].venue || {};
+			})).then((results) => {
+				entranceOrExits.forEach((step, index) => {
+					const building = results[index].building || {};
+					const venue = results[index].venue || {};
 					step.instructions += ' ' + (building.name || venue.name || 'Building');
 					step.horizontalInstructions = (building.name || venue.name || 'Building');
 				});
 			});
 
 			resolve(legs);
-		})
+		});
 	}
 
 	addMissingManeuver(step) {
@@ -861,19 +902,19 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		hours = hours ? hours > 1 ? hours + ' hours' : '1 hour' : '';
 		minutes = minutes ? minutes > 1 ? minutes + ' mins' : '1 min' : '';
 
-		let durationString: any = (days + ' ' + hours + ' ' + minutes)
+		const durationString: any = (days + ' ' + hours + ' ' + minutes);
 		// return durationString.trimStart();
-		return durationString // IE11 support
-	};
+		return durationString; // IE11 support
+	}
 
 	distanceAsText(meters) {
 		if (this.imperial) {
 			if (meters < 1609.344) {
-				let ft = meters * 3.2808;
+				const ft = meters * 3.2808;
 				return Math.round(ft * 10) / 10 + ' ft';
 			}
 			else {
-				let miles = meters / 1609.344;
+				const miles = meters / 1609.344;
 				return (miles <= 328 ? Math.round(miles * 10) / 10 : Math.round(miles)) + ' mi';
 			}
 		}
@@ -886,7 +927,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				return (meters <= 100 ? Math.round(meters * 10) / 10 : Math.round(meters)) + ' km';
 			}
 		}
-	};
+	}
 
 	// Used for creating origin input value
 	getStartLabel() {
@@ -894,10 +935,10 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		if (this.start.location.properties.subtitle) {
 			this.startLegLabel = this.start.location.properties.name + ' (' + this.start.location.properties.subtitle + ')';
 		}
-		// If startPosition is a MI poi or user position 
+		// If startPosition is a MI poi or user position
 		else {
-			var startPosition = this.start.location.properties.name;
-			var address = this.start.location.properties.floorName ? 'Level ' + this.start.location.properties.floorName : '';
+			let startPosition = this.start.location.properties.name;
+			let address = this.start.location.properties.floorName ? 'Level ' + this.start.location.properties.floorName : '';
 			address += this.start.location.properties.building ? ', ' + this.start.location.properties.building : '';
 			address += this.start.location.properties.venue ? ', ' + this.start.location.properties.venue : '';
 			address = address.indexOf(', ') === 0 ? address.substring(2) : address;
@@ -905,23 +946,24 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 			startPosition += address;
 			this.startLegLabel = startPosition;
 		}
-	};
+	}
 	// #endregion
 
 	// #region - INTERACTION WITH SEGMENTS
 	prevSegment() {
-		let index = (this.currentLegIndex - 1);
+		// TODO: Move prev and next to service and same for horizontal.component
+		const index = (this.currentLegIndex - 1);
 		this.directionService.setLegIndex(index);
-	};
+	}
 
 	nextSegment() {
-		let index = (this.currentLegIndex + 1);
+		const index = (this.currentLegIndex + 1);
 		this.directionService.setLegIndex(index);
-	};
+	}
 
 	segmentClick(legIndex) {
 		// If not already selected
-		if (legIndex != this.currentLegIndex) {
+		if (legIndex !== this.currentLegIndex) {
 			this.directionService.setLegIndex(legIndex);
 		}
 	}
@@ -932,7 +974,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	// #region - CLEAR ROUTE
 	clearRoute(keepFloorSelector?) {
 		if (!this.locationService.routeState) {
-			return
+			return;
 		}
 		else {
 			this.directionService.disposePolylines();
@@ -943,7 +985,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 			this.directionService.clearLegIndex();
 			this.segmentExpanded = null;
 			this.error = null;
-			if (keepFloorSelector != false) {
+			if (keepFloorSelector !== false) {
 				this.mapsIndoorsService.floorSelector(true);
 			}
 		}
@@ -954,10 +996,10 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
 	// #region || DESTROY
 	async goBack() {
-		let venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
-		let destinationId = this.route.snapshot.params.id;
-		let routerPath = venueId + '/details/' + destinationId;
-		this.router.navigate([routerPath.toString()]);
+		const solutionName = await this.solutionService.getSolutionName();
+		const venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
+		const destinationId = this.route.snapshot.params.id;
+		this.router.navigate([`${solutionName}/${venueId}/details/${destinationId}`]);
 	}
 
 	ngOnDestroy() {
@@ -967,6 +1009,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		this.clearRoute();
 		this.pageTitleSubscription.unsubscribe();
 		this.legIndexSubscription.unsubscribe();
+		this.appConfigSubscription.unsubscribe();
+		this.themeServiceSubscription.unsubscribe();
 		if (this.originSearchSubscription) { this.originSearchSubscription.unsubscribe(); }
 		if (this.destinationSearchSubscription) { this.destinationSearchSubscription.unsubscribe(); }
 	}

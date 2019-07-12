@@ -1,4 +1,3 @@
-;
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -28,8 +27,10 @@ import { VenueService } from './services/venue.service';
 import { LocationService } from './services/location.service';
 import { MapsIndoorsService } from './services/maps-indoors.service';
 import { DirectionService } from './services/direction.service';
-import { SolutionService } from './services/solution.service'
+import { SolutionService } from './services/solution.service';
 import { HorizontalDirectionsComponent } from './directives/horizontal-directions/horizontal-directions.component';
+import { TrackerDirective } from './directives/ga-tracker/tracker.directive';
+import { LocationImgComponent } from './shared/components/location-img/location-img.component';
 
 @NgModule({
 	declarations: [
@@ -40,7 +41,9 @@ import { HorizontalDirectionsComponent } from './directives/horizontal-direction
 		InfoDialogComponent,
 		ShareUrlDialogComponent,
 		DirectionsComponent,
-		HorizontalDirectionsComponent
+		HorizontalDirectionsComponent,
+		TrackerDirective,
+		LocationImgComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -81,7 +84,13 @@ import { HorizontalDirectionsComponent } from './directives/horizontal-direction
 	],
 	providers: [
 		SolutionService,
-		AppConfigService
+		AppConfigService, 
+		{
+			provide: APP_INITIALIZER,
+			useFactory: solutionProviderFactory, 
+			multi: true,
+			deps: [SolutionService]
+		},
 	],
 	bootstrap: [
 		AppComponent
@@ -95,4 +104,8 @@ export class AppModule { }
 
 export function HttpLoaderFactory(http: HttpClient) {
 	return new TranslateHttpLoader(http);
+}
+
+export function solutionProviderFactory(provider: SolutionService) {
+	return () => provider.initializeApp();
 }

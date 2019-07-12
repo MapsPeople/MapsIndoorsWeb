@@ -1,30 +1,28 @@
 import { Injectable } from '@angular/core';
-declare var mapsindoors: any;
+import { Observable, BehaviorSubject } from 'rxjs';
+declare const mapsindoors: any;
 
 
 @Injectable({
 	providedIn: 'root'
 })
 export class AppConfigService {
-	appConfig: any;
+	private appConfig = new BehaviorSubject<any>({});
 
-	constructor() {
+	setAppConfig() {
+		return new Promise((resolve, reject) => {
+			mapsindoors.AppConfigService.getConfig().then((appConfig) => {
+				appConfig.appSettings.title = appConfig.appSettings.title || "MapsIndoors";
+				appConfig.appSettings.displayAliases = JSON.parse(appConfig.appSettings.displayAliases || false);
+				this.appConfig.next(appConfig);
+				resolve();
+			});
+		});
 	}
 
 	// #region || GET APP CONFIG
-	async getConfig() {
-		let self = this;
-		if (!this.appConfig) {
-			await mapsindoors.AppConfigService.getConfig().then(config => {
-				config.appSettings.title = config.appSettings.title || "MapsIndoors";
-				config.appSettings.displayAliases = JSON.parse(config.appSettings.displayAliases || false);
-				self.appConfig = config;
-			})
-			return self.appConfig;
-		}
-		else {
-			return this.appConfig;
-		}
+	getAppConfig(): Observable<any> {
+		return this.appConfig.asObservable();
 	}
 	// #endregion
 }

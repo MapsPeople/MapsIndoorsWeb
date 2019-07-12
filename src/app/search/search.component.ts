@@ -3,8 +3,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 import { SolutionService } from '../services/solution.service';
 import { AppConfigService } from '../services/app-config.service';
 import { VenueService } from '../services/venue.service';
-import { Router } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { LocationService } from '../services/location.service';
 import { MapsIndoorsService } from '../services/maps-indoors.service';
 import { InfoDialogComponent } from './info-dialog/info-dialog.component';
@@ -28,12 +27,15 @@ export class SearchComponent implements OnInit, OnDestroy {
 	SearchHintAppTitle: string = "";
 
 	previousQuery: string = ""
+	category: any;
 	error: string;
 	search: any = {
 		query: null,
 		category: null
 	};
-	locationsArray: any = [];
+	locationsArray: any[] = [];
+	filtered: boolean = false;
+	clusteredLocationsSubscription: Subscription;
 	searchFocus: boolean = false;
 	loading: boolean = false;
 
@@ -46,9 +48,14 @@ export class SearchComponent implements OnInit, OnDestroy {
 
 	debounceSearch: Subject<string> = new Subject<string>();
 	debounceSearchSubscription: Subscription;
+
+	categorySubscription: Subscription;
+
 	dialogSubscription: Subscription;
 	dialogRef: MatDialogRef<InfoDialogComponent>;
-	public appVersion: string = environment.version;
+	public appVersion: string = environment.v;
+	appConfigSubscription: Subscription;
+	themeServiceSubscription: Subscription;
 
 	constructor(
 		private route: ActivatedRoute,
@@ -63,35 +70,40 @@ export class SearchComponent implements OnInit, OnDestroy {
 		private infoDialog: MatDialog,
 		private themeService: ThemeService,
 	) {
+		this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
+		this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
+		
 		this.debounceSearchSubscription = this.debounceSearch
 			.pipe(debounceTime(500)) // wait XX ms after the last event before emitting last event
 			.pipe(distinctUntilChanged()) // only emit if value is different from previous value
-			.subscribe(value => {
-				this.getLocationsForQuery(value)
+			.subscribe((value) => {
+				this.getLocationsForQuery(value);
 			});
+
+		this.clusteredLocationsSubscription = this.locationService.getClusteredLocations().subscribe((locations) => {
+			this.locationsArray = locations;
+			this.filtered = true;
+		});
 	}
 
 	async ngOnInit() {
-		this.appConfig = await this.appConfigService.getConfig();
 		await this.checkForVenue();
 		this.zoomForDetails();
-		this.getPreviousCategoryAndQuery();
-		this.colors = await this.themeService.getThemeColors();
-		this.mapsIndoorsService.setPageTitle()
+		// await this.getClusteredLocations();
+		if (this.locationsArray.length === 0) this.getPreviousCategoryAndQuery();
 		this.SearchHintAppTitle = this.appConfig.appSettings.title;
 		this.categoriesMenu = this.appConfig.menuInfo.mainmenu;
 		window["angularComponentRef"] = { component: this, zone: this._ngZone };
-		if (this.route.snapshot.queryParams.cat) { this.getLocationsForCategory() };
 		this.statusOk = true;
 	}
 
 	// #region || SET VENUE
 	async checkForVenue() {
-		let self = this;
-		let venueIdFromURL = this.route.snapshot.params.venueId;
-		let venueRequest = this.venueService.venue ? this.venueService.venue : {};
-		let urlVenueId = await venueIdFromURL;
-		let venue = await venueRequest;
+		const self = this;
+		const venueIdFromURL = this.route.snapshot.params.venueId;
+		const venueRequest = this.venueService.venue ? this.venueService.venue : {};
+		const urlVenueId = await venueIdFromURL;
+		const venue = await venueRequest;
 
 		// If the user comes from a previous page
 		if (venue && venue.id === urlVenueId) {
@@ -99,50 +111,63 @@ export class SearchComponent implements OnInit, OnDestroy {
 			this.countVenues();
 
 			// Used for return to "something" button
-			let center = await [].concat(venue.anchor.coordinates).reverse();
+			const center = await [].concat(venue.anchor.coordinates).reverse();
 			self.mapsIndoorsService.setReturnToValues(venue.venueInfo.name, center, true);
 		}
 		// If direct url
 		else {
-			let venue = await self.venueService.getVenueById(urlVenueId)
-			this.venueService.setVenue(venue, self.appConfig).then(result => {
+			const venue = await self.venueService.getVenueById(urlVenueId);
+			this.venueService.setVenue(venue, self.appConfig).then((result) => {
 				self.venue = result;
 			});
+			this.mapsIndoorsService.setPageTitle(venue.venueInfo.name);
 			this.countVenues();
 		}
-		this.mapsIndoorsService.floorSelector(true)
+		this.mapsIndoorsService.floorSelector(true);
 	}
 
 	async countVenues() {
-		let venuesLength = await this.venueService.getVenuesLength()
+		const venuesLength = await this.venueService.getVenuesLength();
 		// If only one venue then hide non relevant elements
-		this.venue.onlyVenue = venuesLength == 1 ? true : false;
+		this.venue.onlyVenue = venuesLength === 1 ? true : false;
 	}
-	// #endregion 
+	// #endregion
 
 	// #region || SEARCH AND RESULTS
 
-	async getDetails(id) {
-		let venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
-		let routerPath = venueId + '/details/' + id;
-		this.router.navigate([routerPath.toString()])
+	async setLocation(location) {
+		this.locationService.setLocation(location);
+
+		const solutionName = await this.solutionService.getSolutionName();
+		const venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
+		this.router.navigate([`${solutionName}/${venueId}/details/${location.id}`]);
 	}
 
+	// getClusteredLocations() {
+	// 	return new Promise((resolve, reject) => {
+	// 		this.locationService.getClusteredLocations().then((locations: any) => {
+	// 			for (let location of locations) this.locationsArray.push(location);
+	// 			resolve();
+	// 		});
+	// 	})
+	// }
+
 	async getPreviousCategoryAndQuery() {
-		let categoryRequest = this.locationService.searchCategory;
-		let queryRequest = this.locationService.searchQuery;
-		let category = await categoryRequest;
-		let query = await queryRequest;
+		let category;
+		this.locationService.getCategory().then((result) => category = result);
+		// Get category from URL
+		if (!category && this.route.snapshot.queryParams.cat) category = await this.appConfig.menuInfo.mainmenu.find((x) => x.name.toLowerCase() === this.route.snapshot.queryParams.cat.toLowerCase());
+
+		const query = await this.locationService.searchQuery;
 
 		// Repopulate the category and search query with the previously chosen category and typed query
 		if (category && query) {
-			this.getLocationsForCategory(category)
 			this.getLocationsForQuery(query);
 			this.search.query = query;
 		}
 		// Repopulate with previously chosen category
 		else if (category) {
-			this.getLocationsForCategory(category)
+			this.getLocationsForCategory(category);
 		}
 		// Repopulate search-field with previously typed query
 		else if (query) {
@@ -152,55 +177,68 @@ export class SearchComponent implements OnInit, OnDestroy {
 		else {
 			this.clearAll();
 		}
+
+		// TODO: Select value inside input getting back from details page
+		// let input = await document.getElementById('searchInput');
+		// input.focus();
+		// input.select();
 	}
 
-	// Show/hide search hint when focus/blur on input 
+	// Show/hide search hint when focus/blur on input
 	searchInFocus(booleanValue) {
-		if (this.search.query && this.search.query.length == 1) {
-			return
+		if (this.search.query && this.search.query.length === 1) {
+			return;
 		}
 		this.searchFocus = booleanValue;
+		// TODO: Select value inside input when focus
+		// if(booleanValue) {
+		// 	let input = document.getElementById('searchInput');
+		// 	input.select()
+		// }
 	}
 
-	async getLocationsForCategory(c?) {
-		if (this.locationService.searchQuery) { return }
-		const category = await c ? c : this.appConfig.menuInfo.mainmenu.find(x => x.name.toLowerCase() == this.route.snapshot.queryParams.cat.toLowerCase());;
-
-		// Redirect if given category isn't valid
+	async getLocationsForCategory(category) {
 		if (!category) {
-			let venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
-			let routerPath = venueId + '/search';
-			this.router.navigate([routerPath.toString()])
-			return
+			const solutionName = await this.solutionService.getSolutionName();
+			const venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
+			const routerPath = solutionName + '/' + venueId + '/search';
+			this.router.navigate([routerPath.toString()]);
+			return;
 		}
 
 		this.loading = true;
-		this.locationsArray = null;
+		this.locationsArray = [];
 		this.endOfArray = false;
+
+		// Set category
+		this.mapsIndoorsService.setPageTitle(category.name);
 		this.search.category = category.name;
-		this.locationService.searchCategory = category;
-		this.mapsIndoorsService.setPageTitle(category.name)
+		this.category = category;
+		this.locationService.setCategory(category);
 
 		// If no existing cat in the URL
 		if (!this.route.snapshot.queryParams.cat) {
 			this.router.navigate([], { queryParams: { cat: category.name.toLowerCase() } });
 		}
 
-		await this.categoryRequest(category).then(locations => {
-			this.locationsArray = locations && locations.length > 0 ? locations : null;
+		await this.categoryRequest(category).then((locations: any[]) => {
+			this.locationsArray = locations && locations.length > 0 ? locations : [];
+			this.filtered = true;
+			// Set floor for best match
+			if (locations.length > 0) this.mapsIndoorsService.setFloor(this.locationsArray[0].properties.floor);
 		});
 		// Check if empty category
-		this.error = this.locationsArray == null ? "EmptyCategory" : null;
+		this.error = this.locationsArray.length < 1 ? "EmptyCategory" : null;
 		this.loading = false;
 	}
 
 	async categoryRequest(category, skip?) {
-		let s = skip | 0;
-		let parameters = { take: 50, skip: s, venue: this.venue.name, categories: category.categoryKey, orderBy: 'name' }
-		let locations = await this.locationService.getLocations(parameters);
+		const s = skip | 0;
+		const parameters = { take: 50, skip: s, venue: this.venue.name, categories: category.categoryKey, orderBy: 'name' };
+		const locations = await this.locationService.getLocations(parameters);
 		// Display this locations on map
 		await this.pushLocationsToMap(locations, skip);
-		return locations
+		return locations;
 	}
 
 	searchValueChanged(value: string) {
@@ -210,24 +248,25 @@ export class SearchComponent implements OnInit, OnDestroy {
 	async getLocationsForQuery(query) {
 
 		// Show hint
-		if (query && (query.length < 2 || query == '')) {
+		if (query && (query.length < 2 || query === '')) {
 			if (!this.search.category) {
 				this.error = null;
-				this.locationsArray = null;
+				this.locationsArray = [];
 				this.searchFocus = true;
 			}
 			else {
-				this.getLocationsForCategory(this.locationService.searchCategory);
+				this.getLocationsForCategory(this.category);
 			}
-			this.mapsIndoorsService.mapsIndoors.filter(null)
+			// this.mapsIndoorsService.mapsIndoors.filter(null)
 		}
 		// Get locations
 		else if (query && query.length > 1) {
-			let self = this;
+			const self = this;
 			this.loading = true;
 			this.error = null;
 			this.searchFocus = false;
-			this.locationsArray = null;
+			this.filtered = true;
+			this.locationsArray = [];
 
 			// Clear "get more locations" variables
 			this.skip = 0;
@@ -236,15 +275,17 @@ export class SearchComponent implements OnInit, OnDestroy {
 			this.previousQuery = query;
 			this.locationService.searchQuery = query;
 			// Send request
-			await this.queryRequest(query).then(locations => {
-				self.locationsArray = locations && locations.length > 0 ? locations : null;
+			await this.queryRequest(query).then((locations: any[]) => {
+				this.locationsArray = locations && locations.length > 0 ? locations : [];
+				// Set floor for best match
+				if (locations.length > 0) this.mapsIndoorsService.setFloor(this.locationsArray[0].properties.floor);
 			});
 			// If locationsArray is empty
-			if (!this.locationsArray) {
+			if (this.locationsArray.length < 1) {
 				// If no locations for query
-				if (!self.locationService.searchCategory) { self.error = "NoResults" }
+				if (!self.category) self.error = "NoResults";
 				// If no locations for query in category
-				else { self.error = "NoResultsInCategory" }
+				else { self.error = "NoResultsInCategory"; }
 			}
 			this.loading = false;
 		}
@@ -255,66 +296,66 @@ export class SearchComponent implements OnInit, OnDestroy {
 	}
 
 	async queryRequest(query, skip?) {
-		let s = skip | 0;
-		let parameters = this.locationService.searchCategory ?
+		const s = skip | 0;
+		const parameters = this.category ?
 			// If there are a category
-			{ q: query, take: 50, skip: s, categories: this.locationService.searchCategory.categoryKey, orderBy: 'name' } :
+			{ q: query, take: 50, skip: s, categories: this.category.categoryKey, orderBy: 'name' } :
 			// Else request without
 			{ q: query, take: 50, skip: s, orderBy: 'name' };
-		let locations = await this.locationService.getLocations(parameters);
+		const locations = await this.locationService.getLocations(parameters);
 		// Display this locations on map
 		await this.pushLocationsToMap(locations, skip);
-		return locations
+		return locations;
 	}
 
 	// Used for showing search results on map
 	pushLocationsToMap(locations, skip) {
-		let locationsIdArray = [];
+		const locationsIdArray = [];
 		if (locations.length <= 0) {
-			return
+			return;
 		}
-		// Only if getting more locations 
+		// Only if getting more locations
 		else if (skip > 0) {
 			// then add the id's of the already existing locations to this local locationsIdArray[] variable
-			for (let location of this.locationsArray) {
-				locationsIdArray.push(location.id)
+			for (const location of this.locationsArray) {
+				locationsIdArray.push(location.id);
 			}
 		}
 		// Push new location id's to locationsIdArray
-		for (let location of locations) {
-			locationsIdArray.push(location.id)
+		for (const location of locations) {
+			locationsIdArray.push(location.id);
 		}
-		// Filter poi's on map based on id's in "locationsIdArray" 
+		// Filter poi's on map based on id's in "locationsIdArray"
 		this.mapsIndoorsService.mapsIndoors.filter(locationsIdArray, true);
 	}
 
 	// If more than 50 locations, then load next 50 locations on button click
 	async getMoreLocations() {
-		let query = await this.search.query;
+		const query = await this.search.query;
 		this.loadingLocations = true;
 		let s = this.skip ? this.skip : 50;
 		// If searching by a query
-		if (query && query.length != 0) {
-			await this.queryRequest(query, s).then(locations => {
+		if (query && query.length !== 0) {
+			await this.queryRequest(query, s).then((locations: any[]) => {
 				if (locations.length <= 0) {
 					// No more locations
 					this.endOfArray = true;
-					return
+					return;
 				}
-				for (let location of locations) {
+				for (const location of locations) {
 					this.locationsArray.push(location);
 				}
 			});
 		}
 		// If searching only by a category
 		else {
-			await this.categoryRequest(this.locationService.searchCategory, s).then(locations => {
+			await this.categoryRequest(this.category, s).then((locations: any[]) => {
 				if (locations.length <= 0) {
 					// No more locations
 					this.endOfArray = true;
-					return
+					return;
 				}
-				for (let location of locations) {
+				for (const location of locations) {
 					this.locationsArray.push(location);
 				}
 			});
@@ -323,17 +364,16 @@ export class SearchComponent implements OnInit, OnDestroy {
 		this.skip = (s += 50);
 	}
 
-	// Clear query 
-	async clearQuery() {
+	// Clear query
+	clearQuery() {
 		this.search.query = "";
 		this.previousQuery = "";
 		this.skip = 0;
 		this.locationService.searchQuery = "";
 		this.searchFocus = false;
 		// If both a category and a query
-		if (this.locationService.searchCategory) {
-			let category = await this.locationService.searchCategory
-			this.getLocationsForCategory(category)
+		if (this.category) {
+			this.getLocationsForCategory(this.category);
 		}
 		else {
 			this.clearAll();
@@ -343,39 +383,40 @@ export class SearchComponent implements OnInit, OnDestroy {
 
 	// #region || ZOOM FOR MORE DETAILS
 	async zoomForDetails() {
-		let self = this;
-		let googleMap = this.googleMapService.googleMap;
+		const self = this;
+		const googleMap = this.googleMapService.googleMap;
 		this.zoomBtn = document.getElementById('zoom-for-details');
-		let solutionId = await this.solutionService.getSolutionId()
-		let hideZoomBtnLocalStorage = await localStorage.getItem('MI:' + solutionId + '-hideZoom')
+		const solutionId = await this.solutionService.getSolutionId();
 
 		// Hide the zoom button if the user has visited the app before else show it
-		hideZoomBtnLocalStorage === 'true' ? this.hideZoomBtn() : showZoomBtn();
+		const hideZoomBtnLocalStorage = await localStorage.getItem('MI:' + solutionId + '-hideZoom');
+		if (hideZoomBtnLocalStorage === 'true') this.hideZoomBtn();
+		else showZoomBtn();
 
 		function showZoomBtn() {
 			self.zoomBtn.className = self.zoomBtn.className.replace(' hidden', '');
 		}
 
 		// Hides zoom button when clicked
-		this.zoomBtnListener = google.maps.event.addDomListenerOnce(this.zoomBtn, 'click', function () {
+		this.zoomBtnListener = google.maps.event.addDomListenerOnce(this.zoomBtn, 'click', () => {
 			googleMap.setZoom(Math.max(18, googleMap.getZoom() + 1));
 			self.hideZoomBtn();
-		})
+		});
 		// Hides zoom button when map is dragged
-		google.maps.event.addListenerOnce(googleMap, 'dragend', function () {
+		google.maps.event.addListenerOnce(googleMap, 'dragend', () => {
 			self.hideZoomBtn();
 		});
 
 		// Remove zoom button when the user zooms
-		google.maps.event.addListenerOnce(googleMap, 'idle', function () {
-			google.maps.event.addListenerOnce(googleMap, 'zoom_changed', function () {
+		google.maps.event.addListenerOnce(googleMap, 'idle', () => {
+			google.maps.event.addListenerOnce(googleMap, 'zoom_changed', () => {
 				self.hideZoomBtn();
 			});
 		});
 	}
 
 	async hideZoomBtn() {
-		let solutionId = await this.solutionService.getSolutionId()
+		const solutionId = await this.solutionService.getSolutionId();
 		if (this.zoomBtn.className.indexOf(' hidden') < 0) {
 			this.zoomBtn.className += ' hidden';
 		}
@@ -384,17 +425,18 @@ export class SearchComponent implements OnInit, OnDestroy {
 	}
 	// #endregion
 
-	// #region || DESTROY 
+	// #region || DESTROY
 	async goBack() {
 		// If query or selected category
-		if (this.search.query || this.search.category) {
+		if (this.locationsArray.length > 0 || this.filtered) {
 			this.clearAll();
-			this.mapsIndoorsService.setPageTitle()
+			this.mapsIndoorsService.setPageTitle();
 			this.mapsIndoorsService.isMapDirty = false;
 
-			let venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
-			let routerPath = venueId + '/search';
-			this.router.navigate([routerPath.toString()])
+			const solutionName = await this.solutionService.getSolutionName();
+			const venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
+			const routerPath = solutionName + '/' + venueId + '/search';
+			this.router.navigate([routerPath.toString()]);
 		}
 		// Go back to venues page
 		else {
@@ -404,21 +446,24 @@ export class SearchComponent implements OnInit, OnDestroy {
 			this.clearAll();
 			this.venueService.favouredVenue = false;
 			this.venueService.fitVenues = false;
-			let routerPath = 'venues';
-			this.router.navigate([routerPath.toString()])
+			const solutionName = await this.solutionService.getSolutionName();
+			const routerPath = solutionName + '/venues';
+			this.router.navigate([routerPath.toString()]);
 			this.mapsIndoorsService.isMapDirty = false;
 		}
 	}
 
 	clearAll() {
 		this.locationsArray = [];
-		this.mapsIndoorsService.mapsIndoors.filter(null)
+		this.mapsIndoorsService.mapsIndoors.filter(null);
 		this.debounceSearch.next(); // Hack to clear previous query
+		this.filtered = false;
 		this.skip = 0;
-		this.error = null
+		this.error = null;
+		this.category = null;
 		this.search.category = null;
+		this.locationService.clearCategory();
 		this.previousQuery = null;
-		this.locationService.searchCategory = null;
 		this.search.query = null;
 		this.locationService.searchQuery = null;
 		this.loading = false;
@@ -427,14 +472,18 @@ export class SearchComponent implements OnInit, OnDestroy {
 	ngOnDestroy() {
 		this.hideZoomBtn();
 		window["angularComponentRef"] = null;
-		this.mapsIndoorsService.mapsIndoors.filter(null)
+		// this.mapsIndoorsService.mapsIndoors.filter(null)
 		// this.googleMapService.infoWindow.close();
-		if (this.dialogSubscription) { this.dialogSubscription.unsubscribe(); }
-		if (this.debounceSearchSubscription) { this.debounceSearchSubscription.unsubscribe(); }
+		if (this.dialogSubscription) this.dialogSubscription.unsubscribe();
+		if (this.debounceSearchSubscription) this.debounceSearchSubscription.unsubscribe();
+		this.clusteredLocationsSubscription.unsubscribe();
+		this.appConfigSubscription.unsubscribe();
+		this.themeServiceSubscription.unsubscribe();
+		this.locationService.clearClusteredLocations();
 	}
 	// #endregion
 
-	// #region || DIALOG || INFO 
+	// #region || DIALOG || INFO
 	openInfoDialog() {
 		this.dialogRef = this.infoDialog.open(InfoDialogComponent, {
 			width: '500px',
@@ -445,13 +494,13 @@ export class SearchComponent implements OnInit, OnDestroy {
 				appVersion: this.appVersion,
 				sdkVersion: this.mapsIndoorsService.mapsIndoors.__VERSION__
 			}
-		})
+		});
 
 		this.dialogSubscription = this.dialogRef.afterClosed().subscribe(() => {
-			let btn = document.getElementById('infoDialogOpenButton');
+			const btn = document.getElementById('infoDialogOpenButton');
 			btn.classList.remove('cdk-program-focused');
 			btn.classList.add('cdk-mouse-focused');
-		})
+		});
 	}
 	// #endregion
 

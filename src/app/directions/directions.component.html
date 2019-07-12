@@ -8,19 +8,23 @@
 				</button>
 				<div class="travel-mode">
 					<button mat-icon-button [class.active]="travelMode === 'WALKING'"
-						(click)="setNewTravelMode('WALKING')">
+						(click)="setNewTravelMode('WALKING')"
+						[eventTracker]='{"category":"Directions", "action":"Travel mode", "label":"WALKING"}'>
 						<mat-icon [style.color]="colors.onPrimary">directions_walk</mat-icon>
 					</button>
 					<button mat-icon-button [class.active]="travelMode === 'BICYCLING'"
-						(click)="setNewTravelMode('BICYCLING')">
+						(click)="setNewTravelMode('BICYCLING')"
+						[eventTracker]='{"category":"Directions", "action":"Travel mode", "label":"BICYCLING"}'>
 						<mat-icon [style.color]="colors.onPrimary">directions_bike</mat-icon>
 					</button>
 					<button mat-icon-button [class.active]="travelMode === 'TRANSIT'"
-						(click)="setNewTravelMode('TRANSIT')">
+						(click)="setNewTravelMode('TRANSIT')"
+						[eventTracker]='{"category":"Directions", "action":"Travel mode", "label":"TRANSIT"}'>
 						<mat-icon [style.color]="colors.onPrimary">directions_transit</mat-icon>
 					</button>
 					<button mat-icon-button [class.active]="travelMode === 'DRIVING'"
-						(click)="setNewTravelMode('DRIVING')">
+						(click)="setNewTravelMode('DRIVING')"
+						[eventTracker]='{"category":"Directions", "action":"Travel mode", "label":"DRIVING"}'>
 						<mat-icon [style.color]="colors.onPrimary">drive_eta</mat-icon>
 					</button>
 				</div>
@@ -64,14 +68,16 @@
 				</div>
 				<!-- Stairs checkbox -->
 				<div class="checkbox">
-					<mat-checkbox [style.color]="colors.onPrimary" (change)="changeAvoidStairs()">
+					<mat-checkbox [style.color]="colors.onPrimary" (change)="changeAvoidStairs()"
+						[eventTracker]='{"category":"Directions", "action":"Avoid stairs", "label":"avoidStairs"}'>
 						{{'Direction.AvoidStairs' | translate }}
 					</mat-checkbox>
 				</div>
 			</div>
 			<!-- Switch direction -->
 			<div class="switch-direction">
-				<button mat-icon-button (click)="switchOriginAndDest()">
+				<button mat-icon-button (click)="switchOriginAndDest()"
+					[eventTracker]='{"category":"Directions", "action":"Reverse route"}'>
 					<mat-icon [style.color]="colors.onPrimary" aria-label="Switch values">&#xE8D5;</mat-icon>
 				</button>
 			</div>
@@ -379,7 +385,8 @@
 									<div class="instruction-toggle flex-h-center"
 										*ngIf="leg._mi.type === 'google.maps.DirectionsLeg'">
 										<mat-icon *ngIf="segmentExpanded  != leg.index"
-											(click)="!toggleSegment(leg.index)">
+											(click)="!toggleSegment(leg.index)"
+											[eventTracker]='{"category":"Directions", "action":"Expand Directions"}'>
 											keyboard_arrow_right
 										</mat-icon>
 										<mat-icon *ngIf="segmentExpanded === leg.index"
@@ -394,7 +401,8 @@
 										*ngIf="leg._mi.type === 'google.maps.DirectionsLeg'">
 										<!-- Steps -->
 										<div>
-											<a class="text-link" (click)="toggleSegment(leg.index)">
+											<a class="text-link" (click)="toggleSegment(leg.index)"
+												[eventTracker]='{"category":"Directions", "action":"Expand Directions"}'>
 												{{'DirectionRoute.Directions' | translate }}
 											</a>
 											<div class="step-wrap" *ngIf="leg.index === segmentExpanded">
@@ -504,7 +512,8 @@
 													*ngIf="leg._mi.type === 'google.maps.DirectionsLeg'">
 													<div style="height: 24px; float: left;">
 														<mat-icon *ngIf="segmentExpanded != leg.index"
-															(click)="!toggleSegment(leg.index)">
+															(click)="!toggleSegment(leg.index)"
+															[eventTracker]='{"category":"Directions", "action":"Expand Directions"}'>
 															keyboard_arrow_right
 														</mat-icon>
 														<mat-icon *ngIf="segmentExpanded === leg.index"
@@ -514,7 +523,8 @@
 													</div>
 													<div style="height: 24px; float: left;">
 														<a class="text-link" style="font-size: 13px; line-height: 24px"
-															(click)="toggleSegment(leg.index)">
+															(click)="toggleSegment(leg.index)"
+															[eventTracker]='{"category":"Directions", "action":"Expand Directions"}'>
 															{{'DirectionRoute.Directions' | translate }}
 														</a>
 													</div>

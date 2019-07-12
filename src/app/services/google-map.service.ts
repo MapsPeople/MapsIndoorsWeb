@@ -20,15 +20,19 @@ export class GoogleMapService {
 	constructor() { }
 
 	// #region || LOAD GOOGLE MAP
-	loadMap() {
-		this.googleMap = new google.maps.Map(document.getElementById('gmap'), this.mapOptions);
+	initMap() {
+		return new Promise(async (resolve, reject) => {
+			this.googleMap = await new google.maps.Map(document.getElementById('gmap'), this.mapOptions);
+			resolve();
+		});
 	}
 	// #endregion
 
-	// #region || SET INFO WINDOW AT MAP
-	setInfoWindow() {
-		return new google.maps.InfoWindow({});
-	}
-	// #endregion
+	// // #region || SET INFO WINDOW AT MAP
+	// //TODO: Maybe just move this to the places where it's called?
+	// setInfoWindow() {
+	// 	return new google.maps.InfoWindow({});
+	// }
+	// // #endregion
 }
 

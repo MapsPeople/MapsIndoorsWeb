@@ -1,0 +1,42 @@
+.static-image-wrap {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	color: white;
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.icon-wrap {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		left: 0;
+		top: 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		.icon {
+			width: auto;
+			height: auto;
+			fill: rgba(255, 255, 255, .54);
+			user-select: none;
+			transition: all .3s ease;
+
+			svg {
+				fill: inherit;
+				width: 100px;
+			}
+
+			&:hover {
+				cursor: pointer;
+				fill: rgba(255, 255, 255, 1);
+			}
+		}
+	}
+	
+}

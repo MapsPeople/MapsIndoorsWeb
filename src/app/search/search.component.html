@@ -4,18 +4,16 @@
 		<header>
 			<div class="hero" [style.background-color]="colors.primary">
 				<nav class="hero-nav">
-					<button mat-icon-button *ngIf="!search.query && !search.category && !venue.onlyVenue"
-						(click)="goBack()">
+					<button mat-icon-button *ngIf="!filtered && !venue.onlyVenue" (click)="goBack()">
 						<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">location_city</mat-icon>
 					</button>
-					<button mat-icon-button *ngIf="search.query || search.category" (click)="goBack()">
+					<button mat-icon-button *ngIf="locationsArray.length > 0 || filtered" (click)="goBack()">
 						<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
 					</button>
-					<button id="infoDialogOpenButton" mat-icon-button class="info-button" (click)="openInfoDialog()">
-						<svg class="info-button-icon" [style.fill]="colors.onPrimary" version="1.1"
-							xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
-							y="0px" width="24px" height="24px" viewBox="0 0 24 24" enable-background="new 0 0 24 24"
-							xml:space="preserve">
+					<button id="infoDialogOpenButton" mat-icon-button class="info-button" (click)="openInfoDialog()" [eventTracker]='{"category":"About", "action":"Opened"}'>
+						<svg class="info-button-icon" [style.fill]="colors.onPrimary" version="1.1" xmlns="http://www.w3.org/2000/svg"
+						 xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 24 24"
+						 enable-background="new 0 0 24 24" xml:space="preserve">
 							<g id="Bounding_Boxes">
 								<g id="ui_x5F_spec_x5F_header_copy_3" display="none">
 								</g>
@@ -76,16 +74,14 @@
 			<div class="search-wrap">
 				<mat-icon [style.color]="colors.onPrimary" class="input-icon">search</mat-icon>
 				<!-- If no category is selected  -->
-				<input *ngIf="!search.category" id="searchInput" type="text"
-					placeholder="{{ 'Search.SearchPlaces' | translate }}" aria-label="Search" [(ngModel)]="search.query"
-					(ngModelChange)="searchValueChanged($event)" (focus)="searchInFocus(true)"
-					(blur)="searchInFocus(false)" />
+				<input *ngIf="!search.category" id="searchInput" type="text" placeholder="{{ 'Search.SearchPlaces' | translate }}"
+				 aria-label="Search" [(ngModel)]="search.query" (ngModelChange)="searchValueChanged($event)" (focus)="searchInFocus(true)"
+				 (blur)="searchInFocus(false)" />
 
 				<!-- If a category is selected -->
-				<input *ngIf="search.category" id="searchInput" type="text"
-					placeholder="{{ 'Search.SearchIn' | translate:search }}" aria-label="Search"
-					[(ngModel)]="search.query" (ngModelChange)="searchValueChanged($event)"
-					(focus)="searchInFocus(true)" (blur)="searchInFocus(false)" />
+				<input *ngIf="search.category" id="searchInput" type="text" placeholder="{{ 'Search.SearchIn' | translate:search }}"
+				 aria-label="Search" [(ngModel)]="search.query" (ngModelChange)="searchValueChanged($event)" (focus)="searchInFocus(true)"
+				 (blur)="searchInFocus(false)" />
 
 				<button class="input-clear" mat-button *ngIf="search.query" matSuffix mat-icon-button aria-label="Clear" (click)="clearQuery()">
 					<mat-icon>close</mat-icon>
@@ -104,9 +100,9 @@
 		</div>
 
 		<!-- shows categories if searchQuery is empty  -->
-		<section class="content" *ngIf="!search.query && !search.category && !searchFocus">
+		<section class="content" *ngIf="!search.query && !search.category && !searchFocus && !locationsArray.length > 0">
 			<mat-nav-list>
-				<a mat-list-item *ngFor="let category of categoriesMenu" (click)="getLocationsForCategory(category)">
+				<a mat-list-item *ngFor="let category of categoriesMenu" (click)="getLocationsForCategory(category)" [eventTracker]='{"category":"Search","action":"Category", "label":category.categoryKey}'>
 					<span class="list-icon">
 						<img class="material-icons" src="{{category.iconUrl}}" alt="">
 					</span>
@@ -118,7 +114,7 @@
 		</section>
 
 		<!-- If search field is in focus and there are no locations yet-->
-		<section class="content" *ngIf="searchFocus && !loading && !search.category && !error && locationsArray < 1">
+		<section class="content" *ngIf="searchFocus && !loading && !search.category && !error && locationsArray.length < 1">
 			<div class="content-text">
 				<!-- NOTE: Search icon is added with css -->
 				<p class="search hint">{{ 'SearchHint.Hint' | translate }} {{SearchHintAppTitle}}.</p>
@@ -138,9 +134,10 @@
 		</section>
 
 		<!-- searchQuery results -->
-		<section class="content" *ngIf="locationsArray && (search.query || search.category)">
+		<!-- <section class="content" *ngIf="locationsArray.length > 0 && (search.query || search.category)"> -->
+		<section class="content" *ngIf="locationsArray.length > 0">
 			<mat-nav-list>
-				<a mat-list-item *ngFor="let location of locationsArray" (click)="getDetails(location.id)">
+				<a mat-list-item *ngFor="let location of locationsArray" (click)="setLocation(location)">
 					<span class="list-icon">
 						<img class="material-icons" src="{{location.properties.iconUrl}}">
 					</span>
@@ -161,7 +158,7 @@
 				<span *ngIf="loadingLocations">
 					<mat-spinner></mat-spinner>
 				</span>
-				<button mat-raised-button (click)="getMoreLocations()" *ngIf="!loadingLocations && locationsArray.length >= 50">{{ 'Buttons.LoadMore' | translate }}</button>
+				<button mat-raised-button (click)="getMoreLocations()" *ngIf="!loadingLocations && locationsArray.length > 50">{{ 'Buttons.LoadMore' | translate }}</button>
 			</div>
 
 		</section>

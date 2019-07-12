@@ -1,7 +1,7 @@
 body {
 	font-family: 'Roboto', sans-serif;
 	line-height: normal;
-	text-rendering: geometricPrecision;
+	text-rendering: geometricPrecision; // TODO: Browser support?
 }
 
 h1 {

@@ -12,7 +12,7 @@ export class DirectionService {
 
 	// NOTE: variables below are updated for each leg
 	animatedPolyline: any; // Animated polyline
-	animatedPolylineAnimation: any; // Polyline animation (calculated for each leg/polyline) 
+	animatedPolylineAnimation: any; // Polyline animation (calculated for each leg/polyline)
 	staticPolyline: any; // Instant drawn background for polyline
 	polylinePath = [];  // Path for polyline property
 
@@ -50,30 +50,37 @@ export class DirectionService {
 		const coordinatesArray = [];
 
 		// Dispose previous polyline
-		if (this.staticPolyline && this.animatedPolyline) { 
-			await this.disposePolylines() 
+		if (this.staticPolyline && this.animatedPolyline) {
+			await this.disposePolylines();
 		}
 
 		// Push steps to array
 		if (this.directionsLegs[index].travel_mode && this.directionsLegs[index].travel_mode === "TRANSIT") {
-			for (let step of [this.directionsLegs[index]]) {
+			for (const step of [this.directionsLegs[index]]) {
 				steps.push(step);
 			}
 		}
 		else {
-			for (let step of this.directionsLegs[index].steps) {
+			for (const step of this.directionsLegs[index].steps) {
 				steps.push(step);
 			}
 		}
 
-		// Set correct floor for this step
-		let legFloor = steps[0].end_location.zLevel ? steps[0].end_location.zLevel : 0;
+		// Set correct floor
+		let legFloor:Number = 0;
+		if (steps[0].end_location.zLevel) {
+			legFloor = steps[0].end_location.zLevel;
+		} else if (this.directionsLegs[index]._mi.type === 'google.maps.DirectionsLeg' && this.directionsLegs[index].end_location.zLevel) {
+			legFloor = this.directionsLegs[index].end_location.zLevel;
+		} else if (this.directionsLegs[index]._mi.type === 'google.maps.DirectionsLeg' && this.directionsLegs[index].start_location.zLevel) {
+			legFloor = this.directionsLegs[index].start_location.zLevel;
+		}
 		await this.mapsIndoorsService.setFloor(legFloor);
 
 		// Push coordinates for each step to array
-		for (let step of steps) {
-			for (let coordinate of step.path) {
-				coordinatesArray.push({ lat: coordinate.lat, lng: coordinate.lng })
+		for (const step of steps) {
+			for (const coordinate of step.path) {
+				coordinatesArray.push({ lat: coordinate.lat, lng: coordinate.lng });
 			}
 		}
 
@@ -89,11 +96,11 @@ export class DirectionService {
 	}
 
 	fitMap(coordinates) {
-		let self = this;
+		const self = this;
 		return new Promise(async (resolve, reject) => {
 			const bounds = new google.maps.LatLngBounds();
 			// Extend bounds with each point in array
-			for (let latLng of coordinates) {
+			for (const latLng of coordinates) {
 				bounds.extend(latLng);
 			}
 			// Pan and zoom map to fit polyline nicely
@@ -115,9 +122,11 @@ export class DirectionService {
 	async disposePolylines() {
 		clearInterval(this.animatedPolylineAnimation);
 		this.polylinePath = [];
-		await this.staticPolyline.setMap(null);
-		await this.animatedPolyline.setMap(null);
-		return
+		if (this.staticPolyline && this.animatedPolyline) {
+			await this.staticPolyline.setMap(null);
+			await this.animatedPolyline.setMap(null);
+		}
+		return;
 	}
 
 	// #region - Static Polyline
@@ -150,20 +159,20 @@ export class DirectionService {
 	async animatePolyline(coordinatesArray) {
 		let speed: number = 0;
 		let distance: number = 0;
-		let fps: number = 60;
-		let duration: number = 5;
-		let miles: boolean = false;
+		const fps: number = 60;
+		const duration: number = 5;
+		const miles: boolean = false;
 
-		for (let coordinate of coordinatesArray) {
+		for (const coordinate of coordinatesArray) {
 
-			if (coordinate == coordinatesArray[0]) {
-				let pointA: any = new google.maps.LatLng(coordinatesArray[0].lat, coordinatesArray[0].lng);
+			if (coordinate === coordinatesArray[0]) {
+				const pointA: any = new google.maps.LatLng(coordinatesArray[0].lat, coordinatesArray[0].lng);
 				pointA.distance = 0;
-				this.polylinePath.push(pointA)
+				this.polylinePath.push(pointA);
 			}
 
-			let pointA = this.polylinePath[this.polylinePath.length - 1];
-			let pointB: any = coordinate instanceof google.maps.LatLng ? coordinate : new google.maps.LatLng(coordinate.lat, coordinate.lng);
+			const pointA = this.polylinePath[this.polylinePath.length - 1];
+			const pointB: any = coordinate instanceof google.maps.LatLng ? coordinate : new google.maps.LatLng(coordinate.lat, coordinate.lng);
 			if (!pointA.equals(pointB)) {
 
 				if (miles) {
@@ -179,7 +188,7 @@ export class DirectionService {
 
 		speed = this.polylinePath[this.polylinePath.length - 1].distance / duration;
 
-		let self = this;
+		const self = this;
 		this.animatedPolylineAnimation = setInterval(() => {
 			// Stop looping when hitting end of path if the loop var is set to false
 			if (distance > self.polylinePath[self.polylinePath.length - 1].distance) {
@@ -206,23 +215,24 @@ export class DirectionService {
 			return this.polylinePath;
 		}
 		else {
-			let index = this.findPolylinePathIndex(distance);
-			let pointA = this.polylinePath[index];
-			let pointB = this.polylinePath[index + 1];
-			let heading = google.maps.geometry.spherical.computeHeading(pointA, pointB);
-			let delta = distance - pointA.distance;
-			let p = google.maps.geometry.spherical.computeOffset(pointA, delta, heading);
-			let result = this.polylinePath.slice(0, index + 1);
+			const index = this.findPolylinePathIndex(distance);
+			const pointA = this.polylinePath[index];
+			const pointB = this.polylinePath[index + 1];
+			const heading = google.maps.geometry.spherical.computeHeading(pointA, pointB);
+			const delta = distance - pointA.distance;
+			const p = google.maps.geometry.spherical.computeOffset(pointA, delta, heading);
+			const result = this.polylinePath.slice(0, index + 1);
 			result.push(p);
 			return result;
 		}
 	}
 
 	findPolylinePathIndex(distance) {
+		//TODO: Distance should never be 0
 		if (distance <= 0) {
 			return 0;
 		}
-		for (var i = 0; i < this.polylinePath.length; i++) {
+		for (let i = 0; i < this.polylinePath.length; i++) {
 			if (this.polylinePath[i].distance > distance) {
 				return i - 1;
 			}
@@ -230,6 +240,6 @@ export class DirectionService {
 		return this.polylinePath.length - 1;
 	}
 	// #endregion
-	
+
 	// #endregion
 }

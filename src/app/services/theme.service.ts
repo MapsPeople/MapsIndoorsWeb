@@ -1,47 +1,35 @@
 import { Injectable } from '@angular/core';
 import { AppConfigService } from './app-config.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class ThemeService {
 	appConfig: any;
-	colors: any;
+	private appConfigColors = new BehaviorSubject<any>({});
+
 	constructor(
 		private appConfigService: AppConfigService,
-	) { }
-
-	// #region || GET THEME COLORS
-	async getThemeColors() {
-		let self = this;
-
-		if (!this.appConfig) {
-			await this.appConfigService.getConfig().then(config => {
-				self.appConfig = config;
-			}).then(async config => {
-				await self.setColors();
-			});
-			return this.colors;
-		}
-		else {
-			return this.colors;
-		}
+	) {
+		this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
 	}
-	// #endregion
 
 	// #region || SET THEME COLORS
-	async setColors() {
-		let self = this;
-		let colors = {
-			primary: await this.isHex(self.appConfig.appSettings.primaryColor) || '#2196F3',
-			onPrimary: await this.isHex(self.appConfig.appSettings.primaryText) || '#ffffff',
-			accent: await this.isHex(self.appConfig.appSettings.accentColor) || '#F44336',
-			onAccent: await this.isHex(self.appConfig.appSettings.accentText) || '#ffffff'
-		}
-		this.colors = colors;
+	setColors() {
+		return new Promise(async (resolve, reject) => {
+			const colors = {
+				primary: await this.getColorAsHex(this.appConfig.appSettings.primaryColor) || '#2196F3',
+				onPrimary: await this.getColorAsHex(this.appConfig.appSettings.primaryText) || '#ffffff',
+				accent: await this.getColorAsHex(this.appConfig.appSettings.accentColor) || '#F44336',
+				onAccent: await this.getColorAsHex(this.appConfig.appSettings.accentText) || '#ffffff'
+			};
+			this.appConfigColors.next(colors);
+			resolve();
+		});
 	}
 
-	// NOTE: Safe for later use
+	// NOTE: Save for later use
 	// hexToRGB(hex, alpha?) {
 	// 	let r = parseInt(hex.slice(1, 3), 16);
 	// 	let g = parseInt(hex.slice(3, 5), 16);
@@ -53,17 +41,22 @@ export class ThemeService {
 	// 	}
 	// }
 
-	async isHex(color) {
-		if (!color) {
-			return
-		}
-		let hex = !color.includes('#') ? '#' + color : color
-		if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(hex)) {
-			return hex.toLowerCase();
-		}
-		else {
-			return color
-		}
+	/**
+	 *
+	 * @param {any} color The color that should be returned as a hex value.
+	 * @returns {any} Returns the given color as hex.
+	 */
+	getColorAsHex(color) {
+		if (!color) return;
+		const hex = !color.includes('#') ? '#' + color : color;
+		if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(hex)) return hex.toLowerCase();
+		else return color;
+	}
+	// #endregion
+
+	// #region || GET THEME COLORS
+	getThemeColors() {
+		return this.appConfigColors.asObservable();
 	}
 	// #endregion
 }

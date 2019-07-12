@@ -1,15 +1,15 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { MapsindoorsService } from './mapsindoors.service';
+import { MapsIndoorsService } from './maps-indoors.service';
 
-describe('MapsindoorsService', () => {
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [MapsindoorsService]
-    });
-  });
+describe('MapsIndoorsService', () => {
+	beforeEach(() => {
+		TestBed.configureTestingModule({
+			providers: [MapsIndoorsService]
+		});
+	});
 
-  it('should be created', inject([MapsindoorsService], (service: MapsindoorsService) => {
-    expect(service).toBeTruthy();
-  }));
+	it('should be created', inject([MapsIndoorsService], (service: MapsIndoorsService) => {
+		expect(service).toBeTruthy();
+	}));
 });

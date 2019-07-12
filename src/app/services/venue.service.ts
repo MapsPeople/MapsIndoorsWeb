@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { AppConfigService } from './app-config.service'
+import { AppConfigService } from './app-config.service';
 import { MapsIndoorsService } from '../services/maps-indoors.service';
+import { Subject, Observable } from 'rxjs';
 
-declare var mapsindoors: any;
+declare const mapsindoors: any;
 
 @Injectable({
 	providedIn: 'root'
@@ -10,46 +11,54 @@ declare var mapsindoors: any;
 export class VenueService {
 
 	miVenueService = mapsindoors.VenuesService;
+	appConfig: any;
 	venue: any;
 	venuesLength: number;
 	favouredVenue: boolean;
 	fitVenues: boolean = true;
 	returnBtnActive: boolean = true;
 
+	private venueObservable = new Subject<any>();
+
 	constructor(
 		private appConfigService: AppConfigService,
 		private mapsIndoorsService: MapsIndoorsService,
-	) { }
+	) {
+		this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
+	}
 
 	// #region || GET ALL VENUES
 	async getVenues() {
-		let venuesRequest = this.miVenueService.getVenues();
-		let configRequest = this.appConfigService.getConfig();
+		const venuesRequest = this.miVenueService.getVenues();
+		const venues = await venuesRequest;
 
-		let venues = await venuesRequest;
-		let config = await configRequest;
-
-		for (let venue of venues) {
-			let center = await [].concat(venue.anchor.coordinates).reverse();
+		for (const venue of venues) {
+			const center = await [].concat(venue.anchor.coordinates).reverse();
 			venue.anchor.center = center;
-			venue.image = config.venueImages[venue.name.toLowerCase()];
+			venue.image = this.appConfig.venueImages[venue.name.toLowerCase()];
+			// TODO: Make a fallback image if no venueImage
+			// venue.image = config.venueImages[venue.name.toLowerCase()] || ['https://maps.googleapis.com/maps/api/staticmap?center=', center, '&size=400x220&zoom=14&style=feature:all|saturation:-80&style=feature:poi|visibility:off&key=AIzaSyCrk6QMTzO0LhPDfv36Ko5RCXWPER_5o8o'].join("");
 		}
 		return venues;
 	}
 	// #endregion
 
+	getVenueObservable(): Observable<any> {
+		return this.venueObservable.asObservable();
+	}
+
 	// #region || COUNT VENUES
 	async getVenuesLength() {
-		let self = this;
+		const self = this;
 		let length;
 		if (this.venuesLength) {
 			length = this.venuesLength;
 		}
 		else {
-			await this.getVenues().then(venues => {
+			await this.getVenues().then((venues) => {
 				self.venuesLength = venues.length;
 				length = venues.length;
-			})
+			});
 		}
 		return length;
 	}
@@ -57,22 +66,22 @@ export class VenueService {
 
 	// #region || GET VENUE BY ID
 	async getVenueById(venueId) {
-		let venueRequest = this.miVenueService.getVenue(venueId);
-		let venue = await venueRequest;
-		return venue
+		const venueRequest = this.miVenueService.getVenue(venueId);
+		const venue = await venueRequest;
+		return venue;
 	}
 	// #endregion
 
 	// #region || SET VENUE
-	async setVenue(venue, appConfig) {
+	setVenue(venue, appConfig) {
 		return new Promise(async (resolve, reject) => {
 
-			let center = await [].concat(venue.anchor.coordinates).reverse();
+			const center = await [].concat(venue.anchor.coordinates).reverse();
 			venue.anchor.center = center;
 			// venue.image = appConfig.venueImages[venue.name.toLowerCase()] || ['https://maps.googleapis.com/maps/api/staticmap?center=', center, '&size=400x220&zoom=14&style=feature:all|saturation:-80&style=feature:poi|visibility:off&key=AIzaSyCrk6QMTzO0LhPDfv36Ko5RCXWPER_5o8o'].join("");
 
-			for (let venueName in appConfig.venueImages) {
-				if (venue.name.toLowerCase() == venueName) {
+			for (const venueName in appConfig.venueImages) {
+				if (venue.name.toLowerCase() === venueName) {
 					venue.image = appConfig.venueImages[venue.name.toLowerCase()];
 				}
 			}
@@ -81,9 +90,10 @@ export class VenueService {
 			this.returnBtnActive = true;
 			this.favouredVenue = true;
 			this.mapsIndoorsService.mapsIndoors.setVenue(venue);
-			this.mapsIndoorsService.mapsIndoors.fitVenue(venue.id)
+			this.mapsIndoorsService.mapsIndoors.fitVenue(venue.id);
 
 			this.venue = venue;
+			this.venueObservable.next(venue);
 			resolve(venue);
 		});
 	}
@@ -91,9 +101,9 @@ export class VenueService {
 
 	// #region || GET BUILDING BY ID
 	async getBuildingById(buildingId) {
-		let buildingRequest = this.miVenueService.getBuilding(buildingId);
-		let building = await buildingRequest;
-		return building
+		const buildingRequest = this.miVenueService.getBuilding(buildingId);
+		const building = await buildingRequest;
+		return building;
 	}
 	// #endregion
 

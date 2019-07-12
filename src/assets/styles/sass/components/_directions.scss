@@ -73,7 +73,7 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-                max-width: 258px;
+                max-width: 258px; //TODO: Find a better fix!!!
                 span {
                     color: rgba(0, 0, 0, .54);
                     font-size: .9em;
@@ -116,7 +116,7 @@
                                 font-size: 12px;
                                 padding-right: 8px;
                             }
-                        }
+                        } //TODO: Add separate icons in better quality
                     }
                     .adp-maneuver {
                         background-size: 19px 630px;

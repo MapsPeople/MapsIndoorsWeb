@@ -3,10 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-	production: false,
-	version: 'DEV',
-	v: 'DEV',
-	sdkUrl: '/assets/sdk/mapsindoors.dev.js'
+  production: false,
+  version: 'SDK',
+  sdkUrl: 'http://localhost:3000/js/mapsindoors.js'
 };
 
 /*

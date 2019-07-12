@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { DirectionService } from '../../services/direction.service';
 import { ThemeService } from '../../services/theme.service';
 import { Subscription } from 'rxjs';
@@ -9,48 +9,48 @@ import { Subscription } from 'rxjs';
 	templateUrl: './horizontal-directions.component.html',
 	styleUrls: ['./horizontal-directions.component.scss']
 })
-export class HorizontalDirectionsComponent implements OnInit, OnDestroy {
+export class HorizontalDirectionsComponent implements OnDestroy {
 	colors: any;
 	currentLegIndex: number = 0;
 	legIndexSubscription: Subscription;
+	themeServiceSubscription: Subscription;
 
 	constructor(
 		public directionService: DirectionService,
 		private themeService: ThemeService
 
 	) {
-		this.legIndexSubscription = this.directionService.getLegIndex().subscribe(index => {
+		this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
+		this.legIndexSubscription = this.directionService.getLegIndex().subscribe((index) => {
 			this.currentLegIndex = index;
 			this.setHorizontalSegment(index);
 		});
 	}
 
-	async ngOnInit() {
-		this.colors = await this.themeService.getThemeColors();
-	}
-
 	// #region || NAVIGATE SEGMENTS
 	prevSegment() {
-		let index = (this.currentLegIndex - 1);
+		// TODO: Move prev and next to service and same for direction component
+		const index = (this.currentLegIndex - 1);
 		this.directionService.setLegIndex(index);
-	};
+	}
 
 	nextSegment() {
-		let index = (this.currentLegIndex + 1);
+		const index = (this.currentLegIndex + 1);
 		this.directionService.setLegIndex(index);
-	};
+	}
 
 	segmentClick(index) {
 		this.directionService.setLegIndex(index);
 	}
 
 	setHorizontalSegment(index) {
-		let jump = ((150 * index) - 75);
+		const jump = ((150 * index) - 75);
 		document.getElementById("hz-scroll").scrollLeft = jump;
-	};
+	}
 	// #endregion
 
-	ngOnDestroy() { 
+	ngOnDestroy() {
+		this.themeServiceSubscription.unsubscribe();
 		this.legIndexSubscription.unsubscribe();
 	}
 }

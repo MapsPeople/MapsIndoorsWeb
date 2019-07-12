@@ -10,31 +10,31 @@ import { DirectionsComponent } from './directions/directions.component';
 const routes: Routes = [
 	{
 		path: '',
-		redirectTo: 'venues',
+		redirectTo: ':solutionName/venues',
 		pathMatch: 'full'
 	},
 	{
-		path: 'venues',
+		path: ':solutionName/venues',
 		component: VenuesComponent
 	},
 	{
-		path: ':venueId/search',
+		path: ':solutionName/:venueId/search',
 		component: SearchComponent
 	},
 	{
-		path: ':venueId/search/:category',
+		path: ':solutionName/:venueId/search/:category',
 		component: SearchComponent
 	},
 	{
-		path: ':venueId/details/:id',
+		path: ':solutionName/:venueId/details/:id',
 		component: DetailsComponent
 	},
 	{
-		path: ':venueId/route/destination/:id',
+		path: ':solutionName/:venueId/route/destination/:id',
 		component: DirectionsComponent
 	},
 	{
-		path: 'venueId/route/from/:from/to/:to',
+		path: ':solutionName/:venueId/route/from/:from/to/:to',
 		component: DirectionsComponent
 	},
 	{

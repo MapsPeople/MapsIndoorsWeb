@@ -18,17 +18,18 @@ export class ShareUrlDialogComponent {
 	) {
 		this.form = fb.group({
 			url: this.data.url
-		})
-		this.dialogData = this.data
+		});
+		this.dialogData = this.data;
 	}
 
 	copyUrl() {
 		try {
-			var link = <HTMLInputElement>document.getElementById('shareUrl');
+			const link = <HTMLInputElement>document.getElementById('shareUrl');
 			link.focus();
+			//TODO: .select is not supported maybe use viewChild
 			link.select();
 			document.execCommand('copy');
-			
+
 			this.notificationService.displayNotification("Notification.LinkCopied");
 		} catch (err) {
 			// Browser doesn't support this function

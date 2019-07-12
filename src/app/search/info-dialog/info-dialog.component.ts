@@ -8,7 +8,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 export class InfoDialogComponent {
 	form: FormGroup;
 	dialogData: any;
-	
+
 	constructor(
 		private fb: FormBuilder,
 		public dialogRef: MatDialogRef<InfoDialogComponent>,
@@ -19,8 +19,8 @@ export class InfoDialogComponent {
 			appVersion: this.data.appVersion,
 			sdkVersion: this.data.sdkVersion,
 			locationName: this.data.locationName
-		})
-		this.dialogData = this.data
+		});
+		this.dialogData = this.data;
 	}
 
 
