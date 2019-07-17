@@ -38,7 +38,20 @@ export class MapsIndoorsService {
 	// #region || SET MAPS INDOORS
 	initMapsIndoors() {
 		return new Promise(async (resolve, reject) => {
-			this.mapsIndoors = await new mapsindoors.MapsIndoors({ map: this.googleMapService.googleMap });
+
+			this.mapsIndoors = await new mapsindoors.MapsIndoors({
+				map: this.googleMapService.googleMap,
+				labelOptions: {
+					style: {
+						color: "rgba(82,82,82,1)",
+						fontFamily: "Open Sans",
+						fontSize: "12px",
+						fontWeight: 300,
+						shadowBlur: 3,
+						shadowColor: "white"
+					}
+				}
+			});
 
 			// Set tittle attribute for map POI's
 			this.solutionService.getSolutionTypes()
@@ -104,7 +117,7 @@ export class MapsIndoorsService {
 			this.floorSelectorIsSet = true;
 			// Google Analytics
 			this.floorSelectorListener = google.maps.event.addListener(self.mapsIndoors, 'floor_changed', () => {
-				ga('send', 'event', 'Floor selector', 'Floor changed', self.mapsIndoors.getFloor());
+				ga('send', 'event', 'Floor selector', 'Floor was changed', `${self.mapsIndoors.getFloor()} th floor was set`);
 			});
 		}
 		else {

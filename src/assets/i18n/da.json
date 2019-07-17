@@ -1,6 +1,6 @@
 {
 	"Venues": {
-		"Title": "Vælg sted"	
+		"Title": "Vælg sted"
 	},
 	"InfoDialog": {
 		"Title": "App information",
@@ -29,7 +29,10 @@
 		"To": "Til",
 		"AvoidStairs": "Undgå trapper",
 		"MyPosition": "Min placering",
-		"EnableMyPosition": "Slå lokationsdeling til for at bruge din position"
+        "EnableMyPosition": "Slå lokationsdeling til for at bruge din position",
+        "RouteSettings": "Rute Indstillinger",
+        "ChooseTheAppUserRoles...": "Vælg de app bruger roller du tilhører. Dette påvirker kun ruter, notikke de lokationer du ser på kortet",
+        "AppUserRoles": "App bruger roller"
 	},
 	"DirectionRoute": {
 		"Start": "Start",
@@ -43,7 +46,8 @@
 		"Directions": "Instrukser",
 		"AgencyInfo": "Bureau information",
 		"Phone": "Telefon",
-		"Website": "Web"
+		"Website": "Web",
+		"Park": "Parkér"
 	},
 	"DirectionHint": {
 		"searchHint": "Søg efter indendørs og udendørs lokationer",

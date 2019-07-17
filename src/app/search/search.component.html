@@ -10,7 +10,7 @@
 					<button mat-icon-button *ngIf="locationsArray.length > 0 || filtered" (click)="goBack()">
 						<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
 					</button>
-					<button id="infoDialogOpenButton" mat-icon-button class="info-button" (click)="openInfoDialog()" [eventTracker]='{"category":"About", "action":"Opened"}'>
+					<button id="infoDialogOpenButton" mat-icon-button class="info-button" (click)="openInfoDialog()">
 						<svg class="info-button-icon" [style.fill]="colors.onPrimary" version="1.1" xmlns="http://www.w3.org/2000/svg"
 						 xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 24 24"
 						 enable-background="new 0 0 24 24" xml:space="preserve">
@@ -102,7 +102,7 @@
 		<!-- shows categories if searchQuery is empty  -->
 		<section class="content" *ngIf="!search.query && !search.category && !searchFocus && !locationsArray.length > 0">
 			<mat-nav-list>
-				<a mat-list-item *ngFor="let category of categoriesMenu" (click)="getLocationsForCategory(category)" [eventTracker]='{"category":"Search","action":"Category", "label":category.categoryKey}'>
+				<a mat-list-item *ngFor="let category of categoriesMenu" (click)="getLocationsForCategory(category)">
 					<span class="list-icon">
 						<img class="material-icons" src="{{category.iconUrl}}" alt="">
 					</span>

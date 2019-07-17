@@ -1,6 +1,6 @@
 <div class="dialog-title">
 	<h2 mat-dialog-title>{{ 'ShareDialog.Title' | translate }}</h2>
-	<button mat-icon-button tabIndex="-1" (click)="dialogRef.close()" [eventTracker]='{"category":"Details","action":"Share POI", "label":"Close"}'>
+	<button mat-icon-button tabIndex="-1" (click)="onClose()">
 		<mat-icon aria-label="Close dialog">close</mat-icon>
 	</button>
 </div>

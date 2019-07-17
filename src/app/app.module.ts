@@ -29,7 +29,6 @@ import { MapsIndoorsService } from './services/maps-indoors.service';
 import { DirectionService } from './services/direction.service';
 import { SolutionService } from './services/solution.service';
 import { HorizontalDirectionsComponent } from './directives/horizontal-directions/horizontal-directions.component';
-import { TrackerDirective } from './directives/ga-tracker/tracker.directive';
 import { LocationImgComponent } from './shared/components/location-img/location-img.component';
 
 @NgModule({
@@ -42,7 +41,6 @@ import { LocationImgComponent } from './shared/components/location-img/location-
 		ShareUrlDialogComponent,
 		DirectionsComponent,
 		HorizontalDirectionsComponent,
-		TrackerDirective,
 		LocationImgComponent,
 	],
 	imports: [

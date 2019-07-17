@@ -1,6 +1,6 @@
 {
 	"Venues": {
-		"Title": "Select venue"	
+		"Title": "Select venue"
 	},
 	"InfoDialog": {
 		"Title": "About",
@@ -29,7 +29,10 @@
 		"To": "To",
 		"AvoidStairs": "Avoid stairs",
 		"MyPosition": "My Position",
-		"EnableMyPosition": "Enable location sharing to use your position"
+        "EnableMyPosition": "Enable location sharing to use your position",
+        "RouteSettings": "Route Settings",
+        "ChooseTheAppUserRoles...": "Choose the App User Roles you are part of. This only affacts the directions you get, not the locations you see on the map",
+        "AppUserRoles": "App User Roles"
 	},
 	"DirectionRoute": {
 		"Start": "Start",
@@ -43,7 +46,8 @@
 		"Directions": "Directions",
 		"AgencyInfo": "Agency Info",
 		"Phone": "Phone",
-		"Website": "Website"
+		"Website": "Website",
+		"Park": "Park"
 	},
 	"DirectionHint": {
 		"searchHint": "Search for locations indoors or outdoors",

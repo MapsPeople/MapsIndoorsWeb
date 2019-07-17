@@ -8,6 +8,8 @@ import { MapsIndoorsService } from '../services/maps-indoors.service';
 import { ThemeService } from '../services/theme.service';
 import { Subscription } from 'rxjs';
 
+declare const ga: Function;
+
 @Component({
 	selector: 'venue-list',
 	templateUrl: './venues.component.html',
@@ -118,6 +120,8 @@ export class VenuesComponent implements OnInit, OnDestroy {
 		this.mapsIndoorsService.floorSelector(true);
 		const solutionName = await this.solutionService.getSolutionName();
 		this.router.navigate([`${solutionName}/${venue.id}/search`]);
+		// Google Analytics
+		ga('send', 'event', 'Venues page', 'Venue selected', `${venue.venueInfo.name} was selected`);
 	}
 	// #endregion
 

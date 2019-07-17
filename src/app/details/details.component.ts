@@ -12,6 +12,8 @@ import { ShareUrlDialogComponent } from './share-url-dialog/share-url-dialog.com
 import { ThemeService } from '../services/theme.service';
 import { SolutionService } from '../services/solution.service';
 
+declare const ga: Function;
+
 @Component({
 	selector: 'app-details',
 	templateUrl: './details.component.html',
@@ -124,6 +126,12 @@ export class DetailsComponent implements OnInit, OnDestroy {
 		}
 	}
 
+	showOnMap() {
+		this.sidenav.close();
+		// Google Analytics
+		ga('send', 'event', 'Details page', 'Show on map button', 'Show on map button was clicked');
+	}
+
 	async getDirections(id) {
 		const solutionName = await this.solutionService.getSolutionName();
 		const venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
@@ -171,6 +179,9 @@ export class DetailsComponent implements OnInit, OnDestroy {
 			btn.classList.remove('cdk-program-focused');
 			btn.classList.add('cdk-mouse-focused');
 		});
+
+		// Google Analytics
+		ga('send', 'event', 'Details page', 'Share POI dialog', 'Opened share url dialog');
 	}
 	// #endregion
 }

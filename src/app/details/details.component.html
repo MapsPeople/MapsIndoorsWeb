@@ -8,7 +8,7 @@
 					<button mat-icon-button (click)="goBack()">
 						<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
 					</button>
-					<button id="shareDialogOpenButton" mat-icon-button (click)="openShareUrlDialog()" [eventTracker]='{"category":"Details", "action":"Share POI", "label":"Open"}'>
+					<button id="shareDialogOpenButton" mat-icon-button (click)="openShareUrlDialog()">
 						<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">share</mat-icon>
 					</button>
 				</nav>
@@ -93,7 +93,7 @@
 			<footer class="footer-content">
 				<nav class="content-text">
 					<span>
-						<button class="mat-raised-button" *ngIf="isHandset" (click)="sidenav.close()" [eventTracker]='{"category":"Details", "action":"Show on map"}'>
+						<button class="mat-raised-button" *ngIf="isHandset" (click)="showOnMap()">
 							{{ 'Buttons.ShowOnMap' | translate }}
 						</button>
 					</span>

@@ -39,9 +39,9 @@
 
 				<!-- Action icon-->
 				<div class="instruction-action flex-center-center" [ngClass]="{'notActive':leg.index != currentLegIndex}">
-					<mat-icon *ngIf="leg.steps[0].travel_mode === 'WALKING'">directions_walk</mat-icon>
-					<mat-icon *ngIf="leg.steps[0].travel_mode === 'BICYCLING'">directions_bike</mat-icon>
-					<mat-icon *ngIf="leg.steps[0].travel_mode === 'DRIVING'">drive_eta</mat-icon>
+					<mat-icon *ngIf="leg.steps[0].travel_mode === 'WALKING' || leg.steps[0].parking">directions_walk</mat-icon>
+					<mat-icon *ngIf="leg.steps[0].travel_mode === 'BICYCLING' && !leg.steps[0].parking">directions_bike</mat-icon>
+					<mat-icon *ngIf="leg.steps[0].travel_mode === 'DRIVING' && !leg.steps[0].parking">drive_eta</mat-icon>
 				</div>
 
 				<!-- Horizontal line -->
@@ -50,7 +50,8 @@
 					<span [ngClass]="{'notActive':leg.index != currentLegIndex && leg.index != (currentLegIndex + 1)}">
 						<span class="segment-headline-icon flex-center-center" *ngIf="leg.steps[0].instructions">
 							<span [class.icon-start]="leg.steps[0].instructions.toLowerCase().indexOf('start') != -1"></span>
-							<span [class.icon-enter]="leg.steps[0].instructions.toLowerCase().indexOf('enter') != -1"></span>
+							<span [class.icon-enter]="leg.steps[0].instructions.toLowerCase().indexOf('enter') != -1 && !leg.steps[0].parking"></span>
+							<span [class.icon-parking]="leg.steps[0].instructions.toLowerCase().indexOf('enter') != -1 && leg.steps[0].parking"></span>
 							<span [class.icon-exit]="leg.steps[0].instructions.toLowerCase().indexOf('exit') != -1"></span>
 							<span [class.icon-elevator]="leg.steps[0].instructions.toLowerCase().indexOf('elevator') != -1"></span>
 							<span [class.icon-stairs]="leg.steps[0].instructions.toLowerCase().indexOf('stairs') != -1 || leg.steps[0].instructions.toLowerCase().indexOf('steps') != -1"></span>
@@ -75,7 +76,8 @@
 				<!-- Header -->
 				<div [ngClass]="{'notActive':leg.index != currentLegIndex}">
 					<p class="hz-segment-headline" *ngIf="leg.index == 0">{{directionService.startLegLabel}}</p>
-					<p class="hz-segment-headline" *ngIf="leg._mi.type === 'mapsindoors.DirectionsLeg' && leg.index > 0" [innerHTML]="leg.steps[0].horizontalInstructions"></p>
+					<p class="hz-segment-headline" *ngIf="leg._mi.type === 'mapsindoors.DirectionsLeg' && leg.index > 0 && !leg.steps[0].label" [innerHTML]="leg.steps[0].horizontalInstructions"></p>
+					<p class="hz-segment-headline" *ngIf="leg._mi.type === 'mapsindoors.DirectionsLeg' && leg.index > 0 && leg.steps[0].label" [innerHTML]="leg.steps[0].label"></p>
 				</div>
 
 				<div *ngIf="leg.index == directionService.directionsLegs.length - 1" [ngClass]="{'notActive':leg.index != currentLegIndex}">

@@ -12,7 +12,7 @@
 	<section *ngIf="venues">
 		<ul class="tiles">
 			<li *ngFor="let venue of venues">
-				<a (click)="setVenue(venue)" [style.background-color]="venue.image.length < 0 ? colors.primary : black" [eventTracker]='{"category":"Venues", "action":"Select venue", "label":venue.venueInfo.name}'>
+				<a (click)="setVenue(venue)" [style.background-color]="venue.image.length < 0 ? colors.primary : black">
 					<img *ngIf="venue.image.length > 0" src="{{venue.image}}" />
 					<h2 class="tile-title">{{venue.venueInfo.name}}</h2>
 				</a>

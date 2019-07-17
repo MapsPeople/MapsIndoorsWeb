@@ -1,6 +1,6 @@
 <div class="dialog-title">
 	<h2 mat-dialog-title>{{ 'InfoDialog.Title' | translate }}</h2>
-	<button mat-icon-button (click)="dialogRef.close()" [eventTracker]='{"category":"About", "action":"Closed"}'>
+	<button mat-icon-button (click)="onClose()">
 		<mat-icon aria-label="Close dialog">close</mat-icon>
 	</button>
 </div>

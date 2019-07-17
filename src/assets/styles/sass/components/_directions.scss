@@ -34,6 +34,9 @@
             .dots {
                 grid-area: dots;
             }
+            .instruction-top-spacing {
+                padding-top: 24px; /* the case where we want spacing above to make it vertically aligned due to missing start icon  */
+            }
             .instruction-action {
                 grid-area: action;
                 color: $discreet;
@@ -51,6 +54,10 @@
                 grid-area: instructions;
                 grid-column: 3;
                 padding-top: 4px;
+
+                &-with-spacing {
+                    padding-bottom: 24px; /* the case where we want spacing below directions so it doesn't clash with destination label */
+                }
             }
             .spacing {
                 grid-area: space;

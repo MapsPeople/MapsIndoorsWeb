@@ -13,7 +13,7 @@
 			<div class="flex-space-between flex-v-center">
 				<h1 [style.color]="colors.onPrimary">{{pageTitle}}</h1>
 				<button mat-icon-button [style.color]="colors.onPrimary" class="btn-clear-map" *ngIf="mapsIndoorsService.isMapDirty"
-				 (click)="clearMap()" [eventTracker]='{"category":"Clear map", "action":"Clear map"}'>
+				 (click)="clearMap()">
 					<mat-icon aria-label="Clear">close</mat-icon>
 				</button>
 			</div>

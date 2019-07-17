@@ -95,7 +95,7 @@
                     text-overflow: ellipsis;
                     white-space: nowrap;
 					max-width: 216px;
-					
+
 					// TODO: Use helper comma-separated class instead
 					span:not(:last-child)::after {
 						content:", ";
@@ -177,6 +177,15 @@
         }
         .footer-content .content-text {
             justify-content: space-between;
+        }
+        h1 {
+          font: 500 20px/32px Roboto, "Helvetica Neue", sans-serif;
+          padding: 0 16px;
+        }
+        p.content-text {
+          font-size: 14px;
+          font-weight: 200;
+          line-height: 1.5;
         }
         .content-text {
             padding: 16px;

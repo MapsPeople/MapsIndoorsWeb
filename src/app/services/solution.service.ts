@@ -62,7 +62,7 @@ export class SolutionService {
 			appTitle.innerHTML = this.appConfig.appSettings.title || "MapsIndoors";
 
 			// Google Maps Key
-			this.googleMapsApiTag.setAttribute('src',`//maps.googleapis.com/maps/api/js?v=3&key=${gmKey}&libraries=geometry,places`);
+			this.googleMapsApiTag.setAttribute('src', `//maps.googleapis.com/maps/api/js?v=3&key=${gmKey}&libraries=geometry,places`);
 
 			// Google Analytics - Tag Manger
 			const gaTmScript_tag = document.createElement('script');
@@ -89,16 +89,16 @@ export class SolutionService {
 			const pageViewSingleKey = "ga('create', 'UA-63919776-8', 'auto'); ga('send', 'pageview');";
 			const pageViewMultipleKeys = `ga('create', 'UA-63919776-8', 'auto');
 				ga('create', '${gaKey}', 'auto', 'clientTracker');
-				ga('send', 'pageview');
-				ga('clientTracker.send', 'pageview');`;
+					ga('send', 'pageview');
+					ga('clientTracker.send', 'pageview');`;
 
 			// Google Analytics - Page View
 			const gaPvScript_tag = document.createElement('script');
 			gaPvScript_tag.type = 'text/javascript';
 			const keys: string = !gaKey ? pageViewSingleKey : pageViewMultipleKeys;
 			gaPvScript_tag.innerHTML = `(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})
+					(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+					m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})
 				(window,document,'script','//www.google-analytics.com/analytics.js','ga');` + keys;
 			document.body.appendChild(gaPvScript_tag);
 
@@ -153,6 +153,17 @@ export class SolutionService {
 			await this.getSolution();
 			return this.solution.types;
 		}
+	}
+	// #endregion
+
+	// #region || GET USER ROLES
+	/**
+	 * Gets a list of User Roles
+	 * @returns Array<AppUserRole>
+	 * @memberof SolutionService
+	 */
+	async getUserRoles() {
+		return mapsindoors.SolutionsService.getUserRoles();
 	}
 	// #endregion
 }

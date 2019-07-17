@@ -13,6 +13,8 @@ import { environment } from '../../environments/environment';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
+declare const ga: Function;
+
 @Component({
 	selector: 'app-search',
 	templateUrl: './search.component.html',
@@ -230,6 +232,9 @@ export class SearchComponent implements OnInit, OnDestroy {
 		// Check if empty category
 		this.error = this.locationsArray.length < 1 ? "EmptyCategory" : null;
 		this.loading = false;
+
+		// Google Analytics
+		ga('send', 'event', 'Search page', 'Category list', `${category.categoryKey} was selected`);
 	}
 
 	async categoryRequest(category, skip?) {
@@ -501,6 +506,8 @@ export class SearchComponent implements OnInit, OnDestroy {
 			btn.classList.remove('cdk-program-focused');
 			btn.classList.add('cdk-mouse-focused');
 		});
+		// Google Analytics
+		ga('send', 'event', 'Search page', 'About dialog', 'Open button was clicked for About dialog');
 	}
 	// #endregion
 

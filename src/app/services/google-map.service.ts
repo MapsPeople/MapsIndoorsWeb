@@ -17,8 +17,6 @@ export class GoogleMapService {
 		streetViewControl: false
 	}
 
-	constructor() { }
-
 	// #region || LOAD GOOGLE MAP
 	initMap() {
 		return new Promise(async (resolve, reject) => {
@@ -35,4 +33,3 @@ export class GoogleMapService {
 	// }
 	// // #endregion
 }
-

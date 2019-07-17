@@ -14,61 +14,43 @@
             -webkit-mask: url(/assets/images/icons/entrance-variant.svg) no-repeat center center;
             mask: url(/assets/images/icons/entrance-variant.svg) no-repeat center center;
             mask-image: url(/assets/images/icons/entrance-variant.svg) no-repeat center center;
-            width: 60%;
-            height: 60%;
-            -webkit-mask-size: contain;
-            mask-size: contain;
-            background-color: $discreet;
         }
         &-exit {
             -webkit-mask: url(/assets/images/icons/exit-variant.svg) no-repeat center center;
             mask: url(/assets/images/icons/exit-variant.svg) no-repeat center center;
             mask-image: url(/assets/images/icons/exit-variant.svg) no-repeat center center;
-            width: 60%;
-            height: 60%;
-            -webkit-mask-size: contain;
-            mask-size: contain;
-            background-color: $discreet;
         }
         &-elevator {
             -webkit-mask: url(/assets/images/icons/elevator.svg) no-repeat center center;
             mask: url(/assets/images/icons/elevator.svg) no-repeat center center;
             mask-image: url(/assets/images/icons/elevator.svg) no-repeat center center;
-            width: 60%;
-            height: 60%;
-            -webkit-mask-size: contain;
-            mask-size: contain;
-            background-color: $discreet;
         }
         &-stairs {
             -webkit-mask: url(/assets/images/icons/stairs.svg) no-repeat center center;
             mask: url(/assets/images/icons/stairs.svg) no-repeat center center;
             mask-image: url(/assets/images/icons/stairs.svg) no-repeat center center;
-            width: 60%;
-            height: 60%;
-            -webkit-mask-size: contain;
-            mask-size: contain;
-            background-color: $discreet;
         }
         &-escalator {
             -webkit-mask: url(/assets/images/icons/escalator.svg) no-repeat center center;
             mask: url(/assets/images/icons/escalator.svg) no-repeat center center;
             mask-image: url(/assets/images/icons/escalator.svg) no-repeat center center;
-            width: 60%;
-            height: 60%;
-            -webkit-mask-size: contain;
-            mask-size: contain;
-            background-color: $discreet;
         }
         &-destination {
             -webkit-mask: url(/assets/images/icons/place.svg) no-repeat center center;
             mask: url(/assets/images/icons/place.svg) no-repeat center center;
             mask-image: url(/assets/images/icons/place.svg) no-repeat center center;
-            width: 60%;
-            height: 60%;
-            -webkit-mask-size: contain;
-            mask-size: contain;
-            background-color: $discreet;
         }
+        &-parking {
+            -webkit-mask: url(/assets/images/icons/parking.svg) no-repeat center center;
+            mask: url(/assets/images/icons/parking.svg) no-repeat center center;
+            mask-image: url(/assets/images/icons/parking.svg) no-repeat center center;
+        }
+    }
+    [class^="icon-"] {
+        width: 60%;
+        height: 60%;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        background-color: $discreet;
     }
 }

@@ -103,6 +103,11 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	appConfigSubscription: Subscription;
 	themeServiceSubscription: Subscription;
 
+	userRolesPanel = false;
+	userRolesList = [];
+	selecedUserRoles = [];
+	private solutionId;
+
 	constructor(
 		private route: ActivatedRoute,
 		private router: Router,
@@ -115,7 +120,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		private googleMapService: GoogleMapService,
 		private locationService: LocationService,
 		private venueService: VenueService,
-		private directionService: DirectionService,
+		private directionService: DirectionService
 	) {
 		this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
 		this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
@@ -139,9 +144,11 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	ngOnInit() {
+	async ngOnInit() {
 		this.ie11 = (navigator.userAgent.match(/Trident/g) || navigator.userAgent.match(/MSIE/g)) ? true : false;
 		this.isViewActive = true;
+		this.solutionId = await this.solutionService.getSolutionId();
+		this.userRolesList = await this.solutionService.getUserRoles();
 		this.checkForVenue();
 		this.pageTitleSubscription = this.translateService.get("Direction.Directions").subscribe((value: string) => {
 			this.mapsIndoorsService.setPageTitle(value);
@@ -150,6 +157,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		this.mapsIndoorsService.mapsIndoors.filter(null, false); // Clear filter if any
 		window["angularComponentRef"] = { component: this, zone: this._ngZone };
 		this.mapsIndoorsService.isMapDirty = true; // Show clear map button
+		this.selecedUserRoles = JSON.parse(localStorage.getItem(`MI:${this.solutionId}:APPUSERROLES`) || '[]');
 		this.statusOk = true;
 	}
 
@@ -407,6 +415,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		if (this.start.location && this.destination.location) {
 			this.getRoute();
 		}
+		// Google Analytics
+		ga('send', 'event', 'Directions page', 'Reverse route', 'Reverse route was clicked');
 	}
 	// #endregion
 
@@ -419,12 +429,19 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		if (this.start.location && this.destination.location) {
 			this.getRoute();
 		}
+		// Google Analytics
+		ga('send', 'event', 'Directions page', 'Travel mode switch', `${travelMode} was set as new travel mode`);
 	}
 	// #endregion
 
 	// #region - TOGGLE SEGMENTS
 	toggleSegment(legIndex) {
-		this.segmentExpanded = legIndex === this.segmentExpanded ? -1 : legIndex;
+		if (legIndex === this.segmentExpanded) this.segmentExpanded = -1;
+		else {
+			this.segmentExpanded = legIndex;
+			// Google Analytics
+			ga('send', 'event', 'Directions page', 'Directions legs', 'Steps was unfolded');
+		}
 	}
 	// #endregion
 
@@ -434,6 +451,29 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		if (this.start.location && this.destination.location) {
 			this.getRoute();
 		}
+		// Google Analytics
+		ga('send', 'event', 'Directions page', 'Avoid stairs', `Avoid stairs was set to ${this.avoidStairs}`);
+	}
+	// #endregion
+
+	// #region - TOGGLE USER ROLES PANEL
+	/**
+	 * toggles the visiblity of the user roles panel.
+	 * @memberof DirectionsComponent
+	 */
+	toggleUserRolesPanel() {
+		this.userRolesPanel = !this.userRolesPanel;
+	}
+	// #endregion
+
+	// #region - onUserRolesChange EventHandler
+	/**
+	 * onUserRolesChange EventHandler
+	 * Puts the selected User Roles into localStorage.
+	 */
+	onUserRolesChange() {
+		localStorage.setItem('MI:' + this.solutionId + ':APPUSERROLES', JSON.stringify(this.selecedUserRoles));
+		this.getRoute();
 	}
 	// #endregion
 
@@ -546,7 +586,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				this.getRoute();
 			}
 			// Google Analytics
-			ga('send', 'event', 'Directions', 'Origin Search', self.start.query);
+			ga('send', 'event', 'Directions page', 'Origin Search', `${self.start.query} was set as start position`);
 
 		}
 		else if (this.inputState === 'dest') {
@@ -580,7 +620,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				this.getRoute();
 			}
 			// Google Analytics
-			ga('send', 'event', 'Directions', 'Destination Search', self.destination.query);
+			ga('send', 'event', 'Directions page', 'Destination Search', `${self.destination.query} was set as destination`);
 		}
 	}
 
@@ -624,8 +664,14 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				origin: start,
 				destination: dest,
 				mode: self.travelMode.toUpperCase(),
-				avoidStairs: self.avoidStairs
+				avoidStairs: self.avoidStairs,
+				userRoles: null
 			};
+
+			if (this.selecedUserRoles.length > 0) {
+				args.userRoles = this.selecedUserRoles;
+			}
+
 			this.locationService.routeState = true;
 			this.request(args)
 				.then((data) => {

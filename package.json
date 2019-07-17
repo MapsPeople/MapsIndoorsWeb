@@ -1,11 +1,10 @@
 {
   "name": "maps-indoors-webapp",
-  "version": "3.4.52",
+  "version": "3.5.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "npm run build:dev --prefix ./modules/sdk | ng serve",
     "build": "ng build",
-    "start-sdk-dev": "ng serve --configuration=sdk-dev",
     "build-prod": "node ./replace.build.js && git add . && git commit -m 'new release version' && ng build --prod",
     "build-prod-patch": "npm version patch && npm run build-prod",
     "build-prod-minor": "npm version minor && npm run build-prod",
@@ -58,7 +57,6 @@
     "karma-coverage-istanbul-reporter": "^2.0.5",
     "karma-jasmine": "~1.1.1",
     "karma-jasmine-html-reporter": "^1.4.2",
-    "misdkjs": "git+https://git:ytPJwoDGXr-b5dVAjYMg@git.rtx.mapspeople.com/MapsIndoors/SDK/MISDKJS-DEV-RELEASES",
     "protractor": "^5.4.2",
     "ts-node": "~7.0.1",
     "typescript": "~3.1.6",

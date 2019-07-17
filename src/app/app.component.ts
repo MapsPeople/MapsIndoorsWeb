@@ -65,20 +65,6 @@ export class AppComponent {
 		this.venueService.getVenueObservable().subscribe((venue) => this.venue = venue);
 		this.locationService.getCurrentLocation().subscribe((location) => this.location = location);
 		this.mapsIndoorsService.getCurrentPageTitle().subscribe((title) => this.pageTitle = title);
-
-		// // Google Analytics
-		// this.router.events.subscribe((event) => {
-		// 	if (event instanceof NavigationEnd) {
-		// 		try {
-		// 			ga('set', 'page', event.urlAfterRedirects);
-		// 			ga('send', 'pageview');
-		// 			if (this.appConfig && this.appConfig.appSettings.gaKey) ga('clientTracker.send', 'pageview');
-		// 		}
-		// 		catch {
-		// 			// Tracking not found yet
-		// 		}
-		// 	}
-		// });
 	}
 
 	async ngOnInit() {
@@ -146,6 +132,8 @@ export class AppComponent {
 		this.mapsIndoorsService.setReturnToValues(venue.venueInfo.name, center, true);
 
 		this.mapsIndoorsService.isMapDirty = false;
+		// Google Analytics
+		ga('send', 'event', 'Map', 'Clear map button click', 'Clear map button was clicked');
 	}
 	// #endregion
 
@@ -248,7 +236,7 @@ export class AppComponent {
 			this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/search`]);
 			this.locationService.setClusteredLocations(location);
 			// Google Analytics
-			ga('send', 'event', 'Locations', 'Cluster on map clicked', 'Cluster');
+			ga('send', 'event', 'Map', 'Cluster click', 'Clustered locations was clicked');
 		}
 	}
 
@@ -260,8 +248,7 @@ export class AppComponent {
 		this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/details/${location.id}`]);
 		this.locationService.setLocation(location);
 		// Google Analytics
-		ga('send', 'event', 'Locations', 'Poi on map clicked', location.properties.name);
-		ga('send', 'event', 'Locations', 'Map zoom level', this.googleMapService.googleMap.getZoom());
+		ga('send', 'event', 'Map', 'Location click', `${location.properties.name} was clicked`);
 	}
 	// #endregion
 
