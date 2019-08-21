@@ -21,28 +21,36 @@ export class SolutionService {
 	}
 
 	// #region || SOLUTION PROVIDER
-	initializeApp() {
-		return new Promise(async (resolve) => {
+	initializeApp(solutionId) {
+		return new Promise(async (resolve, reject) => {
 			await this.initializeGoogleMaps();
-			await this.initializeSdk();
-			await this.appConfigService.setAppConfig();
-			await this.setSolution();
-			resolve();
+			await this.initializeSdk(solutionId);
+
+			try {
+				await this.appConfigService.setAppConfig();
+				await this.setSolution();
+				resolve();
+			} catch (e) {
+				reject();
+			}
 		});
 	}
 
 	initializeGoogleMaps() {
 		return new Promise((resolve) => {
-			this.googleMapsApiTag = document.createElement('script');
-			this.googleMapsApiTag.setAttribute('type', 'text/javascript');
-			this.googleMapsApiTag.setAttribute('src', `//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyD8lfGCYzBMiIaGZM2JqHkSDfQbGZ-2zOM&libraries=geometry,places`);
-			document.body.appendChild(this.googleMapsApiTag);
-			this.googleMapsApiTag.onload = () => resolve();
+			if (this.googleMapsApiTag) {
+				resolve();
+			} else {
+				this.googleMapsApiTag = document.createElement('script');
+				this.googleMapsApiTag.setAttribute('type', 'text/javascript');
+				this.googleMapsApiTag.setAttribute('src', `//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyD8lfGCYzBMiIaGZM2JqHkSDfQbGZ-2zOM&libraries=geometry,places`);
+				document.body.appendChild(this.googleMapsApiTag);
+				this.googleMapsApiTag.onload = () => resolve();
+			}
 		});
 	}
 
-	initializeSdk() {
-		const solutionId: string = location.pathname.split('/')[1];
+	initializeSdk(solutionId) {
 		return new Promise((resolve) => {
 			this.miSdkApiTag = document.createElement('script');
 			this.miSdkApiTag.setAttribute('type', 'text/javascript');

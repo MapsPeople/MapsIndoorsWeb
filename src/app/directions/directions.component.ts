@@ -1,7 +1,9 @@
 import { Component, OnInit, OnDestroy, NgZone, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatSidenav } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
 import { AppConfigService } from '../services/app-config.service';
+import { UserAgentService } from '../services/user-agent.service';
 import { MapsIndoorsService } from '../services/maps-indoors.service';
 import { GoogleMapService } from '../services/google-map.service';
 import { LocationService } from '../services/location.service';
@@ -11,6 +13,7 @@ import { DirectionService } from '../services/direction.service';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { SolutionService } from '../services/solution.service';
+import { Venue } from '../shared/models/venue.interface';
 
 declare const mapsindoors: any;
 declare const ga: Function;
@@ -40,14 +43,15 @@ declare const ga: Function;
 	styleUrls: ['./directions.component.scss']
 })
 export class DirectionsComponent implements OnInit, OnDestroy {
-	ie11: boolean = false;
+	isInternetExplorer: boolean;
+	isHandset: boolean;
 	statusOk: boolean = false;
 	isViewActive: boolean;
 	error: string;
 	colors: any;
 	loading: boolean = false;
 	appConfig: any;
-	venue: any;
+	venue: Venue;
 
 	userPosition: any = {
 		show: true,
@@ -96,12 +100,13 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	segmentExpanded: number;
 	currentLegIndex: number = 0;
 
-	pageTitleSubscription: Subscription;
+	isHandsetSubscription: Subscription;
 	originSearchSubscription: Subscription;
 	destinationSearchSubscription: Subscription;
 	legIndexSubscription: Subscription;
 	appConfigSubscription: Subscription;
 	themeServiceSubscription: Subscription;
+	venueSubscription: Subscription;
 
 	userRolesPanel = false;
 	userRolesList = [];
@@ -112,7 +117,9 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		private route: ActivatedRoute,
 		private router: Router,
 		public _ngZone: NgZone,
+		private sidenav: MatSidenav,
 		private appConfigService: AppConfigService,
+		private userAgentService: UserAgentService,
 		private themeService: ThemeService,
 		private translateService: TranslateService,
 		private mapsIndoorsService: MapsIndoorsService,
@@ -124,6 +131,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	) {
 		this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
 		this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
+		this.venueSubscription = this.venueService.getVenueObservable().subscribe((venue: Venue) => this.venue = venue);
 
 		this.originSearchSubscription = this.debounceSearchOrigin
 			.pipe(debounceTime(500)) // wait XX ms after the last event before emitting this event
@@ -139,20 +147,19 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				this.destinationSearch(value);
 			});
 
-		this.legIndexSubscription = this.directionService.getLegIndex().subscribe((index) => {
-			this.currentLegIndex = index;
-		});
+		this.legIndexSubscription = this.directionService.getLegIndex()
+			.subscribe((index: number) => this.currentLegIndex = index);
+
+		this.isHandsetSubscription = this.userAgentService.isHandset()
+			.subscribe((value: boolean) => this.isHandset = value);
 	}
 
 	async ngOnInit() {
-		this.ie11 = (navigator.userAgent.match(/Trident/g) || navigator.userAgent.match(/MSIE/g)) ? true : false;
+		this.isInternetExplorer = this.userAgentService.IsInternetExplorer();
 		this.isViewActive = true;
 		this.solutionId = await this.solutionService.getSolutionId();
 		this.userRolesList = await this.solutionService.getUserRoles();
-		this.checkForVenue();
-		this.pageTitleSubscription = this.translateService.get("Direction.Directions").subscribe((value: string) => {
-			this.mapsIndoorsService.setPageTitle(value);
-		});
+		this.translateService.get("Direction.Directions").subscribe((value: string) => this.mapsIndoorsService.setPageTitle(value));
 		this.populateFields();
 		this.mapsIndoorsService.mapsIndoors.filter(null, false); // Clear filter if any
 		window["angularComponentRef"] = { component: this, zone: this._ngZone };
@@ -160,37 +167,6 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		this.selecedUserRoles = JSON.parse(localStorage.getItem(`MI:${this.solutionId}:APPUSERROLES`) || '[]');
 		this.statusOk = true;
 	}
-
-	// #region || SET VENUE
-	async checkForVenue() {
-		const self = this;
-		const venueIdFromURL = this.route.snapshot.params.venueId;
-		const venueRequest = this.venueService.venue ? this.venueService.venue : {};
-		const urlVenueId = await venueIdFromURL;
-		const venue = await venueRequest;
-
-		// If the user comes from a previous page
-		if (venue && venue.id === urlVenueId) {
-			this.venue = venue;
-			this.countVenues();
-		}
-		// If direct url
-		else {
-			const venue = await self.venueService.getVenueById(urlVenueId);
-			this.venueService.setVenue(venue, self.appConfig).then((result) => {
-				self.venue = result;
-			});
-			this.countVenues();
-		}
-		this.mapsIndoorsService.floorSelector(true);
-	}
-
-	async countVenues() {
-		const venuesLength = await this.venueService.getVenuesLength();
-		// If only one venue then hide non relevant elements
-		this.venue.onlyVenue = venuesLength === 1 ? true : false;
-	}
-	// #endregion
 
 	// #region || ROUTE
 
@@ -890,7 +866,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 			})).then((results) => {
 				entranceOrExits.forEach((step, index) => {
 					const building = results[index].building || {};
-					const venue = results[index].venue || {};
+					const venue: Venue = results[index].venue || {};
 					step.instructions += ' ' + (building.name || venue.name || 'Building');
 					step.horizontalInstructions = (building.name || venue.name || 'Building');
 				});
@@ -1015,6 +991,15 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	}
 	// #endregion
 
+	/**
+	 * @description Closing the sidebar
+	 */
+	showOnMap() {
+		this.sidenav.close();
+		// Google Analytics
+		ga('send', 'event', 'Directions page', 'Show on map button', 'Show on map button was clicked');
+	}
+
 	// #endregion
 
 	// #region - CLEAR ROUTE
@@ -1053,10 +1038,10 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		window["angularComponentRef"] = null;
 		this.googleMapService.infoWindow.close();
 		this.clearRoute();
-		this.pageTitleSubscription.unsubscribe();
 		this.legIndexSubscription.unsubscribe();
 		this.appConfigSubscription.unsubscribe();
 		this.themeServiceSubscription.unsubscribe();
+		this.venueSubscription.unsubscribe();
 		if (this.originSearchSubscription) { this.originSearchSubscription.unsubscribe(); }
 		if (this.destinationSearchSubscription) { this.destinationSearchSubscription.unsubscribe(); }
 	}

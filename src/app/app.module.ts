@@ -19,6 +19,9 @@ import { DetailsComponent } from './details/details.component';
 import { InfoDialogComponent } from './search/info-dialog/info-dialog.component';
 import { ShareUrlDialogComponent } from './details/share-url-dialog/share-url-dialog.component';
 import { DirectionsComponent } from './directions/directions.component';
+import { SetSolutionComponent } from './set-solution/set-solution.component';
+import { MapComponent } from './map/map.component';
+import { SetupComponent } from './setup/setup.component';
 
 // Services
 import { GoogleMapService } from './services/google-map.service';
@@ -42,6 +45,9 @@ import { LocationImgComponent } from './shared/components/location-img/location-
 		DirectionsComponent,
 		HorizontalDirectionsComponent,
 		LocationImgComponent,
+		SetSolutionComponent,
+		MapComponent,
+		SetupComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -82,13 +88,7 @@ import { LocationImgComponent } from './shared/components/location-img/location-
 	],
 	providers: [
 		SolutionService,
-		AppConfigService, 
-		{
-			provide: APP_INITIALIZER,
-			useFactory: solutionProviderFactory, 
-			multi: true,
-			deps: [SolutionService]
-		},
+		AppConfigService
 	],
 	bootstrap: [
 		AppComponent
@@ -102,8 +102,4 @@ export class AppModule { }
 
 export function HttpLoaderFactory(http: HttpClient) {
 	return new TranslateHttpLoader(http);
-}
-
-export function solutionProviderFactory(provider: SolutionService) {
-	return () => provider.initializeApp();
 }

@@ -1,4 +1,4 @@
-<aside id="sidebar" *ngIf="statusOk">
+<aside id="sidebar" *ngIf="location">
 
 	<!-- Hero -->
 	<section class="elevation-z2">
@@ -73,9 +73,9 @@
 			<!-- Description -->
 			<div class="content-text icon-top" *ngIf="location.properties.description">
 				<mat-icon class="content-icon">description</mat-icon>
-				<p *ngIf="!ie11">{{location.properties.description}}</p>
-				<!-- IE11 -->
-				<p *ngIf="ie11" style="max-width: 100%; padding-left: 8px;">{{location.properties.description}}</p>
+				<p *ngIf="!isInternetExplorer">{{location.properties.description}}</p>
+				<!-- isInternetExplorer -->
+				<p *ngIf="isInternetExplorer" style="max-width: 100%; padding-left: 8px;">{{location.properties.description}}</p>
 			</div>
 
 			<!-- Building and floor -->
@@ -93,7 +93,7 @@
 			<footer class="footer-content">
 				<nav class="content-text">
 					<span>
-						<button class="mat-raised-button" *ngIf="isHandset" (click)="showOnMap()">
+						<button mat-raised-button *ngIf="isHandset" (click)="showOnMap()">
 							{{ 'Buttons.ShowOnMap' | translate }}
 						</button>
 					</span>

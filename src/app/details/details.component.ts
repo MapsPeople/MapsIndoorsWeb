@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, NgZone } from '@angular/core';
-import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { MatSidenav, MatDialog, MatDialogRef } from '@angular/material';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AppConfigService } from '../services/app-config.service';
@@ -11,6 +10,9 @@ import { VenueService } from '../services/venue.service';
 import { ShareUrlDialogComponent } from './share-url-dialog/share-url-dialog.component';
 import { ThemeService } from '../services/theme.service';
 import { SolutionService } from '../services/solution.service';
+import { UserAgentService } from '../services/user-agent.service';
+
+import { Venue } from '../shared/models/venue.interface';
 
 declare const ga: Function;
 
@@ -20,9 +22,8 @@ declare const ga: Function;
 	styleUrls: ['./details.component.scss']
 })
 export class DetailsComponent implements OnInit, OnDestroy {
-	ie11: boolean = false;
-	isHandset: any;
-	statusOk: boolean = false;
+	isInternetExplorer: boolean;
+	isHandset: boolean;
 	colors: object;
 	venue: any;
 	location: any;
@@ -35,15 +36,16 @@ export class DetailsComponent implements OnInit, OnDestroy {
 	appConfigSubscription: Subscription;
 	locationSubscription: Subscription;
 	dialogSubscription: Subscription;
-	breakpointObserverSubscription: Subscription;
+	isHandsetSubscription: Subscription;
 	themeServiceSubscription: Subscription;
+	venueSubscription: Subscription;
 
 	constructor(
-		private breakpointObserver: BreakpointObserver,
 		private route: ActivatedRoute,
 		private router: Router,
 		public _ngZone: NgZone,
 		private sidenav: MatSidenav,
+		private userAgentService: UserAgentService,
 		private themeService: ThemeService,
 		private venueService: VenueService,
 		private appConfigService: AppConfigService,
@@ -57,46 +59,24 @@ export class DetailsComponent implements OnInit, OnDestroy {
 		this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
 		this.locationSubscription = this.locationService.getCurrentLocation().subscribe((location) => {
 			this.location = location;
-			if (location) this.mapsIndoorsService.setPageTitle(location.properties.name);
+			this.mapsIndoorsService.setPageTitle(location.properties.name);
 		});
 
-		this.breakpointObserverSubscription = this.breakpointObserver
-			.observe(['(min-width: 600px)'])
-			.subscribe((state: BreakpointState) => {
-				if (state.matches) { this.isHandset = false; }
-				else { this.isHandset = true; }
-			});
+		this.isHandsetSubscription = this.userAgentService.isHandset()
+			.subscribe((value: boolean) => this.isHandset = value);
 	}
 
-	async ngOnInit() {
-		this.ie11 = (navigator.userAgent.match(/Trident/g) || navigator.userAgent.match(/MSIE/g)) ? true : false;
-		await this.setVenue();
-		await this.setLocation();
+	ngOnInit() {
+		this.venueSubscription = this.venueService.getVenueObservable().subscribe((venue: Venue) => {
+			if (venue && venue.id) {
+				this.venue = venue;
+				this.setLocation();
+			}
+		});
+		this.isInternetExplorer = this.userAgentService.IsInternetExplorer();
 		this.displayAliases = this.appConfig.appSettings.displayAliases || false;
 		window["angularComponentRef"] = { component: this, zone: this._ngZone };
-		this.statusOk = true;
 	}
-
-	// #region || SET VENUE
-	async setVenue() {
-		const self = this;
-		const venueIdFromURL = this.route.snapshot.params.venueId;
-		const venueRequest = this.venueService.venue ? this.venueService.venue : {};
-		const urlVenueId = await venueIdFromURL;
-		const venue = await venueRequest;
-
-		// If the user comes from a previous page
-		if (venue && venue.id === urlVenueId) this.venue = venue;
-		// If direct url
-		else {
-			const venue = await self.venueService.getVenueById(urlVenueId);
-			await this.venueService.setVenue(venue, self.appConfig).then((result) => {
-				self.venue = result;
-			});
-		}
-		this.mapsIndoorsService.floorSelector(true);
-	}
-	// #endregion
 
 	// #region || LOCATION
 	async setLocation() {
@@ -112,7 +92,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
 			await this.locationService.getLocations({ roomId: locationId }).then(async (locations: any[]) => {
 				const locationArray = [];
 				// Add locations to array if they match venue and id
-				for(const location of locations) {
+				for (const location of locations) {
 					if (location.properties.roomId === locationId && location.properties.venue === this.venue.venueInfo.name) {
 						locationArray.push(location);
 					}
@@ -126,6 +106,9 @@ export class DetailsComponent implements OnInit, OnDestroy {
 		}
 	}
 
+	/**
+	 * @description Closing the sidebar
+	 */
 	showOnMap() {
 		this.sidenav.close();
 		// Google Analytics
@@ -150,7 +133,6 @@ export class DetailsComponent implements OnInit, OnDestroy {
 
 	ngOnDestroy() {
 		this.mapsIndoorsService.mapsIndoors.location = null;
-		this.locationService.clearLocation();
 		window["angularComponentRef"] = null;
 		this.googleMapService.infoWindow.close();
 		if (this.locationService.polygon) this.locationService.polygon.setMap(null);
@@ -158,7 +140,9 @@ export class DetailsComponent implements OnInit, OnDestroy {
 		this.locationSubscription.unsubscribe();
 		this.appConfigSubscription.unsubscribe();
 		this.themeServiceSubscription.unsubscribe();
-		this.breakpointObserverSubscription.unsubscribe();
+		this.venueSubscription.unsubscribe();
+		this.isHandsetSubscription.unsubscribe();
+		this.locationService.clearLocation();
 	}
 	// #endregion
 

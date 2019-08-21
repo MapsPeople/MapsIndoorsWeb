@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AppConfigService } from './app-config.service';
 import { MapsIndoorsService } from '../services/maps-indoors.service';
-import { Subject, Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { Venue } from '../shared/models/venue.interface';
 
 declare const mapsindoors: any;
 
@@ -12,13 +13,13 @@ export class VenueService {
 
 	miVenueService = mapsindoors.VenuesService;
 	appConfig: any;
-	venue: any;
+	venue: Venue;
 	venuesLength: number;
 	favouredVenue: boolean;
 	fitVenues: boolean = true;
 	returnBtnActive: boolean = true;
 
-	private venueObservable = new Subject<any>();
+	private venueObservable = new BehaviorSubject<any>({});
 
 	constructor(
 		private appConfigService: AppConfigService,
@@ -29,15 +30,11 @@ export class VenueService {
 
 	// #region || GET ALL VENUES
 	async getVenues() {
-		const venuesRequest = this.miVenueService.getVenues();
-		const venues = await venuesRequest;
-
+		const venues = await this.miVenueService.getVenues();
 		for (const venue of venues) {
 			const center = await [].concat(venue.anchor.coordinates).reverse();
 			venue.anchor.center = center;
 			venue.image = this.appConfig.venueImages[venue.name.toLowerCase()];
-			// TODO: Make a fallback image if no venueImage
-			// venue.image = config.venueImages[venue.name.toLowerCase()] || ['https://maps.googleapis.com/maps/api/staticmap?center=', center, '&size=400x220&zoom=14&style=feature:all|saturation:-80&style=feature:poi|visibility:off&key=AIzaSyCrk6QMTzO0LhPDfv36Ko5RCXWPER_5o8o'].join("");
 		}
 		return venues;
 	}
@@ -47,22 +44,14 @@ export class VenueService {
 		return this.venueObservable.asObservable();
 	}
 
-	// #region || COUNT VENUES
-	async getVenuesLength() {
-		const self = this;
-		let length;
-		if (this.venuesLength) {
-			length = this.venuesLength;
-		}
-		else {
-			await this.getVenues().then((venues) => {
-				self.venuesLength = venues.length;
-				length = venues.length;
-			});
-		}
-		return length;
+	/**
+	 * @returns {boolean} Returns true if only venue in solution otherwise false.
+	 * @memberof VenueService
+	 */
+	private isOnlyVenue() {
+		return this.miVenueService.getVenues()
+			.then((venues: Venue[]) => venues.length === 1);
 	}
-	// #endregion
 
 	// #region || GET VENUE BY ID
 	async getVenueById(venueId) {
@@ -73,28 +62,58 @@ export class VenueService {
 	// #endregion
 
 	// #region || SET VENUE
-	setVenue(venue, appConfig) {
-		return new Promise(async (resolve, reject) => {
+	/**
+	 * @description Sets the venue and adds the venue image from app configurations.
+	 * @param {Venue} venue The selected venue.
+	 * @param appConfig The configurations for current solution.
+	 * @memberof VenueService
+	 */
+	async setVenue(venue, appConfig) {
+		venue.anchor.center = [].concat(venue.anchor.coordinates).reverse();
 
-			const center = await [].concat(venue.anchor.coordinates).reverse();
-			venue.anchor.center = center;
-			// venue.image = appConfig.venueImages[venue.name.toLowerCase()] || ['https://maps.googleapis.com/maps/api/staticmap?center=', center, '&size=400x220&zoom=14&style=feature:all|saturation:-80&style=feature:poi|visibility:off&key=AIzaSyCrk6QMTzO0LhPDfv36Ko5RCXWPER_5o8o'].join("");
-
-			for (const venueName in appConfig.venueImages) {
-				if (venue.name.toLowerCase() === venueName) {
-					venue.image = appConfig.venueImages[venue.name.toLowerCase()];
-				}
+		for (const venueName in appConfig.venueImages) {
+			if (venue.name.toLowerCase() === venueName) {
+				venue.image = appConfig.venueImages[venue.name.toLowerCase()];
 			}
-			// Used for return to "something" button
-			this.mapsIndoorsService.setReturnToValues(venue.venueInfo.name, center, true);
-			this.returnBtnActive = true;
-			this.favouredVenue = true;
-			this.mapsIndoorsService.mapsIndoors.setVenue(venue);
-			this.mapsIndoorsService.mapsIndoors.fitVenue(venue.id);
+		}
+		// Used for return to "something" button
+		this.mapsIndoorsService.setReturnToValues(venue.venueInfo.name, venue.anchor.center, true);
+		this.returnBtnActive = true;
+		this.favouredVenue = true;
+		this.mapsIndoorsService.mapsIndoors.setVenue(venue);
+		this.mapsIndoorsService.mapsIndoors.fitVenue(venue.id);
 
-			this.venue = venue;
-			this.venueObservable.next(venue);
-			resolve(venue);
+		await this.getVenueBoundingBox(venue).then((bounds) => venue.boundingBox = bounds);
+		venue.onlyVenue = await this.isOnlyVenue();
+
+		this.venue = venue;
+		this.venueObservable.next(venue);
+	}
+
+	/**
+	 * @param {Venue} venue The current venue.
+	 * @returns {Promise} Bounding box for venue.
+	 * @memberof VenueService
+	 */
+	private getVenueBoundingBox(venue: Venue) {
+		return new Promise((resolve, reject) => {
+			const bounds = {
+				east: -180,
+				north: -90,
+				south: 90,
+				west: 180
+			};
+			venue.geometry.coordinates.reduce((bounds, ring: any) => {
+				ring.reduce((bounds, coords) => {
+					bounds.east = coords[0] >= bounds.east ? coords[0] : bounds.east;
+					bounds.west = coords[0] <= bounds.west ? coords[0] : bounds.west;
+					bounds.north = coords[1] >= bounds.north ? coords[1] : bounds.north;
+					bounds.south = coords[1] <= bounds.south ? coords[1] : bounds.south;
+					return bounds;
+				}, bounds);
+				return bounds;
+			}, bounds);
+			resolve(bounds);
 		});
 	}
 	// #endregion
@@ -106,7 +125,5 @@ export class VenueService {
 		return building;
 	}
 	// #endregion
-
-
 }
 

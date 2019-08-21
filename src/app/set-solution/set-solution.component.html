@@ -1,0 +1,27 @@
+<mat-card class="set-solution">
+	<div class="set-solution__branding">
+		<img class="set-solution__logo" src="assets/images/mapspeople-logo.svg" alt="">
+	</div>
+	<h1 class="set-solution__heading">{{ 'SetSolution.Title' | translate }}</h1>
+	<form (ngSubmit)="onSubmit()">
+		<p>
+			<input
+				type="text"
+				class="set-solution__input"
+				[ngClass]="{'set-solution__input--with-error': submitError}"
+				[(ngModel)]="solutionId"
+				name="solutionId"
+				[attr.autofocus]="!isInternetExplorer"
+				(keydown)="inputChanged()"
+				placeholder="{{ 'SetSolution.Enter' | translate }}"
+			><!-- avoid autofocus on ie11: it removes placeholder when in focus -->
+			<span class="set-solution__error">
+				<span *ngIf="submitError">{{ 'SetSolution.SubmitError' | translate }}</span>
+				<span *ngIf="initError">{{ 'SetSolution.InitError' | translate }}</span>
+			</span>
+		</p>
+		<p>
+			<button class="set-solution__button" mat-button type="submit">{{ 'SetSolution.Go' | translate }}</button>
+		</p>
+	</form>
+</mat-card>

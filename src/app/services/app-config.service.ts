@@ -16,6 +16,8 @@ export class AppConfigService {
 				appConfig.appSettings.displayAliases = JSON.parse(appConfig.appSettings.displayAliases || false);
 				this.appConfig.next(appConfig);
 				resolve();
+			}).catch((err) => {
+				reject();
 			});
 		});
 	}

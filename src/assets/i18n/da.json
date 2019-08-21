@@ -1,4 +1,11 @@
 {
+	"SetSolution": {
+		"Title": "Velkommen til MapsIndoors",
+		"Enter": "Indtast SolutionID eller API-nøgle",
+		"Go": "Go",
+		"InitError": "Det angivne SolutionID er ugyldigt.",
+		"SubmitError": "Ups. Prøv igen."
+	},
 	"Venues": {
 		"Title": "Vælg sted"
 	},

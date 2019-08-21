@@ -13,6 +13,8 @@ import { environment } from '../../environments/environment';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
+import { Venue } from '../shared/models/venue.interface';
+
 declare const ga: Function;
 
 @Component({
@@ -21,7 +23,6 @@ declare const ga: Function;
 	styleUrls: ['./search.component.scss']
 })
 export class SearchComponent implements OnInit, OnDestroy {
-	statusOk: boolean = false;
 	appConfig: any;
 	colors: object;
 	categoriesMenu: any;
@@ -58,6 +59,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 	public appVersion: string = environment.v;
 	appConfigSubscription: Subscription;
 	themeServiceSubscription: Subscription;
+	venueSubscription: Subscription;
 
 	constructor(
 		private route: ActivatedRoute,
@@ -74,7 +76,6 @@ export class SearchComponent implements OnInit, OnDestroy {
 	) {
 		this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
 		this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
-		
 		this.debounceSearchSubscription = this.debounceSearch
 			.pipe(debounceTime(500)) // wait XX ms after the last event before emitting last event
 			.pipe(distinctUntilChanged()) // only emit if value is different from previous value
@@ -88,61 +89,26 @@ export class SearchComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	async ngOnInit() {
-		await this.checkForVenue();
-		this.zoomForDetails();
+	ngOnInit() {
+		this.venueSubscription = this.venueService.getVenueObservable().subscribe((venue: Venue) => {
+			if (venue && venue.id) {
+				this.venue = venue;
+				this.zoomForDetails();
+				if (this.locationsArray.length === 0) this.getPreviousCategoryAndQuery();
+			}
+		});
 		// await this.getClusteredLocations();
-		if (this.locationsArray.length === 0) this.getPreviousCategoryAndQuery();
 		this.SearchHintAppTitle = this.appConfig.appSettings.title;
 		this.categoriesMenu = this.appConfig.menuInfo.mainmenu;
 		window["angularComponentRef"] = { component: this, zone: this._ngZone };
-		this.statusOk = true;
 	}
-
-	// #region || SET VENUE
-	async checkForVenue() {
-		const self = this;
-		const venueIdFromURL = this.route.snapshot.params.venueId;
-		const venueRequest = this.venueService.venue ? this.venueService.venue : {};
-		const urlVenueId = await venueIdFromURL;
-		const venue = await venueRequest;
-
-		// If the user comes from a previous page
-		if (venue && venue.id === urlVenueId) {
-			this.venue = venue;
-			this.countVenues();
-
-			// Used for return to "something" button
-			const center = await [].concat(venue.anchor.coordinates).reverse();
-			self.mapsIndoorsService.setReturnToValues(venue.venueInfo.name, center, true);
-		}
-		// If direct url
-		else {
-			const venue = await self.venueService.getVenueById(urlVenueId);
-			this.venueService.setVenue(venue, self.appConfig).then((result) => {
-				self.venue = result;
-			});
-			this.mapsIndoorsService.setPageTitle(venue.venueInfo.name);
-			this.countVenues();
-		}
-		this.mapsIndoorsService.floorSelector(true);
-	}
-
-	async countVenues() {
-		const venuesLength = await this.venueService.getVenuesLength();
-		// If only one venue then hide non relevant elements
-		this.venue.onlyVenue = venuesLength === 1 ? true : false;
-	}
-	// #endregion
 
 	// #region || SEARCH AND RESULTS
 
 	async setLocation(location) {
 		this.locationService.setLocation(location);
-
 		const solutionName = await this.solutionService.getSolutionName();
-		const venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
-		this.router.navigate([`${solutionName}/${venueId}/details/${location.id}`]);
+		this.router.navigate([`${solutionName}/${this.venue.id}/details/${location.id}`]);
 	}
 
 	// getClusteredLocations() {
@@ -202,12 +168,9 @@ export class SearchComponent implements OnInit, OnDestroy {
 	async getLocationsForCategory(category) {
 		if (!category) {
 			const solutionName = await this.solutionService.getSolutionName();
-			const venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
-			const routerPath = solutionName + '/' + venueId + '/search';
-			this.router.navigate([routerPath.toString()]);
+			this.router.navigate([`${solutionName}/${this.venue.id}/search`]);
 			return;
 		}
-
 		this.loading = true;
 		this.locationsArray = [];
 		this.endOfArray = false;
@@ -433,15 +396,13 @@ export class SearchComponent implements OnInit, OnDestroy {
 	// #region || DESTROY
 	async goBack() {
 		// If query or selected category
-		if (this.locationsArray.length > 0 || this.filtered) {
+		if (this.locationsArray.length > 0 || this.filtered) {
 			this.clearAll();
 			this.mapsIndoorsService.setPageTitle();
 			this.mapsIndoorsService.isMapDirty = false;
 
 			const solutionName = await this.solutionService.getSolutionName();
-			const venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
-			const routerPath = solutionName + '/' + venueId + '/search';
-			this.router.navigate([routerPath.toString()]);
+			this.router.navigate([`${solutionName}/${this.venue.id}/search`]);
 		}
 		// Go back to venues page
 		else {
@@ -452,15 +413,14 @@ export class SearchComponent implements OnInit, OnDestroy {
 			this.venueService.favouredVenue = false;
 			this.venueService.fitVenues = false;
 			const solutionName = await this.solutionService.getSolutionName();
-			const routerPath = solutionName + '/venues';
-			this.router.navigate([routerPath.toString()]);
+			this.router.navigate([`${solutionName}/venues`]);
 			this.mapsIndoorsService.isMapDirty = false;
 		}
 	}
 
 	clearAll() {
 		this.locationsArray = [];
-		this.mapsIndoorsService.mapsIndoors.filter(null);
+		if (this.mapsIndoorsService.mapsIndoors) this.mapsIndoorsService.mapsIndoors.filter(null);
 		this.debounceSearch.next(); // Hack to clear previous query
 		this.filtered = false;
 		this.skip = 0;
@@ -484,6 +444,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 		this.clusteredLocationsSubscription.unsubscribe();
 		this.appConfigSubscription.unsubscribe();
 		this.themeServiceSubscription.unsubscribe();
+		this.venueSubscription.unsubscribe();
 		this.locationService.clearClusteredLocations();
 	}
 	// #endregion
