@@ -31,3 +31,19 @@ h2 {
 	border-bottom: 1px solid #e6e6e6;
 	flex: 1;
 }
+
+/*
+ * The Open Sans font must be loaded before drawing canvas elements with the font, otherwise a fallback
+ * font will be rendered the first time (font fetching does not trigger rerendering of canvas elements).
+ *
+ * Since not all browsers support <link rel="preload">, which would solve this problem,
+ * we force an element on the page (reasonably hidden) with that font.
+ */
+ .font-preload {
+	font-family: "Open Sans";
+	height: 0px;
+	width: 0px;
+	overflow: hidden;
+	position: absolute;
+	visibility: hidden;
+}

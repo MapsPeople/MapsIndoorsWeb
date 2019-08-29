@@ -143,7 +143,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 			this.getLocationsForQuery(query);
 		}
 		else {
-			this.clearAll();
+			this.clearAll(false);
 		}
 
 		// TODO: Select value inside input getting back from details page
@@ -259,7 +259,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 		}
 		else {
 			this.error = null;
-			this.clearQuery();
+			this.clearQuery(false);
 		}
 	}
 
@@ -333,7 +333,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 	}
 
 	// Clear query
-	clearQuery() {
+	clearQuery(fitView = true) {
 		this.search.query = "";
 		this.previousQuery = "";
 		this.skip = 0;
@@ -344,7 +344,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 			this.getLocationsForCategory(this.category);
 		}
 		else {
-			this.clearAll();
+			this.clearAll(fitView);
 		}
 	}
 	// #endregion
@@ -418,9 +418,9 @@ export class SearchComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	clearAll() {
+	clearAll(fitView = true) {
 		this.locationsArray = [];
-		if (this.mapsIndoorsService.mapsIndoors) this.mapsIndoorsService.mapsIndoors.filter(null);
+		if (this.mapsIndoorsService.mapsIndoors) this.mapsIndoorsService.mapsIndoors.filter(null, fitView);
 		this.debounceSearch.next(); // Hack to clear previous query
 		this.filtered = false;
 		this.skip = 0;

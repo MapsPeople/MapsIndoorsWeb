@@ -653,11 +653,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				.then((data) => {
 					if (this.isViewActive) {
 						this._ngZone.run(async () => {
-
-							await this.getAgencyInfo(data)
-								.then((agencies: any) => {
-									this.agencies = agencies;
-								});
+							this.agencies = this.getAgencyInfo(data);
 
 							this.getTotalDistance(data)
 								.then(async (distance) => {
@@ -729,25 +725,27 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
 	getAgencyInfo(legs) {
 		let agenciesArray = [];
-		return new Promise((resolve, reject) => {
-			for (const leg of legs) {
-				if (leg.transit) {
-					// If agency info is provided
-					if (leg.transit.line.agencies) {
-						const agencies = leg.transit.line.agencies.map((agency) => {
-							if (agency.url) {
-								const a = document.createElement('a');
-								a.href = agency.url;
-								agency.website = a;
-								return agency;
-							}
-						});
-						agenciesArray = agenciesArray.concat(agencies);
-					}
+		for (const leg of legs) {
+			if (leg.transit) {
+				// If agency info is provided
+				if (leg.transit.line.agencies) {
+					const agencies = leg.transit.line.agencies.map((agency) => {
+						if (agency.url) {
+							const a = document.createElement('a');
+							a.href = agency.url;
+							agency.website = a;
+							return agency;
+						}
+					});
+					agenciesArray = agenciesArray.concat(agencies);
 				}
 			}
-			resolve(agenciesArray);
-		});
+		}
+
+		// Avoid duplicates (looking at agency name)
+		agenciesArray = agenciesArray.filter((agency, position, originalArray) => originalArray.map(mapAgency => mapAgency['name']).indexOf(agency['name']) === position);
+
+		return agenciesArray;
 	}
 
 	setIndexForLegs(legsExtended) {
@@ -874,6 +872,30 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
 			resolve(legs);
 		});
+	}
+
+	/**
+	 * Determines if current leg transit departure location is similar to previous leg transit arrival location.
+	 *
+	 * @param {array} legs - direction legs
+	 * @param {number} legIndex - current leg index to evaluate
+	 * @returns {boolean}
+	 */
+	isTransitTransferAtSameLocation(legs, legIndex) {
+		if (legIndex === 0) {
+			return false; // No previous leg to look at.
+		}
+
+		const prevLeg = legs[legIndex - 1];
+		const currLeg = legs[legIndex];
+
+		if (!prevLeg.transit || !currLeg.transit) {
+			return false; // This is about two transit legs only.
+		}
+
+		return prevLeg.transit.arrival_stop.name === currLeg.transit.departure_stop.name
+			&& prevLeg.transit.arrival_stop.location.lat === currLeg.transit.departure_stop.location.lat
+			&& prevLeg.transit.arrival_stop.location.lng === currLeg.transit.departure_stop.location.lng;
 	}
 
 	addMissingManeuver(step) {

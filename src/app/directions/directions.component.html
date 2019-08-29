@@ -177,7 +177,7 @@
 				  <!--#region Leg - Transit -->
 				  <section *ngIf="!isInternetExplorer && leg.transit" class="segment-wrap" (click)="segmentClick(leg.index)"
 					[ngClass]="{'listActive':leg.index === currentLegIndex}">
-					<div class="segment-headline-wrapper">
+					<div class="segment-headline-wrapper" *ngIf="!isTransitTransferAtSameLocation(directionService.directionsLegs, leg.index)">
 					  <!-- Icon -->
 					  <div class="flex-center-center">
 						<span class="segment-headline-icon flex-center-center">
@@ -421,7 +421,7 @@
 					<div class="spacing" style="padding-top:2px;"
 					  *ngIf="leg.steps[leg.steps.length-1].parking">
 					  <h2 class="segment-headline">
-					    <span class="action">{{ 'DirectionRoute.Park' | translate }}:</span>
+					    <span class="action">{{ 'DirectionRoute.Park' | translate }}<span *ngIf="leg.steps[leg.steps.length-1].label">:</span></span>
 					    {{leg.steps[leg.steps.length-1].label}}
 					  </h2>
 				    </div>
