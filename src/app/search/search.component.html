@@ -142,7 +142,7 @@
 					</span>
 					<span class="list-text">
 						<span class="list-title">{{location.properties.name}}</span>
-						<span class="list-sub-title">
+						<span class="list-title-sub">
 							<span *ngIf="location.properties.roomId"> {{location.properties.roomId}}</span>
 							<span *ngIf="location.properties.floorName">Level {{location.properties.floorName}}</span>
 							<span *ngIf="location.properties.building && !venue.onlyVenue">{{location.properties.building}}</span>
@@ -157,7 +157,7 @@
 				<span *ngIf="loadingLocations">
 					<mat-spinner></mat-spinner>
 				</span>
-				<button mat-raised-button (click)="getMoreLocations()" *ngIf="!loadingLocations && locationsArray.length > 50">{{ 'Buttons.LoadMore' | translate }}</button>
+				<button mat-raised-button (click)="getMoreLocations()" *ngIf="!loadingLocations && locationsArray.length >= 50">{{ 'Buttons.LoadMore' | translate }}</button>
 			</div>
 
 		</section>

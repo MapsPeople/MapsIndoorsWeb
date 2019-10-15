@@ -117,7 +117,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
 
 		this.mapsIndoorsService.setPageTitle();
 
-		this.mapsIndoorsService.floorSelector(true);
+		this.mapsIndoorsService.showFloorSelector();
 		const solutionName = await this.solutionService.getSolutionName();
 		this.router.navigate([`${solutionName}/${venue.id}/search`]);
 		// Google Analytics

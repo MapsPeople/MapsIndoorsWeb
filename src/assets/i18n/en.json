@@ -75,5 +75,8 @@
 		"LinkCopied": "Link added to clipboard",
 		"LinkCopiedError": "This browser does not support this function",
 		"GeoLocationError": "Enable location sharing to use your position"
+	},
+	"Error": {
+		"IncorrectId": "Incorrect id"
 	}
 }

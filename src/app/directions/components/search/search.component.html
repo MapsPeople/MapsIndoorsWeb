@@ -1,0 +1,9 @@
+<div class="search-wrap">
+	<input #searchInput type="text" placeholder="{{placeHolder | translate }}"
+	[(ngModel)]="query" (keyup)="searchTerm.next($event.target.value)" (focus)="currentInputField.emit();">
+
+	<button mat-icon-button class="input-clear" *ngIf="searchInput.value"
+		(click)="clearInput()">
+		<mat-icon aria-label="Clear value">close</mat-icon>
+	</button>
+</div>

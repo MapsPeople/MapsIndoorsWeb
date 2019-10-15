@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { RoutingStateService } from './services/routing-state.service';
 
 @Component({
 	selector: 'app-root',
@@ -9,13 +10,15 @@ import { TranslateService } from '@ngx-translate/core';
 
 export class AppComponent {
 	constructor(
-		private translate: TranslateService
+		private translate: TranslateService,
+		private routingState: RoutingStateService
 	) {
 		// Set default language
 		translate.setDefaultLang('en');
+		routingState.loadRouting();
 	}
 
-	async ngOnInit() {
+	ngOnInit() {
 		this.setLanguage();
 	}
 

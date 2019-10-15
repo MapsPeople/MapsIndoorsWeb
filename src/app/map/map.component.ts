@@ -9,11 +9,18 @@ import { VenueService } from './../services/venue.service';
 import { SolutionService } from './../services/solution.service';
 import { AppConfigService } from './../services/app-config.service';
 import { UserAgentService } from './../services/user-agent.service';
-import { Subscription } from 'rxjs';
 
 import { Venue } from '../shared/models/venue.interface';
+import { Location } from '../shared/models/location.interface';
+import { NotificationService } from '../services/notification.service';
+import { TranslateService } from '@ngx-translate/core';
 
 declare const ga: Function;
+
+enum ErrorVenueId {
+	undefinedId,
+	incorrectId
+}
 
 @Component({
 	selector: 'app-root',
@@ -34,8 +41,6 @@ export class MapComponent {
 	location: any;
 	returnBtn: HTMLElement;
 
-	isHandsetSubscription: Subscription;
-
 	constructor(
 		private route: ActivatedRoute,
 		private router: Router,
@@ -49,38 +54,50 @@ export class MapComponent {
 		private themeService: ThemeService,
 		public directionService: DirectionService,
 		private venueService: VenueService,
-		private activatedRoute: ActivatedRoute
-	) {
-		// Observables
-		this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
-		this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
-		this.venueService.getVenueObservable().subscribe((venue: Venue) => {
-			if (venue && venue.id) {
-				this.venue = venue;
-				this.returnTo();
-			}
-		});
-		this.locationService.getCurrentLocation().subscribe((location) => this.location = location);
-		this.mapsIndoorsService.getCurrentPageTitle().subscribe((title) => this.pageTitle = title);
-		this.isHandsetSubscription = this.userAgentService.isHandset()
-			.subscribe((value: boolean) => this.isHandset = value);
-	}
+		private activatedRoute: ActivatedRoute,
+		private translateService: TranslateService,
+		private notificationService: NotificationService
+	) { }
 
 	async ngOnInit() {
+		this.appConfigService.getAppConfig()
+			.subscribe((appConfig) => this.appConfig = appConfig);
+		this.themeService.getThemeColors()
+			.subscribe((appConfigColors) => this.colors = appConfigColors);
+		this.venueService.getVenueObservable()
+			.subscribe((venue: Venue) => {
+				this.venue = venue;
+				this.initReturnToButton();
+			});
+		this.locationService.getCurrentLocation()
+			.subscribe((location: Location) => this.location = location);
+		this.mapsIndoorsService.getCurrentPageTitle()
+			.subscribe((title: string) => this.pageTitle = title);
+		this.userAgentService.isHandset()
+			.subscribe((value: boolean) => this.isHandset = value);
 		this.isInternetExplorer = this.userAgentService.IsInternetExplorer();
 		this.initAnalyticsPageView();
 		await this.googleMapService.initMap();
 		await this.mapsIndoorsService.initMapsIndoors();
-		this.activatedRoute.firstChild.params.subscribe(async (params) => {
-			if (params.venueId) {
-				const venue = await this.venueService.getVenueById(params.venueId);
+
+		this.getVenueFromUrl()
+			.then(async (venue: Venue) => {
 				await this.venueService.setVenue(venue, this.appConfig);
-				this.mapsIndoorsService.floorSelector(true);
-			}
-		});
+				this.mapsIndoorsService.showFloorSelector();
+			})
+			.catch((err) => {
+				this.router.navigate([`${this.solutionService.getSolutionName()}/venues`]);
+				if (err === ErrorVenueId.incorrectId) {
+					this.notificationService.displayNotification(
+						this.translateService.instant('Error.IncorrectId')
+					);
+				}
+			});
 		await this.themeService.setColors();
-		this.solutionService.setSolutionName();
-		this.returnToValues = await this.mapsIndoorsService.getReturnToValues();
+		this.mapsIndoorsService.getReturnToValues()
+			.subscribe((values) => {
+				this.returnToValues = values;
+			});
 		this.addLocationListener();
 		this.addFloorChangedListener();
 		this.returnBtn = document.getElementById('return-to-venue');
@@ -88,9 +105,33 @@ export class MapComponent {
 	}
 
 	/**
+	 * @description Gets the venue based on the venueId param in the URL.
+	 * @returns {Promise<Venue>}
+	 * @memberof MapComponent
+	 */
+	getVenueFromUrl(): Promise<Venue> {
+		return new Promise((resolve, reject) => {
+			const id = this.route.children[0].snapshot.params.venueId;
+			if (id && id.length === 24) {
+				this.venueService.getVenueById(id)
+					.then((venue: Venue) => {
+						resolve(venue);
+					})
+					.catch(() => {
+						reject(ErrorVenueId.incorrectId);
+					});
+			}
+			else reject(id ?
+				ErrorVenueId.incorrectId :
+				ErrorVenueId.undefinedId
+			);
+		});
+	}
+
+	/**
 	 * @description Sends a pageview to Google Analytics after each navigation-end event
 	 */
-	private initAnalyticsPageView() {
+	private initAnalyticsPageView(): void {
 		this.router.events.subscribe((event) => {
 			if (event instanceof NavigationEnd) {
 				ga('set', 'page', event.urlAfterRedirects);
@@ -101,19 +142,13 @@ export class MapComponent {
 	}
 
 	// #region || CLEAR MAP
-	async clearMap() {
-		// this.mapsIndoorsService.mapsIndoors.fitVenue();
-		this.googleMapService.infoWindow.close();
+	clearMap(): void {
+		this.googleMapService.closeInfoWindow();
 		this.locationService.searchQuery = "";
 		this.locationService.clearCategory();
 		this.mapsIndoorsService.setPageTitle();
-		const solutionName = await this.solutionService.getSolutionName();
-		this.router.navigate([`${solutionName}/${this.venue.id}/search`]);
-
-		// Used for return to Venue or POI button
-		const center = await [].concat(this.venue.anchor.coordinates).reverse();
-		this.mapsIndoorsService.setReturnToValues(this.venue.venueInfo.name, center, true);
-
+		this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/search`]);
+		this.mapsIndoorsService.setVenueAsReturnToValue(this.venue);
 		this.mapsIndoorsService.isMapDirty = false;
 		// Google Analytics
 		ga('send', 'event', 'Map', 'Clear map button click', 'Clear map button was clicked');
@@ -126,38 +161,36 @@ export class MapComponent {
 	 * @listens event:click Returns to previous selected venue or location when clicked.
 	 * @listens event:idle Shows or hides button when panning the map.
 	 */
-	returnTo() {
+	private initReturnToButton(): void {
 		const googleMap = this.googleMapService.googleMap;
-		const mapsIndoors = this.mapsIndoorsService.mapsIndoors;
-
-		// Return to venue button click listener
-		const containerListener = google.maps.event.addDomListener(this.returnBtn, 'click', () => {
-			if (this.returnToValues.venue === true) mapsIndoors.fitVenue();
-			else this.googleMapService.googleMap.panTo(this.returnToValues.latLng);
-		});
-
-		// TODO: Add listener once?
-		// Fires when panning around on googleMap object
-		const panListener = google.maps.event.addListener(googleMap, 'idle', () => {
-			// Checking if venue is inside googleMap bounds
-			if (mapsIndoors) {
-				const googleBounds = googleMap.getBounds();
-				// Always true except for when getting a direction
-				if (this.venueService.favouredVenue && this.venueService.returnBtnActive) {
-					// Hide button
-					if (googleBounds && googleBounds.intersects(this.venue.boundingBox)) {
-						if (this.returnBtn.className.indexOf(' hidden') < 0) {
-							this.returnBtn.className += ' hidden';
-						}
+		google.maps.event.addListener(googleMap, 'idle', () => {
+			// Always true except for when getting a direction
+			if (this.venueService.favouredVenue && this.venueService.returnBtnActive) {
+				// Hides the button if the selected venue is inside the current googleMap bounds
+				if (googleMap.getBounds().intersects(this.venue.boundingBox)) {
+					if (this.returnBtn.className.includes('hidden') === false) {
+						this.returnBtn.className += ' hidden';
 					}
-					// Show button
-					else {
-						this.returnBtn.className = this.returnBtn.className.replace(' hidden', '');
-						google.maps.event.removeListener(containerListener);
-					}
+				}
+				// Shows the button when panned away from selected venue or location.
+				else {
+					this.returnBtn.className = this.returnBtn.className.replace(' hidden', '');
 				}
 			}
 		});
+	}
+
+	/**
+	 * @description Fits the venue if a locations isn't selected.
+	 * @memberof MapComponent
+	 */
+	returnToButtonClickHandler(): void {
+		if (this.returnToValues.isVenue === true) {
+			this.mapsIndoorsService.mapsIndoors.fitVenue();
+		}
+		else {
+			this.googleMapService.googleMap.panTo(this.returnToValues.latLng);
+		}
 	}
 	//#endregion
 
@@ -166,7 +199,7 @@ export class MapComponent {
 	 * Adding a listener for clicks on locations
 	 * @listens event:click
 	 */
-	addLocationListener() {
+	addLocationListener(): void {
 		google.maps.event.addListener(this.mapsIndoorsService.mapsIndoors, 'click', (location) => {
 			// Multiple locations (clustered locations)
 			if (Array.isArray(location)) this.handleClusterClick(location);
@@ -179,10 +212,9 @@ export class MapComponent {
 	 * Fitting locations inside view if zoom-level is lower than 21 otherwise navigating to search page and listing locations.
 	 * @param locations	The locations from the clicked cluster.
 	 */
-	async handleClusterClick(locations) {
-		const gmZoom = await this.googleMapService.googleMap.getZoom();
+	handleClusterClick(locations: Location[]): void {
 		// Zoom if zoom-level is lower than 21
-		if (gmZoom < 21) {
+		if (this.googleMapService.googleMap.getZoom() < 21) {
 			const bounds = new google.maps.LatLngBounds;
 			for (const l of locations) {
 				if (l.properties.anchor) bounds.extend({ lat: l.properties.anchor[1], lng: l.properties.anchor[0] });
@@ -194,7 +226,7 @@ export class MapComponent {
 		// If max zoom then go to search page and list clustered locations
 		else {
 			this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/search`]);
-			this.locationService.setClusteredLocations(location);
+			this.locationService.setClusteredLocations(locations);
 			// Google Analytics
 			ga('send', 'event', 'Map', 'Cluster click', 'Clustered locations was clicked');
 		}
@@ -204,9 +236,15 @@ export class MapComponent {
 	 * Navigating to details page when a single location are clicked on the map.
 	 * @param location	The clicked location.
 	 */
-	handleSingleLocationClick(location) {
-		this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/details/${location.id}`]);
-		this.locationService.setLocation(location);
+	handleSingleLocationClick(location: Location): void {
+		this.loading = true;
+		this.locationService.setLocation(location)
+			.then(() => {
+				this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/details/${location.id}`]);
+			})
+			.catch((err) => {
+				this.notificationService.displayNotification(err);
+			});
 		// Google Analytics
 		ga('send', 'event', 'Map', 'Location click', `${location.properties.name} was clicked`);
 	}
@@ -214,19 +252,16 @@ export class MapComponent {
 
 	// #region || LISTENER || FLOOR CHANGED
 	// Closes and opens info-windows when changing floors
-	async addFloorChangedListener() {
-		const mapsIndoors = await this.mapsIndoorsService.mapsIndoors;
-		google.maps.event.addListener(mapsIndoors, 'floor_changed', () => {
-			if (!this.locationService.routeState && this.location) {
+	addFloorChangedListener(): void {
+		google.maps.event.addListener(this.mapsIndoorsService.mapsIndoors, 'floor_changed', () => {
+			if (this.location && this.route.children[0].snapshot.routeConfig.component.name === 'DetailsComponent') {
 				const locationFloor: string = this.location.properties.floor;
 				if (locationFloor !== this.mapsIndoorsService.mapsIndoors.getFloor()) {
-					// Close location info-window
-					this.googleMapService.infoWindow.close();
+					this.googleMapService.closeInfoWindow();
 					// Remove location polygon
 					if (this.locationService.polygon) this.locationService.polygon.setMap(null);
 				} else {
-					// Open location info-window
-					this.googleMapService.infoWindow.open(this.googleMapService.googleMap);
+					this.googleMapService.openInfoWindow();
 					// Set location polygon
 					if (this.locationService.polygon) this.locationService.polygon.setMap(this.googleMapService.googleMap);
 				}

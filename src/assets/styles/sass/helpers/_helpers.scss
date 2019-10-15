@@ -32,6 +32,10 @@
     text-align: center;
 }
 
+.text-multiple-lines {
+	white-space: pre-wrap;
+}
+
 .comma-separated {
 	span:not(:last-child)::after {
 		content:", ";
@@ -42,7 +46,6 @@
 		display: block;
 	}
 }
-
 
 .elevation{
 	&-z1 {

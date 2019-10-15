@@ -1,0 +1,631 @@
+<aside id="sidebar" *ngIf="venue">
+	<section class="elevation-z2" *ngIf="!userRolesPanel">
+		<mat-toolbar [style.background-color]="colors.primary" style="padding: 0px 6px;"
+			[ngStyle]="{'padding-right':userRolesList.length === 0 ? '40px' : '0' }">
+			<nav class="nav-travel-mode">
+				<button mat-icon-button (click)="goBack()">
+					<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
+				</button>
+				<div class="travel-mode">
+					<button mat-icon-button [class.active]="travelMode === 'WALKING'"
+						(click)="setNewTravelMode('WALKING')">
+						<mat-icon [style.color]="colors.onPrimary">directions_walk</mat-icon>
+					</button>
+					<button mat-icon-button [class.active]="travelMode === 'BICYCLING'"
+						(click)="setNewTravelMode('BICYCLING')">
+						<mat-icon [style.color]="colors.onPrimary">directions_bike</mat-icon>
+					</button>
+					<button mat-icon-button [class.active]="travelMode === 'TRANSIT'"
+						(click)="setNewTravelMode('TRANSIT')">
+						<mat-icon [style.color]="colors.onPrimary">directions_transit</mat-icon>
+					</button>
+					<button mat-icon-button [class.active]="travelMode === 'DRIVING'"
+						(click)="setNewTravelMode('DRIVING')">
+						<mat-icon [style.color]="colors.onPrimary">drive_eta</mat-icon>
+					</button>
+				</div>
+				<button mat-icon-button (click)="toggleUserRolesPanel()" *ngIf="userRolesList.length > 0">
+					<mat-icon [style.color]="colors.onPrimary">tune</mat-icon>
+				</button>
+			</nav>
+		</mat-toolbar>
+
+		<div class="searchbox-container" [style.background-color]="colors.primary">
+			<!-- Dots -->
+			<div class="dots-wrap">
+				<div>
+					<span class="circle" [style.border-color]="colors.onPrimary"></span>
+				</div>
+				<div>
+					<span class="dots" [style.border-color]="colors.onPrimary"></span>
+				</div>
+				<div>
+					<span class="pin">
+						<mat-icon [style.color]="colors.onPrimary">location_on</mat-icon>
+					</span>
+				</div>
+			</div>
+			<!-- Search -->
+			<div style="width:100%">
+				<!-- Origin search -->
+				<search-input #originSearchComponent *ngIf="searchParameters" (currentInputField)="currentInputField = 'start'"
+					[query]="originInputValue" [searchParameters]="searchParameters"
+					[placeHolder]="'Direction.From'" (loading)="loadingHandler()" (update)="searchResultsChange($event)">
+				</search-input>
+
+				<!-- Destination search -->
+				<search-input #destinationSearchComponent *ngIf="searchParameters" (currentInputField)="currentInputField = 'dest'"
+					[query]="destinationInputValue" [searchParameters]="searchParameters" 
+					[placeHolder]="'Direction.To'" (loading)="loading = true" (update)="searchResultsChange($event)">
+				</search-input>
+
+				<!-- Stairs checkbox -->
+				<div class="checkbox">
+					<mat-checkbox [style.color]="colors.onPrimary" (change)="changeAvoidStairs()">
+						{{'Direction.AvoidStairs' | translate }}
+					</mat-checkbox>
+				</div>
+			</div>
+			<!-- Switch direction -->
+			<div class="switch-direction">
+				<button mat-icon-button (click)="switchOriginAndDest()">
+					<mat-icon [style.color]="colors.onPrimary" aria-label="Switch values">&#xE8D5;</mat-icon>
+				</button>
+			</div>
+		</div>
+	</section>
+
+	<!-- Content -->
+	<section class="content-container" *ngIf="!userRolesPanel">
+		<section class="content">
+			<!-- Loading -->
+			<div class="content-text" *ngIf="loading">
+				<mat-spinner></mat-spinner>
+			</div>
+			<!-- Error message -->
+			<div *ngIf="error && !loading" class="hint content-text text-discreet">
+				<p>{{error}}</p>
+			</div>
+			<!-- List -->
+			<user-position *ngIf="useBrowserPositioning && currentPositionVisible && currentInputField === 'start'"
+				(eventTriggered)="handleMyPositionClick($event)"></user-position>
+
+			<mat-nav-list *ngIf="searchResults && !loading">
+				<!-- List of queries -->
+				<a mat-list-item *ngFor="let location of searchResults" (click)="selectLocation(location)">
+					<span class="list-icon">
+						<img class="material-icons" src="{{location.properties.iconUrl}}">
+					</span>
+					<span class="list-text">
+						<span class="list-title">{{location.properties.name}}</span>
+						<!-- MapsIndoors locations -->
+						<span class="list-title-sub" *ngIf="!location.properties.subtitle">
+							<span *ngIf="location.properties.roomId">{{location.properties.roomId}}</span>
+							<span *ngIf="location.properties.floorName">Level {{location.properties.floorName}}</span>
+							<span
+								*ngIf="location.properties.building && !venue.onlyVenue">{{location.properties.building}}</span>
+							<span
+								*ngIf="location.properties.building != location.properties.venue && !venue.onlyVenue">{{location.properties.venue}}</span>
+						</span>
+						<!-- Google locations -->
+						<span class="list-title-sub" *ngIf="location.properties.subtitle">
+							<span>{{location.properties.subtitle}}</span>
+						</span>
+					</span>
+				</a>
+			</mat-nav-list>
+
+			<!-- Route legs  -->
+			<div *ngIf="directionService.directionsLegs.length > 0">
+				<section>
+					<section>
+						<!-- NOTE: If necessary, then use css to cut out extra white-space  -->
+						<p class="route-total text-discreet">{{totalTravelDuration}}
+							{{ 'DirectionRoute.ToDestination' | translate }}
+							({{totalTravelDistance}})</p>
+
+						<section class="segments-container">
+							<div class="segment-outer-wrap" *ngFor="let leg of directionService.directionsLegs"
+								(mouseover)="segmentHover=leg.index" (mouseleave)="segmentHover=null"
+								[ngStyle]="{'background-color': segmentHover === leg.index ? colors.listHover : ''}">
+
+								<!--#region Leg - Transit -->
+								<section *ngIf="!isInternetExplorer && leg.transit" class="segment-wrap"
+									(click)="segmentClick(leg.index)"
+									[ngClass]="{'listActive':leg.index === currentLegIndex}">
+									<div class="segment-headline-wrapper" *ngIf="!isTransitTransferAtSameLocation(directionService.directionsLegs, leg.index)">
+										<!-- Icon -->
+										<div class="flex-center-center">
+											<span class="segment-headline-icon flex-center-center">
+												<!-- <span class="icon-enter"></span> -->
+											</span>
+										</div>
+										<!-- Header -->
+										<div class="flex-v-center">
+											<h2 class="segment-headline">{{leg.transit.departure_stop.name}}</h2>
+										</div>
+									</div>
+
+									<!-- Transit line -->
+									<div class="dots flex-h-center">
+										<span class="direction-stroke"
+											[ngStyle]="{'border-color': leg.transit.line.color ? leg.transit.line.color : ''}"></span>
+									</div>
+									<!-- Action -->
+									<div class="instruction-action flex-center-center">
+										<mat-icon *ngIf="!leg.transit.line.vehicle.local_icon">directions_transit
+										</mat-icon>
+										<!-- Local transit icon -->
+										<img *ngIf="leg.transit.line.vehicle.local_icon"
+											src="{{leg.transit.line.vehicle.local_icon}}" class="mat-icon">
+									</div>
+
+									<!-- Line short name -->
+									<div class="instruction-title flex-v-center">
+										<div style="display: flex; font-size: 13px;">
+											<span class="short-name"
+												*ngIf="leg.transit.line.short_name && leg.transit.line.short_name.length > 1"
+												[ngStyle]="{'background-color': leg.transit.line.color ? leg.transit.line.color : '', 'color': leg.transit.line.text_color ? leg.transit.line.text_color : ''}">{{leg.transit.line.short_name}}</span>
+											<span>{{leg.transit.headsign}}</span>
+										</div>
+									</div>
+
+									<!-- Information and travel time -->
+									<div class="instructions" style="font-size: 13px;">
+										<!-- Steps -->
+										<div>
+											<p class="text-discreet">{{leg.transit.num_stops}} stop<span
+													*ngIf="+leg.transit.num_stops > 1">s</span>
+												({{leg.duration.text}})</p>
+										</div>
+									</div>
+									<!-- Fix for getting the line to fill all the way to the next segment -->
+									<div class="spacing" style="padding:24px 0 2px;">
+										<span class="segment-headline-icon"
+											style="position: absolute; left: 16px; bottom: 0;"></span>
+										<h2 class="segment-headline">{{leg.transit.arrival_stop.name}}</h2>
+									</div>
+
+								</section>
+								<!--#endregion -->
+
+								<!--#region Leg - Transit isInternetExplorer -->
+								<section *ngIf="isInternetExplorer && leg.transit" class="ie-segment-wrap"
+									(click)="segmentClick(leg.index)"
+									[ngClass]="{'listActive':leg.index === currentLegIndex}">
+									<section>
+										<h2 class="ie-segment-headline">{{leg.transit.departure_stop.name}}</h2>
+									</section>
+
+									<section class="a-wrap">
+										<div class="a-icon">
+											<mat-icon>directions_transit</mat-icon>
+										</div>
+
+										<div class="a-text">
+											<div class="ie-headsign-wrap">
+												<span
+													*ngIf="leg.transit.line.short_name && leg.transit.line.short_name.length > 1"
+													class="ie-short-name"
+													[ngStyle]="{'background-color': leg.transit.line.color ? leg.transit.line.color : '', 'color': leg.transit.line.text_color ? leg.transit.line.text_color : ''}">
+													{{leg.transit.line.short_name}}
+												</span>
+												<span>{{leg.transit.headsign}}</span>
+											</div>
+											<div class="ie-duration-wrap text-discreet">{{leg.transit.num_stops}} stop
+												<span *ngIf="+leg.transit.num_stops > 1">s</span>
+												({{leg.duration.text}})
+											</div>
+										</div>
+									</section>
+
+									<section>
+										<h2 class="ie-segment-headline">{{leg.transit.arrival_stop.name}}</h2>
+									</section>
+								</section>
+								<!--#endregion -->
+
+								<!--#region Leg - Normal -->
+								<section *ngIf="!isInternetExplorer && !leg.transit" class="segment-wrap"
+									(click)="segmentClick(leg.index)"
+									[ngClass]="{'listActive':leg.index === currentLegIndex}">
+									<!-- Direction - Header -->
+									<div class="segment-headline-wrapper">
+										<div class="flex-center-center">
+											<!-- <mat-icon>remove_circle_outline</mat-icon> -->
+											<span class="segment-headline-icon flex-center-center"
+												*ngIf="leg.steps[0].instructions && !directionService.directionsLegs[leg.index-1]?.transit  && !leg.steps[0].parking">
+												<span
+													[class.icon-start]="leg.steps[0].instructions.toLowerCase().indexOf('start') != -1"></span>
+												<span
+													[class.icon-enter]="leg.steps[0].instructions.toLowerCase().indexOf('enter') != -1"></span>
+												<span
+													[class.icon-exit]="leg.steps[0].instructions.toLowerCase().indexOf('exit') != -1"></span>
+												<span
+													[class.icon-elevator]="leg.steps[0].instructions.toLowerCase().indexOf('elevator') != -1"></span>
+												<span
+													[class.icon-stairs]="leg.steps[0].instructions.toLowerCase().indexOf('stairs') != -1 || leg.steps[0].instructions.toLowerCase().indexOf('steps') != -1"></span>
+												<span
+													[class.icon-escalator]="leg.steps[0].instructions.toLowerCase().indexOf('escalator') != -1"></span>
+												<!-- Destination icon for last segment can be found in "Dots or line" section -->
+											</span>
+											<!-- If no instruction set empty icon  -->
+											<span class="segment-headline-icon flex-center-center"
+												*ngIf="!leg.steps[0].instructions">
+											</span>
+										</div>
+										<div class="flex-v-center">
+											<!-- GoogleMaps instruction -->
+											<h2 class="segment-headline" *ngIf="leg.index == 0">
+												<!-- <span>Start: </span>{{directionService.startLabel(leg.index)}} -->
+												<span>{{ 'DirectionRoute.Start' | translate }}: </span>
+												{{startLegLabel}}
+											</h2>
+											<!-- MapsIndoors instruction -->
+											<h2 class="segment-headline"
+												*ngIf="leg._mi.type === 'mapsindoors.DirectionsLeg' && leg.index > 0 && !leg.steps[0].parking"
+												[innerHTML]="leg.steps[0].instructions">
+											</h2>
+										</div>
+									</div>
+
+									<!-- Direction - Dots or line -->
+									<div class="dots flex-h-center">
+										<span class="direction-dots"
+											*ngIf="leg._mi.type != 'mapsindoors.DirectionsLeg' || leg.steps[0].abutters === 'OutsideOnVenue'"></span>
+										<span class="direction-stroke"
+											*ngIf="leg._mi.type === 'mapsindoors.DirectionsLeg' && leg.steps[0].abutters === 'InsideBuilding'"></span>
+										<!-- Destination icon for last segment -->
+										<span class="segment-destination-icon flex-center-center"
+											*ngIf="leg.index == directionService.directionsLegs.length - 1">
+											<span class="icon-destination"></span>
+										</span>
+										<!-- Destination icon for parking -->
+										<span class="segment-destination-icon flex-center-center"
+											*ngIf="leg.steps[leg.steps.length-1].parking">
+											<span class="icon-parking"></span>
+										</span>
+									</div>
+
+									<!-- Direction - Action icon-->
+									<div class="instruction-action flex-center-center"
+										[ngClass]="{'instruction-top-spacing': leg.steps[0].parking}">
+										<!-- If inside building then always show the walk icon -->
+										<span *ngIf="leg._mi.type == 'mapsindoors.DirectionsLeg'">
+											<mat-icon>directions_walk</mat-icon>
+										</span>
+
+										<span *ngIf="leg._mi.type == 'google.maps.DirectionsLeg'">
+											<!-- Walk icon for transit  -->
+											<mat-icon *ngIf="leg.travel_mode && leg.travel_mode === 'WALKING'">
+												directions_walk</mat-icon>
+
+											<mat-icon *ngIf="travelMode === 'WALKING'">directions_walk</mat-icon>
+											<mat-icon *ngIf="travelMode === 'BICYCLING'">directions_bike</mat-icon>
+											<mat-icon *ngIf="travelMode === 'DRIVING'">drive_eta</mat-icon>
+										</span>
+									</div>
+
+									<!-- Direction - Instructions title -->
+									<div class="instruction-title flex-v-center"
+										[ngClass]="{'instruction-top-spacing': leg.steps[0].parking}">
+										<!-- Quick overview -->
+										<div style="display: flex;">
+											<!-- If inside building then always show the walk text -->
+											<span *ngIf="leg._mi.type == 'mapsindoors.DirectionsLeg'">
+												<p>{{'DirectionRoute.Walk' | translate }}</p>
+											</span>
+
+											<span *ngIf="leg._mi.type == 'google.maps.DirectionsLeg'">
+												<!-- Instruction for transit  -->
+												<p *ngIf="leg.travel_mode && leg.travel_mode === 'WALKING'">
+													{{'DirectionRoute.Walk' | translate }}
+												</p>
+												<p *ngIf="travelMode === 'WALKING'">
+													{{'DirectionRoute.Walk' | translate }}
+												</p>
+												<p *ngIf="travelMode === 'BICYCLING'">
+													{{'DirectionRoute.Ride' | translate }}
+												</p>
+												<p *ngIf="travelMode === 'DRIVING'">
+													{{'DirectionRoute.Drive' | translate }}
+												</p>
+											</span>
+
+											<!-- Travel distance and time -->
+											<span style="font-size: 13px;">{{leg.distance.text}}
+												<span>({{leg.duration.text}})</span>
+											</span>
+										</div>
+									</div>
+
+									<!-- Instruction-toggler -->
+									<!-- NOTE: To implement MapsIndoors navigation sub legs again just remove *ngIf-check -->
+									<div class="instruction-toggle flex-h-center"
+										*ngIf="leg._mi.type === 'google.maps.DirectionsLeg'">
+										<mat-icon *ngIf="segmentExpanded  != leg.index"
+											(click)="!toggleSegment(leg.index)">
+											keyboard_arrow_right
+										</mat-icon>
+										<mat-icon *ngIf="segmentExpanded === leg.index"
+											(click)="toggleSegment(leg.index)">
+											keyboard_arrow_down
+										</mat-icon>
+									</div>
+
+									<!-- Direction - Instructions -->
+									<!-- NOTE: To implement MapsIndoors navigation sub legs again just remove *ngIf-check -->
+									<div class="instructions"
+										[ngClass]="{'instructions-with-spacing': leg.steps[leg.steps.length-1].parking}"
+										style="font-size: 13px;" *ngIf="leg._mi.type === 'google.maps.DirectionsLeg'">
+										<!-- Steps -->
+										<div>
+											<a class="text-link" (click)="toggleSegment(leg.index)">
+												{{'DirectionRoute.Directions' | translate }}
+											</a>
+											<div class="step-wrap" *ngIf="leg.index === segmentExpanded">
+												<div class="step" *ngFor="let step of leg.steps">
+													<!-- Step action icon -->
+													<span class="step-action-icon"
+														class="adp-maneuver {{step.maneuver}}">
+													</span>
+													<!-- Step content -->
+													<span class="step-content-wrapper">
+														<!-- Step instruction -->
+														<div class="step-content" *ngIf="step.instructions"
+															[innerHTML]="step.instructions">
+														</div>
+														<!-- Distance and ruler-->
+														<div class="step-content-footer">
+															<span class="step-distance text-discreet">
+																{{step.distance.text}}
+															</span>
+															<hr class="ruler-discreet">
+														</div>
+													</span>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!-- Parking -->
+									<div class="spacing" style="padding-top:2px;"
+										*ngIf="leg.steps[leg.steps.length-1].parking">
+										<h2 class="segment-headline">
+											<span class="action">{{ 'DirectionRoute.Park' | translate }}<span *ngIf="leg.steps[leg.steps.length-1].label">:</span></span>
+											{{leg.steps[leg.steps.length-1].label}}
+										</h2>
+									</div>
+
+									<!-- Fix for getting the line to fill all the way to the next segment -->
+									<div class="spacing" style="padding-bottom:24px;"
+										*ngIf="leg.index != directionService.directionsLegs.length - 1"></div>
+									<!-- Last leg -->
+									<div class="spacing" style="line-height:24px; padding-top:8px"
+										*ngIf="leg.index == directionService.directionsLegs.length - 1">
+										<h2 class="segment-headline">
+											<span class="action">{{ 'DirectionRoute.End' | translate }}:</span>
+											{{destinationInputValue}}
+										</h2>
+									</div>
+								</section>
+								<!--#endregion -->
+
+								<!--#region Leg - isInternetExplorer-->
+								<section *ngIf="isInternetExplorer && !leg.transit" class="ie-segment-wrap"
+									(click)="segmentClick(leg.index)"
+									[ngClass]="{'listActive':leg.index === currentLegIndex}">
+									<section>
+										<!-- First leg -->
+										<h2 class="ie-segment-headline" *ngIf="leg.index == 0">
+											<span>{{ 'DirectionRoute.Start' | translate }}: </span>
+											{{startLegLabel}}
+										</h2>
+										<!-- Other legs -->
+										<h2 class="ie-segment-headline"
+											*ngIf="leg._mi.type === 'mapsindoors.DirectionsLeg' && leg.index > 0"
+											[innerHTML]="leg.steps[0].instructions">
+										</h2>
+									</section>
+
+									<section class="a-wrap">
+										<div class="a-icon">
+											<!-- If inside building then always show the walk icon -->
+											<span *ngIf="leg._mi.type == 'mapsindoors.DirectionsLeg'">
+												<mat-icon>directions_walk</mat-icon>
+											</span>
+											<span *ngIf="leg._mi.type == 'google.maps.DirectionsLeg'">
+												<!-- Walk icon for transit  -->
+												<mat-icon *ngIf="leg.travel_mode && leg.travel_mode === 'WALKING'">
+													directions_walk</mat-icon>
+
+												<mat-icon *ngIf="travelMode === 'WALKING'">directions_walk</mat-icon>
+												<mat-icon *ngIf="travelMode === 'BICYCLING'">directions_bike</mat-icon>
+												<mat-icon *ngIf="travelMode === 'DRIVING'">drive_eta</mat-icon>
+											</span>
+										</div>
+
+										<div class="a-text">
+											<div class="ie-headsign-wrap">
+												<span *ngIf="leg._mi.type == 'mapsindoors.DirectionsLeg'"
+													style="margin-right: 8px; font-weight: 600;">
+													<span>{{'DirectionRoute.Walk' | translate }}</span>
+												</span>
+
+												<span *ngIf="leg._mi.type == 'google.maps.DirectionsLeg'"
+													style="margin-right: 8px; font-weight: 600;">
+													<!-- Instruction for transit  -->
+													<span *ngIf="leg.travel_mode && leg.travel_mode === 'WALKING'">
+														{{'DirectionRoute.Walk' | translate }}
+													</span>
+													<span *ngIf="travelMode === 'WALKING'">
+														{{'DirectionRoute.Walk' | translate }}
+													</span>
+													<span *ngIf="travelMode === 'BICYCLING'">
+														{{'DirectionRoute.Ride' | translate }}
+													</span>
+													<span *ngIf="travelMode === 'DRIVING'">
+														{{'DirectionRoute.Drive' | translate }}
+													</span>
+												</span>
+												<span class="text-discreet">
+													{{distanceAsText(leg.distance.value)}}
+													<span>({{durationAsText(leg.duration.value)}})</span>
+												</span>
+											</div>
+
+											<!-- toggle -->
+											<div>
+												<div class="ie-instruction-toggle" style="display: block; width: 100%;"
+													*ngIf="leg._mi.type === 'google.maps.DirectionsLeg'">
+													<div style="height: 24px; float: left;">
+														<mat-icon *ngIf="segmentExpanded != leg.index"
+															(click)="!toggleSegment(leg.index)">
+															keyboard_arrow_right
+														</mat-icon>
+														<mat-icon *ngIf="segmentExpanded === leg.index"
+															(click)="toggleSegment(leg.index)">
+															keyboard_arrow_down
+														</mat-icon>
+													</div>
+													<div style="height: 24px; float: left;">
+														<a class="text-link" style="font-size: 13px; line-height: 24px"
+															(click)="toggleSegment(leg.index)">
+															{{'DirectionRoute.Directions' | translate }}
+														</a>
+													</div>
+												</div>
+											</div>
+
+											<div class="ie-instructions"
+												*ngIf="leg._mi.type === 'google.maps.DirectionsLeg'">
+
+												<!-- Steps -->
+												<div style="font-size: 13px; margin-top: 8px;"
+													*ngIf="leg.index === segmentExpanded">
+													<div style="float: left;" *ngFor="let step of leg.steps">
+														<!-- Step action icon -->
+														<div class="adp-maneuver {{step.maneuver}}"></div>
+														<!-- Step content -->
+														<div style="padding-left: 30px;">
+															<!-- Step instruction -->
+															<div *ngIf="step.instructions"
+																[innerHTML]="step.instructions">
+															</div>
+															<!-- Distance and ruler-->
+															<div class="ie-step-footer" style="padding-top: 8px;">
+																<span class="step-distance text-discreet">
+																	{{distanceAsText(step.distance.value)}}
+																</span>
+																<hr class="ie-ruler-discreet">
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+										</div>
+									</section>
+
+									<!-- Last leg -->
+									<section class="spacing" style="line-height:24px; padding-top:8px"
+										*ngIf="leg.index == directionService.directionsLegs.length - 1">
+										<h2 class="ie-segment-headline" style="padding-top: 16px; padding-bottom: 0">
+											<span class="action">{{ 'DirectionRoute.End' | translate }}:</span>
+											{{destinationInputValue}}
+										</h2>
+									</section>
+								</section>
+								<!--#endregion -->
+
+							</div>
+						</section>
+					</section>
+				</section>
+			</div>
+			<!-- #region Agency information -->
+			<section class="agency-container" *ngIf="agencies.length > 0">
+				<div class="agency-toggle-wrap flex-v-center" (click)="toggleAgencyInfo()">
+					<p class="toggle-agency">{{ 'DirectionRoute.AgencyInfo' | translate }} ({{agencies.length}})</p>
+					<mat-icon class="text-discreet" *ngIf="!showAgencyInfo">keyboard_arrow_right</mat-icon>
+					<mat-icon class="text-discreet" *ngIf="showAgencyInfo">keyboard_arrow_down</mat-icon>
+				</div>
+				<div *ngIf="showAgencyInfo">
+					<section class="agency" *ngFor="let agency of agencies">
+						<!-- Name -->
+						<p class="agency-header">{{agency.name}}</p>
+						<div class="agency-content" *ngIf="agency.phone || agency.url">
+							<!-- Phone -->
+							<p *ngIf="agency.phone">
+								<span>{{ 'DirectionRoute.Phone' | translate }}: </span>
+								<span>{{agency.phone}}</span>
+							</p>
+							<!-- Url -->
+							<p *ngIf="agency.url">
+								<span>{{ 'DirectionRoute.Website' | translate }}: </span>
+								<span>
+									<a class="text-link" href="{{agency.url}}" target="_blank">
+										{{agency.website.protocol}}//{{agency.website.hostname}}
+									</a>
+								</span>
+							</p>
+						</div>
+						<hr class="ruler-discreet" *ngIf="agencies.length > 1">
+					</section>
+				</div>
+			</section>
+			<!-- #endregion -->
+
+			<!-- #region Footer -->
+			<footer class="footer-content">
+				<span *ngIf="isPoweredByGoogle" class="content-text center">
+					<img class="powered-by-google" src="/assets/images/powered_by_google_on_white_hdpi.png" />
+				</span>
+
+				<!-- Show on map, Previous and next button -->
+				<div class="flex-h-center direction-btn-wrap" *ngIf="directionService.directionsLegs.length > 1">
+					<button mat-raised-button *ngIf="isHandset" (click)="showOnMap()">
+						{{ 'Buttons.ShowOnMap' | translate }}
+					</button>
+					<button mat-raised-button [disabled]="currentLegIndex == 0" *ngIf="!isHandset"
+						(click)="prevSegment()">
+						{{'DirectionRoute.Previous' | translate }}
+					</button>
+					<button mat-raised-button
+						[disabled]="currentLegIndex == (directionService.directionsLegs.length - 1)" *ngIf="!isHandset"
+						(click)="nextSegment()" [style.background-color]="colors.accent"
+						[style.color]="colors.onAccent">
+						{{ 'DirectionRoute.Next' | translate }}
+					</button>
+				</div>
+			</footer>
+			<!-- #endregion -->
+		</section>
+
+	</section>
+
+	<section *ngIf="userRolesPanel" class="elevation-z2">
+		<mat-toolbar [style.background-color]="colors.primary" style="padding: 0px 40px 0 6px;">
+			<nav class="nav-travel-mode">
+				<button mat-icon-button (click)="toggleUserRolesPanel()">
+					<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
+				</button>
+				<h1>{{ 'Direction.RouteSettings' | translate }}</h1>
+				<span>
+					<!-- placeholder --></span>
+			</nav>
+
+		</mat-toolbar>
+	</section>
+	<section class="content-container" *ngIf="userRolesPanel">
+		<section class="content">
+			<h1>{{ 'Direction.AppUserRoles' | translate }}</h1>
+			<p class="content-text">
+				{{ 'Direction.ChooseTheAppUserRoles...' | translate }}
+			</p>
+			<mat-selection-list #userRoles [(ngModel)]="selecedUserRoles" (selectionChange)="onUserRolesChange($event)">
+				<mat-list-option *ngFor="let role of userRolesList" [value]="role.id">{{role.name}}</mat-list-option>
+			</mat-selection-list>
+		</section>
+	</section>
+</aside>

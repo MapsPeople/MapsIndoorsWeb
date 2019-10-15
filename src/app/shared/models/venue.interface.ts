@@ -1,3 +1,5 @@
+import { Anchor } from './anchor.interface';
+
 export interface Venue {
 	id: string,
 	anchor: Anchor,
@@ -8,13 +10,9 @@ export interface Venue {
 	boundingBox: BoundingBox
 }
 
-interface Anchor {
-	coordinates: number[],
-	type: number
-}
-
 interface Geometry {
 	coordinates: number[],
+	bbox?: number[],
 	type: number
 }
 

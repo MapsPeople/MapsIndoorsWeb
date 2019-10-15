@@ -35,5 +35,17 @@ export class UserAgentService {
 		return this.isDeviceHandset.asObservable();
 	}
 
+	/**
+	 * @description Uses the device position to determinate where the user are.
+	 * @returns {Promise} Gets and return the current position of the device.
+	 * @memberof UserAgentService
+	 */
+	getCurrentPosition(options) {
+		return new Promise((resolve, reject) => {
+			navigator.geolocation.getCurrentPosition((position) => resolve(position),
+				(err) => reject(err), options);
+		});
+	}
+
 
 }

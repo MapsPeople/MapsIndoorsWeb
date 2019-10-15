@@ -75,5 +75,8 @@
 		"LinkCopied": "Kopieret til dit clipboard",
 		"LinkCopiedError": "Din browser understøtter ikke denne funktion",
 		"GeoLocationError": "Slå lokationsdeling til for at bruge din position"
+	},
+	"Error": {
+		"IncorrectId": "Forkert id"
 	}
 }

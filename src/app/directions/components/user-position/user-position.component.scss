@@ -1,0 +1,6 @@
+@import "../../../../assets/styles/sass/helpers/variables";
+
+.list-item-disabled {
+	cursor: not-allowed !important;
+    color: $color-gray-light;
+}

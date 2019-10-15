@@ -67,7 +67,7 @@ export class DirectionService {
 		}
 
 		// Set correct floor
-		let legFloor:Number = 0;
+		let legFloor: number = 0;
 		if (steps[0].end_location.zLevel) {
 			legFloor = steps[0].end_location.zLevel;
 		} else if (this.directionsLegs[index]._mi.type === 'google.maps.DirectionsLeg' && this.directionsLegs[index].end_location.zLevel) {
@@ -75,7 +75,7 @@ export class DirectionService {
 		} else if (this.directionsLegs[index]._mi.type === 'google.maps.DirectionsLeg' && this.directionsLegs[index].start_location.zLevel) {
 			legFloor = this.directionsLegs[index].start_location.zLevel;
 		}
-		await this.mapsIndoorsService.setFloor(legFloor);
+		this.mapsIndoorsService.setFloor(legFloor.toString());
 
 		// Push coordinates for each step to array
 		for (const step of steps) {
@@ -88,11 +88,11 @@ export class DirectionService {
 		await this.fitMap(coordinatesArray);
 
 		// Set non animated polyline
-		await this.setStaticPolyline(coordinatesArray);
+		this.setStaticPolyline(coordinatesArray);
 
 		// Draw animated polyline
-		await this.setAnimatedPolyline();
-		await this.animatePolyline(coordinatesArray);
+		this.setAnimatedPolyline();
+		this.animatePolyline(coordinatesArray);
 	}
 
 	fitMap(coordinates) {
@@ -131,71 +131,82 @@ export class DirectionService {
 
 	// #region - Static Polyline
 	setStaticPolyline(coordinatesArray) {
-		this.staticPolyline = new google.maps.Polyline({
-			path: coordinatesArray,
-			geodesic: true,
-			strokeColor: '#1E88E5',
-			strokeOpacity: .5,
-			strokeWeight: 6
-		});
+		if (this.staticPolyline instanceof google.maps.Polyline) {
+			this.staticPolyline.setPath(coordinatesArray);
+		} else {
+			this.staticPolyline = new google.maps.Polyline({
+				path: coordinatesArray,
+				geodesic: true,
+				strokeColor: '#1E88E5',
+				strokeOpacity: .5,
+				strokeWeight: 6
+			});
+		}
 		this.staticPolyline.setMap(this.googleMapService.googleMap);
 	}
 	// #endregion
 
 	// #region - Animated Polyline
 	setAnimatedPolyline() {
-		this.animatedPolyline = new google.maps.Polyline({
-			path: [],
-			geodesic: true,
-			strokeColor: '#1E88E5',
-			strokeOpacity: 1.0,
-			strokeWeight: 3,
-			map: this.googleMapService.googleMap,
-			zIndex: 200
-		});
-		this.animatedPolyline.setVisible(true);
+		if (this.animatedPolyline instanceof google.maps.Polyline === false) {
+			this.animatedPolyline = new google.maps.Polyline({
+				path: [],
+				geodesic: true,
+				strokeColor: '#1E88E5',
+				strokeOpacity: 1.0,
+				strokeWeight: 3,
+				map: this.googleMapService.googleMap,
+				zIndex: 200
+			});
+			this.animatedPolyline.setVisible(true);
+		}
 	}
 
-	async animatePolyline(coordinatesArray) {
+	animatePolyline(coordinatesArray) {
 		let speed: number = 0;
 		let distance: number = 0;
 		const fps: number = 60;
 		const duration: number = 5;
 		const miles: boolean = false;
+		let polylinePath = [];
+
+		this.animatedPolyline.setMap(this.googleMapService.googleMap);
 
 		for (const coordinate of coordinatesArray) {
 
 			if (coordinate === coordinatesArray[0]) {
 				const pointA: any = new google.maps.LatLng(coordinatesArray[0].lat, coordinatesArray[0].lng);
 				pointA.distance = 0;
-				this.polylinePath.push(pointA);
+				polylinePath.push(pointA);
 			}
 
-			const pointA = this.polylinePath[this.polylinePath.length - 1];
+			const pointA = polylinePath[polylinePath.length - 1];
 			const pointB: any = coordinate instanceof google.maps.LatLng ? coordinate : new google.maps.LatLng(coordinate.lat, coordinate.lng);
 			if (!pointA.equals(pointB)) {
 
 				if (miles) {
-					pointB.distance = await this.getDistanceInMiles(pointA, pointB);
+					pointB.distance = this.getDistanceInMiles(pointA, pointB);
 				}
 				else {
 					pointB.distance = (pointA.distance + google.maps.geometry.spherical.computeDistanceBetween(pointA, pointB));
 				}
 
-				this.polylinePath.push(pointB);
+				polylinePath.push(pointB);
 			}
 		}
 
-		speed = this.polylinePath[this.polylinePath.length - 1].distance / duration;
+		this.polylinePath = polylinePath;
 
-		const self = this;
+		speed = polylinePath[polylinePath.length - 1].distance / duration;
+
+		clearInterval(this.animatedPolylineAnimation);
 		this.animatedPolylineAnimation = setInterval(() => {
 			// Stop looping when hitting end of path if the loop var is set to false
-			if (distance > self.polylinePath[self.polylinePath.length - 1].distance) {
+			if (distance > this.polylinePath[this.polylinePath.length - 1].distance) {
 				distance = 0;
 			}
 			distance += (speed < 50 ? 15 : speed) / fps;
-			self.animatedPolyline.setPath(self.getPath(distance));
+			this.animatedPolyline.setPath(this.getPath(distance));
 		}, 1000 / fps);
 	}
 

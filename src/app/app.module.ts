@@ -18,10 +18,14 @@ import { SearchComponent } from './search/search.component';
 import { DetailsComponent } from './details/details.component';
 import { InfoDialogComponent } from './search/info-dialog/info-dialog.component';
 import { ShareUrlDialogComponent } from './details/share-url-dialog/share-url-dialog.component';
-import { DirectionsComponent } from './directions/directions.component';
 import { SetSolutionComponent } from './set-solution/set-solution.component';
 import { MapComponent } from './map/map.component';
 import { SetupComponent } from './setup/setup.component';
+import { HorizontalDirectionsComponent } from './directives/horizontal-directions/horizontal-directions.component';
+import { LocationImgComponent } from './shared/components/location-img/location-img.component';
+
+// Modules
+import { DirectionsModule } from './directions/directions.module';
 
 // Services
 import { GoogleMapService } from './services/google-map.service';
@@ -31,8 +35,7 @@ import { LocationService } from './services/location.service';
 import { MapsIndoorsService } from './services/maps-indoors.service';
 import { DirectionService } from './services/direction.service';
 import { SolutionService } from './services/solution.service';
-import { HorizontalDirectionsComponent } from './directives/horizontal-directions/horizontal-directions.component';
-import { LocationImgComponent } from './shared/components/location-img/location-img.component';
+import { RoutingStateService} from './services/routing-state.service';
 
 @NgModule({
 	declarations: [
@@ -42,7 +45,6 @@ import { LocationImgComponent } from './shared/components/location-img/location-
 		DetailsComponent,
 		InfoDialogComponent,
 		ShareUrlDialogComponent,
-		DirectionsComponent,
 		HorizontalDirectionsComponent,
 		LocationImgComponent,
 		SetSolutionComponent,
@@ -77,7 +79,8 @@ import { LocationImgComponent } from './shared/components/location-img/location-
 				useFactory: HttpLoaderFactory,
 				deps: [HttpClient]
 			}
-		})
+		}),
+		DirectionsModule
 	],
 	exports: [
 		MatButtonModule,
@@ -88,7 +91,8 @@ import { LocationImgComponent } from './shared/components/location-img/location-
 	],
 	providers: [
 		SolutionService,
-		AppConfigService
+		AppConfigService,
+		RoutingStateService
 	],
 	bootstrap: [
 		AppComponent

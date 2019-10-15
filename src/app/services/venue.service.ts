@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AppConfigService } from './app-config.service';
 import { MapsIndoorsService } from '../services/maps-indoors.service';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, ReplaySubject } from 'rxjs';
 import { Venue } from '../shared/models/venue.interface';
 
 declare const mapsindoors: any;
@@ -19,7 +19,7 @@ export class VenueService {
 	fitVenues: boolean = true;
 	returnBtnActive: boolean = true;
 
-	private venueObservable = new BehaviorSubject<any>({});
+	private venueObservable = new ReplaySubject<Venue>(1);
 
 	constructor(
 		private appConfigService: AppConfigService,
@@ -54,10 +54,14 @@ export class VenueService {
 	}
 
 	// #region || GET VENUE BY ID
-	async getVenueById(venueId) {
-		const venueRequest = this.miVenueService.getVenue(venueId);
-		const venue = await venueRequest;
-		return venue;
+	/**
+	 * @description Get a venue by it's id.
+	 * @param {string} venueId
+	 * @returns {Promise} Promise resolves a Venue.
+	 * @memberof VenueService
+	 */
+	getVenueById(venueId: string): Promise<Venue> {
+		return this.miVenueService.getVenue(venueId);
 	}
 	// #endregion
 
@@ -77,7 +81,7 @@ export class VenueService {
 			}
 		}
 		// Used for return to "something" button
-		this.mapsIndoorsService.setReturnToValues(venue.venueInfo.name, venue.anchor.center, true);
+		this.mapsIndoorsService.setVenueAsReturnToValue(venue);
 		this.returnBtnActive = true;
 		this.favouredVenue = true;
 		this.mapsIndoorsService.mapsIndoors.setVenue(venue);

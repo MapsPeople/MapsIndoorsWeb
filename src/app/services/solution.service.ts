@@ -10,7 +10,6 @@ declare var mapsindoors: any;
 export class SolutionService {
 	solution: any;
 	appConfig: any;
-	solutionName: string = "";
 	googleMapsApiTag: HTMLElement;
 	miSdkApiTag: HTMLElement;
 
@@ -116,12 +115,8 @@ export class SolutionService {
 	//#endregion
 
 	// #region || SOLUTION NAME
-	setSolutionName() {
-		this.solutionName = location.pathname.split('/')[1];
-	}
-
 	getSolutionName() {
-		return this.solutionName;
+		return location.pathname.split('/')[1];
 	}
 	// #endregion
 
@@ -152,25 +147,13 @@ export class SolutionService {
 	}
 	// #endregion
 
-	// #region || GET SOLUTION TYPES
-	async getSolutionTypes() {
-		if (this.solution) {
-			return this.solution.types;
-		}
-		else {
-			await this.getSolution();
-			return this.solution.types;
-		}
-	}
-	// #endregion
-
 	// #region || GET USER ROLES
 	/**
 	 * Gets a list of User Roles
 	 * @returns Array<AppUserRole>
 	 * @memberof SolutionService
 	 */
-	async getUserRoles() {
+	getUserRoles() {
 		return mapsindoors.SolutionsService.getUserRoles();
 	}
 	// #endregion

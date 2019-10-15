@@ -12,8 +12,11 @@ import { GoogleMapService } from '../services/google-map.service';
 import { environment } from '../../environments/environment';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { NotificationService } from '../services/notification.service';
+import { SearchService } from '../directions/components/search/search.service';
 
 import { Venue } from '../shared/models/venue.interface';
+import { Location } from '../shared/models/location.interface';
 
 declare const ga: Function;
 
@@ -46,8 +49,8 @@ export class SearchComponent implements OnInit, OnDestroy {
 	loadingLocations: boolean = false;
 	endOfArray: boolean = false;
 
-	zoomBtn: any;
-	zoomBtnListener: any;
+	zoomBtn: HTMLElement;
+	zoomBtnListener: google.maps.MapsEventListener;
 
 	debounceSearch: Subject<string> = new Subject<string>();
 	debounceSearchSubscription: Subscription;
@@ -73,6 +76,8 @@ export class SearchComponent implements OnInit, OnDestroy {
 		private mapsIndoorsService: MapsIndoorsService,
 		private infoDialog: MatDialog,
 		private themeService: ThemeService,
+		private notificationService: NotificationService,
+		private searchService: SearchService
 	) {
 		this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
 		this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
@@ -89,7 +94,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	ngOnInit() {
+	ngOnInit(): void {
 		this.venueSubscription = this.venueService.getVenueObservable().subscribe((venue: Venue) => {
 			if (venue && venue.id) {
 				this.venue = venue;
@@ -105,10 +110,22 @@ export class SearchComponent implements OnInit, OnDestroy {
 
 	// #region || SEARCH AND RESULTS
 
-	async setLocation(location) {
-		this.locationService.setLocation(location);
-		const solutionName = await this.solutionService.getSolutionName();
-		this.router.navigate([`${solutionName}/${this.venue.id}/details/${location.id}`]);
+	/**
+	 * @description Setting the selected location.
+	 * @param {Location} location
+	 * @memberof SearchComponent
+	 */
+	setLocation(location: Location): void {
+		this.locationsArray = [];
+		this.loading = true;
+		this.locationService.setLocation(location)
+			.then(() => {
+				this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/details/${location.id}`]);
+			})
+			.catch((err) => {
+				this.notificationService.displayNotification(err);
+				this.loading = false;
+			});
 	}
 
 	// getClusteredLocations() {
@@ -153,7 +170,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 	}
 
 	// Show/hide search hint when focus/blur on input
-	searchInFocus(booleanValue) {
+	searchInFocus(booleanValue): void {
 		if (this.search.query && this.search.query.length === 1) {
 			return;
 		}
@@ -203,13 +220,13 @@ export class SearchComponent implements OnInit, OnDestroy {
 	async categoryRequest(category, skip?) {
 		const s = skip | 0;
 		const parameters = { take: 50, skip: s, venue: this.venue.name, categories: category.categoryKey, orderBy: 'name' };
-		const locations = await this.locationService.getLocations(parameters);
+		const locations = await this.searchService.getLocations(parameters);
 		// Display this locations on map
 		await this.pushLocationsToMap(locations, skip);
 		return locations;
 	}
 
-	searchValueChanged(value: string) {
+	searchValueChanged(value: string): void {
 		this.debounceSearch.next(value);
 	}
 
@@ -270,14 +287,14 @@ export class SearchComponent implements OnInit, OnDestroy {
 			{ q: query, take: 50, skip: s, categories: this.category.categoryKey, orderBy: 'name' } :
 			// Else request without
 			{ q: query, take: 50, skip: s, orderBy: 'name' };
-		const locations = await this.locationService.getLocations(parameters);
+		const locations = await this.searchService.getLocations(parameters);
 		// Display this locations on map
 		await this.pushLocationsToMap(locations, skip);
 		return locations;
 	}
 
 	// Used for showing search results on map
-	pushLocationsToMap(locations, skip) {
+	pushLocationsToMap(locations, skip): void {
 		const locationsIdArray = [];
 		if (locations.length <= 0) {
 			return;
@@ -333,7 +350,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 	}
 
 	// Clear query
-	clearQuery(fitView = true) {
+	clearQuery(fitView = true): void {
 		this.search.query = "";
 		this.previousQuery = "";
 		this.skip = 0;
@@ -408,7 +425,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 		else {
 			const solutionId = await this.solutionService.getSolutionId();
 			localStorage.removeItem('MI:' + solutionId);
-			this.mapsIndoorsService.floorSelector(false);
+			this.mapsIndoorsService.hideFloorSelector();
 			this.clearAll();
 			this.venueService.favouredVenue = false;
 			this.venueService.fitVenues = false;
@@ -418,7 +435,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	clearAll(fitView = true) {
+	clearAll(fitView = true): void {
 		this.locationsArray = [];
 		if (this.mapsIndoorsService.mapsIndoors) this.mapsIndoorsService.mapsIndoors.filter(null, fitView);
 		this.debounceSearch.next(); // Hack to clear previous query
@@ -434,8 +451,8 @@ export class SearchComponent implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-	ngOnDestroy() {
-		this.hideZoomBtn();
+	ngOnDestroy(): void {
+		if (this.zoomBtn) this.hideZoomBtn();
 		window["angularComponentRef"] = null;
 		// this.mapsIndoorsService.mapsIndoors.filter(null)
 		// this.googleMapService.infoWindow.close();
@@ -450,7 +467,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 	// #endregion
 
 	// #region || DIALOG || INFO
-	openInfoDialog() {
+	openInfoDialog(): void {
 		this.dialogRef = this.infoDialog.open(InfoDialogComponent, {
 			width: '500px',
 			autoFocus: false,

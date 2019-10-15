@@ -1,10 +1,13 @@
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { Observable, BehaviorSubject, ReplaySubject } from 'rxjs';
 import { AppConfigService } from './app-config.service';
 import { GoogleMapService } from './google-map.service';
 import { Injectable } from '@angular/core';
 import { MapsIndoorsService } from './maps-indoors.service';
 import { SolutionService } from '../services/solution.service';
 import { VenueService } from './venue.service';
+import { Venue } from '../shared/models/venue.interface';
+import { Location } from '../shared/models/location.interface';
+import { SearchService } from '../directions/components/search/search.service';
 
 declare const mapsindoors: any;
 
@@ -13,15 +16,13 @@ declare const mapsindoors: any;
 })
 export class LocationService {
 
-	miLocationService = mapsindoors.LocationsService;
-	routeState: boolean = false;
 	appConfig: any;
+	venue: Venue;
 	// Used for restoring page when going back search page
 	searchQuery: string = "";
 	selectedCategory: any;
-	gmIdleListener: any;
 
-	private selectedLocation = new Subject<any>();
+	private selectedLocation = new ReplaySubject<Location>(1);
 	polygon: google.maps.Polygon;
 
 	private clusteredLocations = new BehaviorSubject<any>([]);
@@ -32,8 +33,14 @@ export class LocationService {
 		private mapsIndoorsService: MapsIndoorsService,
 		private googleMapService: GoogleMapService,
 		private venueService: VenueService,
+		private searchService: SearchService
+
 	) {
 		this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
+		this.venueService.getVenueObservable()
+			.subscribe((venue: Venue) => {
+				this.venue = venue;
+			});
 	}
 
 	// #region || CATEGORY
@@ -52,55 +59,42 @@ export class LocationService {
 
 	// #region || LOCATION SET
 	setLocation(loc) {
-		return new Promise(async (resolve, reject) => {
-			const gmCenterStart = await this.googleMapService.googleMap.getCenter();
-			const gmCenterStartLagLng = gmCenterStart.lat() + gmCenterStart.lng();
-
+		return new Promise((resolve, reject) => {
 			this.mapsIndoorsService.isMapDirty = true;
 
 			this.formatLocation(loc)
-				.then(async (location) => {
+				.then((location) => {
+					this.selectedLocation.next(location);
+
 					// Draw polygon
 					if (location.geometry) this.drawRoomPolygon(location);
 
 					const anchor = new google.maps.LatLng(location.properties.anchor.coordinates[1], location.properties.anchor.coordinates[0]);
 
 					// Don't update "return to *" btn if POI is outside selected venue
-					if (this.venueService.venue.name === location.properties.venueId) {
-						this.mapsIndoorsService.setReturnToValues(location.properties.name, anchor, false);
+					if (this.venue.name === location.properties.venueId) {
+						this.mapsIndoorsService.setLocationAsReturnToValue(location);
 						this.mapsIndoorsService.mapsIndoors.location = location; // Used for a check for the "Return to *" button
 					}
-
-					// NOTE: Removing previous listener to avoid triggering it multiple times if idle hasn't been fired for previous location
-					if (this.gmIdleListener) await this.gmIdleListener.remove();
-					// Set floor
-					this.gmIdleListener = google.maps.event.addListenerOnce(this.googleMapService.googleMap, 'idle', () => {
-						this.mapsIndoorsService.mapsIndoors.setFloor(location.properties.floor);
-					});
-
-					// For observables
-					this.selectedLocation.next(location);
 
 					// Set center
 					if (this.googleMapService.googleMap.getZoom() < 19) this.googleMapService.googleMap.panTo(anchor);
 
-					// Populate info-window
-					const content = '<div class="infowindow text-link">' + location.properties.name + '</div>';
-					this.googleMapService.infoWindow.setContent(content);
-					this.googleMapService.infoWindow.setPosition(anchor);
-
-					// Set gm zoom level
+					// Set Google Maps zoom level
 					if (this.googleMapService.googleMap.getZoom() < 19) this.googleMapService.googleMap.setZoom(19);
 
-					// Open info-window
-					this.googleMapService.infoWindow.open(this.googleMapService.googleMap);
+					// Populate and open info window
+					this.googleMapService.updateInfoWindow(location.properties.name, anchor);
+					this.googleMapService.openInfoWindow();
 
-					// Workaround: If idle isn't triggered then setFloor() anyways
-					const gmCenterEnd = await this.googleMapService.googleMap.getCenter();
-					const gmCenterEndLagLng = gmCenterEnd.lat() + gmCenterEnd.lng();
-					if (gmCenterStartLagLng === gmCenterEndLagLng) this.mapsIndoorsService.mapsIndoors.setFloor(location.properties.floor);
+					// Set floor
+					this.mapsIndoorsService.setFloor(location.properties.floor);
 
 					resolve();
+				})
+				.catch(() => {
+					// TODO: Send a more detailed reason for promise to fail.
+					reject('An error occurred, please try again later.');
 				});
 		});
 	}
@@ -130,8 +124,12 @@ export class LocationService {
 
 	async formatLocation(loc) {
 		let location: any;
-		// NOTE: Clicking a POI returns a different object than when clicking a room, to prevent that =>
-		if (!loc.geometry.bbox) await this.getLocationById(loc.id).then((l) => location = l);
+		// If loc is a point then request the location to get the room coordinates as well.
+		// OBS: Only newer solutions have room coordinates and the request is therefor not making a difference for older solutions.
+		if (loc.geometry.type === "Point") {
+			await this.getLocationById(loc.id)
+				.then((l) => location = l);
+		}
 		else location = loc;
 
 		// Check if there are a image else set venue image
@@ -190,23 +188,41 @@ export class LocationService {
 	}
 
 	// Get by ID
-	getLocationById(locationId) {
-		return new Promise(async (resolve, reject) => {
-			const location = await this.miLocationService.getLocation(locationId);
-			resolve(location);
-		});
+	/**
+	 * @description Get a location by it's id.
+	 * @param {string} locationId Id of the location.
+	 * @returns {Promise} Returns a location.
+	 * @memberof LocationService
+	 */
+	getLocationById(locationId: string) {
+		return mapsindoors.LocationsService.getLocation(locationId);
 	}
-	// #endregion
 
-	// #region || LOCATION CLEAR
-	clearLocation() {
-		this.selectedLocation.next();
+	/**
+	 * @description Get a location by it's Room id.
+	 * @param {string} roomId - Room id of the location.
+	 * @returns {Promise} - Resolves a location.
+	 * @memberof LocationService
+	 */
+	getLocationByRoomId(roomId: string) {
+		return new Promise((resolve, reject) => {
+			this.searchService.getLocations({ roomId: roomId })
+				.then((locations: Location[]) => {
+					const location = locations.find((location: Location) =>
+						location.properties.roomId === roomId
+						&& location.properties.venue === this.venue.venueInfo.name
+					);
+					if (location) resolve(location);
+					else reject('No location found');
+				});
+		});
 	}
 	// #endregion
 
 	// #region || CLUSTERED LOCATIONS
 	setClusteredLocations(locations) {
-		this.setIcons(locations).then((populatedLocations) => this.clusteredLocations.next(populatedLocations));
+		this.searchService.setIcons(locations)
+			.then((updatedLocations) => this.clusteredLocations.next(updatedLocations));
 	}
 
 	getClusteredLocations(): Observable<any> {
@@ -217,47 +233,4 @@ export class LocationService {
 		this.clusteredLocations.next([]);
 	}
 	// #endregion
-
-	// #region || LOCATIONS GET
-	getLocations(parameters) {
-		return new Promise(async (resolve, reject) => {
-			const l: any[] = await this.miLocationService.getLocations(parameters);
-			this.setIcons(l)
-				.then((locations: any[]) => resolve(locations));
-		});
-	}
-	// #endregion
-
-	setIcons(locations) {
-		return new Promise(async (resolve, reject) => {
-			const populatedLocations: any[] = [];
-			// Set type icon
-			const types = await this.solutionService.getSolutionTypes();
-			const unknownType = types.filter((type) => {
-				return type.name === "Unknown";
-			});
-
-			for (const location of locations) {
-				// If there are a advanced icon
-				if (location.properties.displayRule && location.properties.displayRule.icon && location.properties.displayRule.icon.length > 0) {
-					location.properties.iconUrl = location.properties.displayRule.icon;
-				}
-				else {
-					// If location type match a type then set type icon
-					for (const type of types) {
-						if (location.properties.type.toLowerCase() === type.name.toLowerCase()) {
-							location.properties.iconUrl = type.icon;
-						}
-					}
-					// If no icon then set standard icon
-					//TODO: At some point update POI's and remove transparent and no icon check
-					if (!location.properties.iconUrl || location.properties.iconUrl === "" || location.properties.iconUrl.includes("transparent" || "noicon")) {
-						location.properties.iconUrl = unknownType[0].icon;
-					}
-				}
-				populatedLocations.push(location);
-			}
-			resolve(populatedLocations);
-		});
-	}
 }

@@ -1,0 +1,25 @@
+<mat-nav-list *ngIf="!disabledInBrowser">
+	<a mat-list-item (click)="handleClick()" [ngClass]="{'list-item-disabled' : loading}">
+		<span class="list-spinner" *ngIf="!loading">
+			<mat-icon>my_location</mat-icon>
+		</span>
+		<span class="list-spinner" *ngIf="loading">
+			<mat-spinner></mat-spinner>
+		</span>
+		<span class="list-text">
+			<span class="list-title">{{ 'Direction.MyPosition' | translate }}</span>
+		</span>
+	</a>
+</mat-nav-list>
+
+<mat-nav-list *ngIf="disabledInBrowser">
+	<a mat-list-item class="list-item-disabled" [disableRipple]="true">
+		<span class="list-spinner">
+			<mat-icon>my_location</mat-icon>
+		</span>
+		<span class="list-text">
+			<span class="list-title">{{ 'Direction.MyPosition' | translate }}</span>
+			<span class="list-title-sub">{{ 'Direction.EnableMyPosition' | translate }}</span>
+		</span>
+	</a>
+</mat-nav-list>

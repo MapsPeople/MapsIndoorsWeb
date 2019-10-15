@@ -5,7 +5,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { VenuesComponent } from './venues/venues.component';
 import { SearchComponent } from './search/search.component';
 import { DetailsComponent } from './details/details.component';
-import { DirectionsComponent } from './directions/directions.component';
+import { DirectionsComponent } from './directions/containers/directions.component';
 import { SetSolutionComponent } from './set-solution/set-solution.component';
 import { MapComponent } from './map/map.component';
 import { SetupComponent } from './setup/setup.component';
@@ -56,6 +56,10 @@ const routes: Routes = [
 			{
 				path: ':venueId/route/from/:from/to/:to',
 				component: DirectionsComponent
+			},
+			{
+				path: '**',
+				redirectTo: 'venues',
 			}
 		]
 	},
