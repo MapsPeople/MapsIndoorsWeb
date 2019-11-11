@@ -77,6 +77,7 @@
 		"GeoLocationError": "Slå lokationsdeling til for at bruge din position"
 	},
 	"Error": {
-		"IncorrectId": "Forkert id"
+		"IncorrectId": "Forkert id",
+		"General": "Ups, der er sket en fejl – forsøg igen senere."
 	}
 }

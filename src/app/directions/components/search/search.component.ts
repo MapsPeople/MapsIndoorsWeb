@@ -21,6 +21,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 	@Output('update') searchResults: EventEmitter<SearchData> = new EventEmitter<SearchData>();
 	@Output() error: EventEmitter<string> = new EventEmitter<string>();
 	@Output() currentInputField: EventEmitter<string> = new EventEmitter<string>();
+	@Output() blurred: EventEmitter<string> = new EventEmitter<string>();
 	@Output() loading: EventEmitter<boolean> = new EventEmitter<boolean>();
 
 	private searchTermSubscription: Subscription = new Subscription();

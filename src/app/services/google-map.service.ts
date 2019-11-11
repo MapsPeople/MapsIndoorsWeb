@@ -19,7 +19,7 @@ export class GoogleMapService {
 
 	// #region || LOAD GOOGLE MAP
 	initMap() {
-		return new Promise(async (resolve, reject) => {
+		return new Promise(async (resolve) => {
 			this.googleMap = await new google.maps.Map(document.getElementById('gmap'), this.mapOptions);
 			resolve();
 		});

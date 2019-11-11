@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material";
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { NotificationService } from 'src/app/services/notification.service';
 
@@ -32,10 +32,10 @@ export class ShareUrlDialogComponent {
 			link.select();
 			document.execCommand('copy');
 
-			this.notificationService.displayNotification("Notification.LinkCopied");
+			this.notificationService.displayNotification('Notification.LinkCopied');
 		} catch (err) {
 			// Browser doesn't support this function
-			this.notificationService.displayNotification("Notification.LinkCopiedError");
+			this.notificationService.displayNotification('Notification.LinkCopiedError');
 		}
 
 		// // Code below is not supported by Safari yet

@@ -1,6 +1,6 @@
 {
   "name": "maps-indoors-webapp",
-  "version": "3.7.5",
+  "version": "3.7.9",
   "scripts": {
     "ng": "ng",
     "start": "npm run build:dev --prefix ./modules/sdk | ng serve",
@@ -47,8 +47,8 @@
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
     "eslint": "^5.16.0",
+    "eslint-config-mapsindoors-typescript": "git+https://git@github.com/MapsPeople/eslint-config-mapsindoors-typescript.git",
     "eslint-plugin-import": "^2.17.2",
-    "replace-in-file": "^3.4.4",
     "html-webpack-plugin": "^3.2.0",
     "jasmine-core": "~3.3.0",
     "jasmine-spec-reporter": "~4.2.1",
@@ -58,6 +58,7 @@
     "karma-jasmine": "~1.1.1",
     "karma-jasmine-html-reporter": "^1.4.2",
     "protractor": "^5.4.2",
+    "replace-in-file": "^3.4.4",
     "ts-node": "~7.0.1",
     "typescript": "~3.1.6",
     "webpack": "^4.32.1",

@@ -17,7 +17,7 @@ export class ThemeService {
 
 	// #region || SET THEME COLORS
 	setColors() {
-		return new Promise(async (resolve, reject) => {
+		return new Promise(async (resolve) => {
 			const colors = {
 				primary: await this.getColorAsHex(this.appConfig.appSettings.primaryColor) || '#2196F3',
 				onPrimary: await this.getColorAsHex(this.appConfig.appSettings.primaryText) || '#ffffff',

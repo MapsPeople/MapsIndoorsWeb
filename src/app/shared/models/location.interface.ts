@@ -4,8 +4,8 @@ export interface Location {
     id: string,
     type: 0,
     geometry: {
-		"type": 0
-		coordinates?: google.maps.LatLng
+        'type': 0
+        coordinates?: google.maps.LatLng
     },
     properties: LocationProperties
 }
@@ -23,6 +23,7 @@ interface LocationProperties {
     floor: string,
     floorName: string,
     imageURL?: any,
+    iconUrl?: string,
     locationType: string,
     mapElement: string,
     name: string,

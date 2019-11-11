@@ -29,6 +29,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	isInternetExplorer: boolean;
 	isHandset: boolean;
 	isViewActive: boolean;
+	searchInputFieldHasFocus = false;
 	error: string;
 	colors: any;
 	loading = true;
@@ -55,7 +56,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		take: 10,
 		startingPoint: {},
 		getGoogleResults: true,
-		countryCodeRestrictions: ""
+		countryCodeRestrictions: ''
 	};
 	searchResults = [];
 	isPoweredByGoogle = false;
@@ -72,10 +73,10 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	imperial: boolean;
 	showAgencyInfo = false;
 	agencies = [];
-	totalTravelDuration: string = "";
-	totalTravelDistance: string = "";
+	totalTravelDuration: string = '';
+	totalTravelDistance: string = '';
 
-	startLegLabel: string = "";
+	startLegLabel: string = '';
 	segmentExpanded: number;
 	currentLegIndex: number = 0;
 
@@ -146,7 +147,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				this.loading = false;
 			});
 
-		window["angularComponentRef"] = { component: this, zone: this._ngZone };
+		window['angularComponentRef'] = { component: this, zone: this._ngZone };
 		this.mapsIndoorsService.isMapDirty = true; // Show clear map button
 	}
 	// #region || ROUTE
@@ -179,6 +180,22 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		this.error = null;
 		this.currentPositionVisible = false;
 		this.loading = true;
+	}
+
+	/**
+	 * Register the actively used search input field.
+	 * @param fieldName {string} 'start' or 'dest' field name
+	 */
+	public setCurrentInputField(fieldName): void {
+		this.searchInputFieldHasFocus = true;
+		this.currentInputField = fieldName;
+	}
+
+	/**
+	 * Register that no search input field has focus.
+	 */
+	public blurInputField(): void {
+		this.searchInputFieldHasFocus = false;
 	}
 
 	private anyGoogleResults(results) {
@@ -358,7 +375,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 						self.getRoute();
 					}
 					else {
-						console.log('Geocode was not successful for the following reason: ' + status);
+						console.log('Geocode was not successful for the following reason: ' + status); /* eslint-disable-line no-console */ /* TODO: Improve error handling */
 					}
 				});
 			}
@@ -392,7 +409,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 						self.getRoute();
 					}
 					else {
-						console.log('Geocode was not successful for the following reason: ' + status);
+						console.log('Geocode was not successful for the following reason: ' + status); /* eslint-disable-line no-console */ /* TODO: Improve error handling */
 					}
 				});
 			}
@@ -497,7 +514,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 					}
 				})
 				.catch((err) => {
-					console.log(err);
+					console.log(err); /* eslint-disable-line no-console */ /* TODO: Improve error handling */
 					this.loading = false;
 					this.error = this.translateService.instant('DirectionHint.NoRoute');
 				});
@@ -516,7 +533,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 					for (const leg of legs) {
 						if (leg.departure_time) {
 							for (const step of leg.steps) {
-								step._mi = { type: "google.maps.DirectionsLeg" };
+								step._mi = { type: 'google.maps.DirectionsLeg' };
 								legsExtended.push(step);
 							}
 						}
@@ -533,7 +550,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	}
 
 	async setUnitsPreference() {
-		this.imperial = await navigator.language === "en-US" ? true : false;
+		this.imperial = await navigator.language === 'en-US' ? true : false;
 		// const firstStepText = legsExtended[0].steps[0].distance.text;
 		// this.imperial = await (firstStepText.includes(" ft") || firstStepText.includes(" mi")) ? true : false;
 	}
@@ -565,7 +582,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
 	setIndexForLegs(legsExtended) {
 		let legIndex: number = 0;
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 			for (const leg of legsExtended) {
 				leg.index = legIndex ? legIndex : 0;
 				legIndex = ++legIndex;
@@ -576,7 +593,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
 	getTotalDistance(legs) {
 		let totalDistance: number = 0;
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 			for (const leg of legs) {
 				// Counting up total travel distance
 				totalDistance += leg.distance.value;
@@ -587,7 +604,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
 	getTotalDuration(legs) {
 		let totalDuration: number = 0;
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 			for (const leg of legs) {
 				// Counting up total travel time
 				totalDuration += leg.duration.value;
@@ -602,7 +619,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		const isInside = /^inside/i;
 		const entranceOrExits = [];
 
-		return new Promise(async (resolve, reject) => {
+		return new Promise(async (resolve) => {
 			for (const leg of legs) {
 				if (!leg.transit) {
 					leg.distance.text = await this.distanceAsText(leg.distance.value);
@@ -646,6 +663,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 								break;
 							case 'escalator':
 								leg.steps[0].instructions = '<span class="action">Escalator: </span>Level ' + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
+								break;
 							default:
 								break;
 						}
@@ -863,7 +881,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
 	ngOnDestroy() {
 		this.isViewActive = false;
-		window["angularComponentRef"] = null;
+		window['angularComponentRef'] = null;
 		this.clearRoute();
 		this.mapsIndoorsService.showFloorSelector();
 		this.legIndexSubscription.unsubscribe();

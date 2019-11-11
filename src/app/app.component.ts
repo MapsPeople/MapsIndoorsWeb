@@ -26,10 +26,10 @@ export class AppComponent {
 	async setLanguage() {
 		const language = await window.navigator.language;
 		// Do nothing if browser language is english
-		if (language === "en") return;
+		if (language === 'en') return;
 		// Else check if browser language is supported in app
 		// if( language == ("da" || "sp" || "la" || "ge"))
-		else if (language === "da") this.translate.use(language);
+		else if (language === 'da') this.translate.use(language);
 	}
 	// #endregion
 }

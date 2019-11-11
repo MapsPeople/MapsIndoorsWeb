@@ -83,7 +83,7 @@ export class MapComponent {
 		this.getVenueFromUrl()
 			.then(async (venue: Venue) => {
 				await this.venueService.setVenue(venue, this.appConfig);
-				this.mapsIndoorsService.showFloorSelector();
+				this.mapsIndoorsService.showFloorSelectorAfterUserInteraction();
 			})
 			.catch((err) => {
 				this.router.navigate([`${this.solutionService.getSolutionName()}/venues`]);
@@ -144,8 +144,8 @@ export class MapComponent {
 	// #region || CLEAR MAP
 	clearMap(): void {
 		this.googleMapService.closeInfoWindow();
-		this.locationService.searchQuery = "";
-		this.locationService.clearCategory();
+		this.locationService.clearQueryFilter();
+		this.locationService.clearCategoryFilter();
 		this.mapsIndoorsService.setPageTitle();
 		this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/search`]);
 		this.mapsIndoorsService.setVenueAsReturnToValue(this.venue);
@@ -155,7 +155,7 @@ export class MapComponent {
 	}
 	// #endregion
 
-	// #region || LISTENER || RETURN TO VENUE OR POI
+	// #region || LISTENER || RETURN TO VENUE OR POI
 	/**
 	 * @description Adds a Google Maps Idle and Return To button click listener.
 	 * @listens event:click Returns to previous selected venue or location when clicked.
@@ -250,7 +250,7 @@ export class MapComponent {
 	}
 	// #endregion
 
-	// #region || LISTENER || FLOOR CHANGED
+	// #region || LISTENER || FLOOR CHANGED
 	// Closes and opens info-windows when changing floors
 	addFloorChangedListener(): void {
 		google.maps.event.addListener(this.mapsIndoorsService.mapsIndoors, 'floor_changed', () => {

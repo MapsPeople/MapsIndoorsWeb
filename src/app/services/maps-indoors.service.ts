@@ -42,20 +42,20 @@ export class MapsIndoorsService {
 		this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
 	}
 
-	// #region || SET MAPS INDOORS
+	// #region || SET MAPS INDOORS
 	initMapsIndoors() {
-		return new Promise(async (resolve, reject) => {
+		return new Promise(async (resolve) => {
 
 			this.mapsIndoors = await new mapsindoors.MapsIndoors({
 				map: this.googleMapService.googleMap,
 				labelOptions: {
 					style: {
-						color: "rgba(82,82,82,1)",
-						fontFamily: "Open Sans",
-						fontSize: "12px",
+						color: 'rgba(82,82,82,1)',
+						fontFamily: 'Open Sans',
+						fontSize: '12px',
 						fontWeight: 300,
 						shadowBlur: 3,
-						shadowColor: "white"
+						shadowColor: 'white'
 					}
 				}
 			});
@@ -96,7 +96,23 @@ export class MapsIndoorsService {
 	}
 	// #endregion
 
-	// #region || FLOOR SELECTOR
+	// #region || FLOOR SELECTOR
+	showFloorSelectorAfterUserInteraction(): void {
+		const mapElement = document.getElementById('gmap');
+		const eventsToListenFor = ['touchmove', 'click', 'wheel']; // these are events we consider as user interactions with the map
+
+		const userInteracted = () => {
+			eventsToListenFor.forEach(event => mapElement.removeEventListener(event, userInteracted));
+
+			if (!this.floorSelectorIsVisible) {
+				this.showFloorSelector();
+			}
+		};
+
+		eventsToListenFor.forEach(event => mapElement.addEventListener(event, userInteracted));
+	}
+
+
 	/**
 	 * @description Creates a new floor selector.
 	 * @memberof MapsIndoorsService
@@ -130,6 +146,10 @@ export class MapsIndoorsService {
 	 * @memberof MapsIndoorsService
 	 */
 	hideFloorSelector(): void {
+		if (!this.floorSelectorIsVisible) {
+			return;
+		}
+
 		this.googleMapService.googleMap.controls[this.floorSelectorPosition].clear();
 		this.floorSelectorIsVisible = false;
 		google.maps.event.removeListener(this.floorSelectorListener);
@@ -138,12 +158,16 @@ export class MapsIndoorsService {
 
 	/**
 	 * @description Sets the floor.
-	 * @param {string | number} floor - The new floor to be set.
+	 * @param {string} floor - The new floor to be set.
 	 * @memberof MapsIndoorsService
 	 */
 	setFloor(floor: string): void {
 		if (this.mapsIndoors.getFloor() !== floor) {
 			this.mapsIndoors.setFloor(floor);
+		}
+
+		if (!this.floorSelectorIsVisible) {
+			this.showFloorSelector();
 		}
 	}
 	// #endregion
@@ -198,7 +222,7 @@ export class MapsIndoorsService {
 	}
 	// #endregion
 
-	// #region || PAGE TITLE
+	// #region || PAGE TITLE
 	// Don't belong in here
 	setPageTitle(title?: string): void {
 		if (title) this.pageTitle.next(title);

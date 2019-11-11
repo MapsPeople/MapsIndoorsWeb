@@ -12,17 +12,17 @@ export class AppConfigService {
 	setAppConfig() {
 		return new Promise((resolve, reject) => {
 			mapsindoors.AppConfigService.getConfig().then((appConfig) => {
-				appConfig.appSettings.title = appConfig.appSettings.title || "MapsIndoors";
+				appConfig.appSettings.title = appConfig.appSettings.title || 'MapsIndoors';
 				appConfig.appSettings.displayAliases = JSON.parse(appConfig.appSettings.displayAliases || false);
 				this.appConfig.next(appConfig);
 				resolve();
-			}).catch((err) => {
+			}).catch(() => {
 				reject();
 			});
 		});
 	}
 
-	// #region || GET APP CONFIG
+	// #region || GET APP CONFIG
 	getAppConfig(): Observable<any> {
 		return this.appConfig.asObservable();
 	}

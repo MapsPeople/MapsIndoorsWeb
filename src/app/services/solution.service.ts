@@ -2,7 +2,7 @@ import { AppConfigService } from './app-config.service';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 
-declare var mapsindoors: any;
+declare let mapsindoors: any;
 
 @Injectable({
 	providedIn: 'root'
@@ -42,7 +42,7 @@ export class SolutionService {
 			} else {
 				this.googleMapsApiTag = document.createElement('script');
 				this.googleMapsApiTag.setAttribute('type', 'text/javascript');
-				this.googleMapsApiTag.setAttribute('src', `//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyD8lfGCYzBMiIaGZM2JqHkSDfQbGZ-2zOM&libraries=geometry,places`);
+				this.googleMapsApiTag.setAttribute('src', '//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyD8lfGCYzBMiIaGZM2JqHkSDfQbGZ-2zOM&libraries=geometry,places');
 				document.body.appendChild(this.googleMapsApiTag);
 				this.googleMapsApiTag.onload = () => resolve();
 			}
@@ -60,13 +60,13 @@ export class SolutionService {
 	}
 
 	setSolution() {
-		return new Promise((resolve, reject) => {
-			const gmKey: string = this.appConfig.appSettings.gmKey ? this.appConfig.appSettings.gmKey : "AIzaSyD8lfGCYzBMiIaGZM2JqHkSDfQbGZ-2zOM";
+		return new Promise((resolve) => {
+			const gmKey: string = this.appConfig.appSettings.gmKey ? this.appConfig.appSettings.gmKey : 'AIzaSyD8lfGCYzBMiIaGZM2JqHkSDfQbGZ-2zOM';
 			const gaKey: string = this.appConfig.appSettings.gaKey;
 
 			// App Title
-			const appTitle = document.getElementsByTagName("title")[0];
-			appTitle.innerHTML = this.appConfig.appSettings.title || "MapsIndoors";
+			const appTitle = document.getElementsByTagName('title')[0];
+			appTitle.innerHTML = this.appConfig.appSettings.title || 'MapsIndoors';
 
 			// Google Maps Key
 			this.googleMapsApiTag.setAttribute('src', `//maps.googleapis.com/maps/api/js?v=3&key=${gmKey}&libraries=geometry,places`);
@@ -93,7 +93,7 @@ export class SolutionService {
 			gaDlScript_tag.innerHTML = !gaKey ? globalTagSingleKey : globalTagMultipleKeys;
 			document.head.appendChild(gaDlScript_tag);
 
-			const pageViewSingleKey = "ga('create', 'UA-63919776-8', 'auto'); ga('send', 'pageview');";
+			const pageViewSingleKey = 'ga(\'create\', \'UA-63919776-8\', \'auto\'); ga(\'send\', \'pageview\');';
 			const pageViewMultipleKeys = `ga('create', 'UA-63919776-8', 'auto');
 				ga('create', '${gaKey}', 'auto', 'clientTracker');
 					ga('send', 'pageview');
@@ -147,7 +147,7 @@ export class SolutionService {
 	}
 	// #endregion
 
-	// #region || GET USER ROLES
+	// #region || GET USER ROLES
 	/**
 	 * Gets a list of User Roles
 	 * @returns Array<AppUserRole>

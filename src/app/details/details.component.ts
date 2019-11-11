@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { MatSidenav, MatDialog, MatDialogRef } from '@angular/material';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -74,13 +74,13 @@ export class DetailsComponent implements OnInit, OnDestroy {
 		this.venueSubscription = this.venueService.getVenueObservable()
 			.subscribe((venue: Venue) => {
 				this.venue = venue;
+				if (!this.location) { // True when user comes from a direct link
+					this.setLocation();
+				}
 			});
-		if (!this.location) { // True when user comes from a direct link
-			this.setLocation();
-		}
 		this.isInternetExplorer = this.userAgentService.IsInternetExplorer();
 		this.displayAliases = this.appConfig.appSettings.displayAliases || false;
-		window["angularComponentRef"] = { component: this, zone: this._ngZone };
+		window['angularComponentRef'] = { component: this, zone: this._ngZone };
 	}
 
 	// #region || LOCATION
@@ -131,19 +131,26 @@ export class DetailsComponent implements OnInit, OnDestroy {
 	// #endregion
 
 	// #region || DESTROY
-	async goBack() {
-		const solutionName = await this.solutionService.getSolutionName();
-		const venueId = this.venue.id ? this.venue.id : this.route.snapshot.params.venueId;
-		this.router.navigate([`${solutionName}/${venueId}/search`]);
+	/**
+	 * @description Return to the previous page "Search-page".
+	 * @returns {void}
+	 * @memberof DetailsComponent
+	 */
+	goBack(): void {
 		this.mapsIndoorsService.isMapDirty = false;
 		this.mapsIndoorsService.setPageTitle();
 		this.mapsIndoorsService.setVenueAsReturnToValue(this.venue);
+		if (!this.locationService.getCategoryFilter()) {
+			this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/search`]);
+			return;
+		}
+		this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/search`], {queryParams: {cat: this.locationService.getCategoryFilter().categoryKey.toLowerCase()}});
 	}
 
 	ngOnDestroy() {
 		this.mapsIndoorsService.mapsIndoors.location = null;
 		this.mapsIndoorsService.mapsIndoors.filter(null, false); // Clear filter
-		window["angularComponentRef"] = null;
+		window['angularComponentRef'] = null;
 		this.googleMapService.closeInfoWindow();
 		if (this.locationService.polygon) this.locationService.polygon.setMap(null);
 		if (this.dialogSubscription) this.dialogSubscription.unsubscribe();
@@ -155,7 +162,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
 	}
 	// #endregion
 
-	// #region || DIALOG || SHARE DIALOG
+	// #region || DIALOG || SHARE DIALOG
 	openShareUrlDialog() {
 		this.dialogRef = this.shareUrlDialog.open(ShareUrlDialogComponent, {
 			width: '500px',

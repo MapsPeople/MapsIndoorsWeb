@@ -99,14 +99,14 @@ export class VenuesComponent implements OnInit, OnDestroy {
 				bounds = new google.maps.LatLngBounds({ lat: bbox[1], lng: bbox[0] }, { lat: bbox[3], lng: bbox[2] });
 			}
 			else {
-				console.log('Default venue ID is not correct');
+				console.log('Default venue ID is not correct'); /* eslint-disable-line no-console */ /* TODO: Improve error handling */
 			}
 		}
 		this.googleMapService.googleMap.fitBounds(bounds);
 	}
 	// #endregion
 
-	// #region || SET VENUE
+	// #region || SET VENUE
 	// Set venue and go to search-page
 	async setVenue(venue) {
 		this.venueService.setVenue(venue, this.appConfig);
@@ -117,7 +117,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
 
 		this.mapsIndoorsService.setPageTitle();
 
-		this.mapsIndoorsService.showFloorSelector();
+		this.mapsIndoorsService.showFloorSelectorAfterUserInteraction();
 		const solutionName = await this.solutionService.getSolutionName();
 		this.router.navigate([`${solutionName}/${venue.id}/search`]);
 		// Google Analytics

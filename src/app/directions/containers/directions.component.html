@@ -48,14 +48,18 @@
 			<!-- Search -->
 			<div style="width:100%">
 				<!-- Origin search -->
-				<search-input #originSearchComponent *ngIf="searchParameters" (currentInputField)="currentInputField = 'start'"
+				<search-input #originSearchComponent *ngIf="searchParameters"
+					(currentInputField)="setCurrentInputField('start')"
+					(blurred)="blurInputField()"
 					[query]="originInputValue" [searchParameters]="searchParameters"
 					[placeHolder]="'Direction.From'" (loading)="loadingHandler()" (update)="searchResultsChange($event)">
 				</search-input>
 
 				<!-- Destination search -->
-				<search-input #destinationSearchComponent *ngIf="searchParameters" (currentInputField)="currentInputField = 'dest'"
-					[query]="destinationInputValue" [searchParameters]="searchParameters" 
+				<search-input #destinationSearchComponent *ngIf="searchParameters"
+					(currentInputField)="setCurrentInputField('dest')"
+					(blurred)="blurInputField()"
+					[query]="destinationInputValue" [searchParameters]="searchParameters"
 					[placeHolder]="'Direction.To'" (loading)="loading = true" (update)="searchResultsChange($event)">
 				</search-input>
 
@@ -89,6 +93,9 @@
 			<!-- List -->
 			<user-position *ngIf="useBrowserPositioning && currentPositionVisible && currentInputField === 'start'"
 				(eventTriggered)="handleMyPositionClick($event)"></user-position>
+			<div class="content-text" *ngIf="!loading && searchResults.length === 0 && searchInputFieldHasFocus">
+				<p class="hint">{{ 'DirectionHint.searchHint' | translate }}</p>
+			</div>
 
 			<mat-nav-list *ngIf="searchResults && !loading">
 				<!-- List of queries -->

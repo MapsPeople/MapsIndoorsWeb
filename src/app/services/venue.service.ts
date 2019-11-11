@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AppConfigService } from './app-config.service';
 import { MapsIndoorsService } from '../services/maps-indoors.service';
-import { Observable, BehaviorSubject, ReplaySubject } from 'rxjs';
+import { Observable, ReplaySubject } from 'rxjs';
 import { Venue } from '../shared/models/venue.interface';
 
 declare const mapsindoors: any;
@@ -100,7 +100,7 @@ export class VenueService {
 	 * @memberof VenueService
 	 */
 	private getVenueBoundingBox(venue: Venue) {
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 			const bounds = {
 				east: -180,
 				north: -90,

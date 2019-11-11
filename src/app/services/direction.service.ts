@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Subject, Observable, Subscription } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { MapsIndoorsService } from './maps-indoors.service';
 import { GoogleMapService } from './google-map.service';
 
@@ -7,7 +7,7 @@ import { GoogleMapService } from './google-map.service';
 	providedIn: 'root'
 })
 export class DirectionService {
-	destinationQuery: string = "" // Used for horizontal legs
+	destinationQuery: string = '' // Used for horizontal legs
 	directionsLegs = [] // All direction legs
 
 	// NOTE: variables below are updated for each leg
@@ -55,7 +55,7 @@ export class DirectionService {
 		}
 
 		// Push steps to array
-		if (this.directionsLegs[index].travel_mode && this.directionsLegs[index].travel_mode === "TRANSIT") {
+		if (this.directionsLegs[index].travel_mode && this.directionsLegs[index].travel_mode === 'TRANSIT') {
 			for (const step of [this.directionsLegs[index]]) {
 				steps.push(step);
 			}
@@ -97,7 +97,7 @@ export class DirectionService {
 
 	fitMap(coordinates) {
 		const self = this;
-		return new Promise(async (resolve, reject) => {
+		return new Promise(async (resolve) => {
 			const bounds = new google.maps.LatLngBounds();
 			// Extend bounds with each point in array
 			for (const latLng of coordinates) {
@@ -106,12 +106,12 @@ export class DirectionService {
 			// Pan and zoom map to fit polyline nicely
 			await this.googleMapService.googleMap.fitBounds(bounds);
 
-			await new Promise((resolve, reject) => {
+			await new Promise((resolve) => {
 				// google.maps.event.addListenerOnce(this.googleMapService.googleMap, 'bounds_changed', async function () {
 				// NOTE: TilesLoaded doesn't work when it's just a new floor – maybe a fix would be to use the MI-floorChanged-listener
 				// google.maps.event.addListenerOnce(self.googleMapService.googleMap, "tilesloaded", resolve);
 				// console.log('tiles loaded')
-				google.maps.event.addListenerOnce(self.googleMapService.googleMap, "idle", resolve);
+				google.maps.event.addListenerOnce(self.googleMapService.googleMap, 'idle', resolve);
 				// });
 			});
 
@@ -168,7 +168,7 @@ export class DirectionService {
 		const fps: number = 60;
 		const duration: number = 5;
 		const miles: boolean = false;
-		let polylinePath = [];
+		const polylinePath = [];
 
 		this.animatedPolyline.setMap(this.googleMapService.googleMap);
 

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, filter } from 'rxjs/operators';
 import { SolutionService } from 'src/app/services/solution.service';
+import { Location } from '../../../shared/models/location.interface';
 
 declare const mapsindoors: any;
 
@@ -33,29 +32,30 @@ export class SearchService {
 				take: searchParameters.take,
 				near: searchParameters.startingPoint,
 			}),
-			this.getGooglePlaces(term, searchParameters)])
+            this.getGooglePlaces(term, searchParameters)
+        ])
 			.then((searchResults: any[]) => searchResults[0].concat(searchResults[1]))
-			.catch((err) => console.log(err));
+			.catch((err) => console.log(err)); /* eslint-disable-line no-console */ /* TODO: Improve error handling */
 	}
 
 	/**
 	 * @description Gets and returns matching MapsIndoors locations.
 	 * @param {*} parameters - Parameters to search by.
-	 * @returns {Promise} - Returns MapsIndoors search results.
+	 * @returns {Promise<Location[]>} - Returns an array of filtered MapsIndoors POI's.
 	 * @memberof SearchService
 	 */
-	getLocations(parameters) {
+	getLocations(parameters): Promise<Location[]> {
 		return mapsindoors.LocationsService.getLocations(parameters)
-			.then((locations) => this.setIcons(locations));
+			.then((locations: Location[]) => this.setIcons(locations));
 	}
 
 	/**
 	 * @description Populates the locations with a matching advanced or solution location types icon.
-	 * @param {*} locations - Array of MapsIndoors locations.
-	 * @returns {Promise} - A Promise with locations populated with icons.
+	 * @param {Location[]} locations - Array of MapsIndoors locations.
+	 * @returns {Promise<Location[]>} - A Promise with locations populated with icons.
 	 * @memberof SearchService
 	 */
-	setIcons(locations: any[]) {
+	setIcons(locations: Location[]) {
 		return new Promise((resolve, reject) => {
 			if (this.locationTypes.length < 1) reject('No solution types');
 
@@ -102,8 +102,8 @@ export class SearchService {
 			if (getGoogleResults) {
 				this.autocompleteService.getPlacePredictions({
 					input: term,
-					componentRestrictions: countryCodeRestrictions
-				}, (results, status) => {
+                    componentRestrictions: {country: countryCodeRestrictions}
+				}, (results) => {
 					const places = (results || []).map((result) => {
 						return {
 							type: 'Feature',

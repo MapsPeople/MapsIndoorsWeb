@@ -3,11 +3,12 @@ import { AppConfigService } from './app-config.service';
 import { GoogleMapService } from './google-map.service';
 import { Injectable } from '@angular/core';
 import { MapsIndoorsService } from './maps-indoors.service';
-import { SolutionService } from '../services/solution.service';
 import { VenueService } from './venue.service';
+import { SearchService } from '../directions/components/search/search.service';
+
 import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
-import { SearchService } from '../directions/components/search/search.service';
+import { Category } from '../shared/models/category.interface';
 
 declare const mapsindoors: any;
 
@@ -19,16 +20,15 @@ export class LocationService {
 	appConfig: any;
 	venue: Venue;
 	// Used for restoring page when going back search page
-	searchQuery: string = "";
-	selectedCategory: any;
+	private searchQuery: string;
+	private selectedCategory: Category;
 
 	private selectedLocation = new ReplaySubject<Location>(1);
 	polygon: google.maps.Polygon;
 
-	private clusteredLocations = new BehaviorSubject<any>([]);
+	private clusteredLocations = new BehaviorSubject<Location[]>([]);
 
 	constructor(
-		private solutionService: SolutionService,
 		private appConfigService: AppConfigService,
 		private mapsIndoorsService: MapsIndoorsService,
 		private googleMapService: GoogleMapService,
@@ -43,17 +43,57 @@ export class LocationService {
 			});
 	}
 
-	// #region || CATEGORY
-	setCategory(category) {
+	// #region || SEARCH FILTERS
+	/**
+	 * @description Update the selectedCategory property.
+	 * @param {Category} category - The category to filter by.
+	 * @memberof LocationService
+	 */
+	public setCategoryFilter(category: Category): void {
 		this.selectedCategory = category;
 	}
 
-	getCategory() {
-		return new Promise((resolve, reject) => this.selectedCategory ? resolve(this.selectedCategory) : reject);
+	/**
+	 * @description Get the category used for filtering previously.
+	 * @returns {Category} - The category filtered by previously.
+	 * @memberof LocationService
+	 */
+	public getCategoryFilter(): Category {
+		return this.selectedCategory;
 	}
 
-	clearCategory() {
+	/**
+	 * @description Clear the selectedCategory property.
+	 * @memberof LocationService
+	 */
+	public clearCategoryFilter(): void {
 		this.selectedCategory = null;
+	}
+
+	/**
+	 * @description Update the searchQuery property.
+	 * @param {string} query - The query used for filtering.
+	 * @memberof LocationService
+	 */
+	public setQueryFilter(query: string): void {
+		this.searchQuery = query;
+	}
+
+	/**
+	 * @description Get the query used for filtering previously.
+	 * @returns {string}
+	 * @memberof LocationService
+	 */
+	public getQueryFilter(): string {
+		return this.searchQuery;
+	}
+
+	/**
+	 * @description Clear the searchQuery property.
+	 * @memberof LocationService
+	 */
+	public clearQueryFilter(): void {
+		this.searchQuery = null;
 	}
 	// #endregion
 
@@ -72,7 +112,7 @@ export class LocationService {
 					const anchor = new google.maps.LatLng(location.properties.anchor.coordinates[1], location.properties.anchor.coordinates[0]);
 
 					// Don't update "return to *" btn if POI is outside selected venue
-					if (this.venue.name === location.properties.venueId) {
+					if (this.venue && this.venue.name === location.properties.venueId) {
 						this.mapsIndoorsService.setLocationAsReturnToValue(location);
 						this.mapsIndoorsService.mapsIndoors.location = location; // Used for a check for the "Return to *" button
 					}
@@ -126,7 +166,7 @@ export class LocationService {
 		let location: any;
 		// If loc is a point then request the location to get the room coordinates as well.
 		// OBS: Only newer solutions have room coordinates and the request is therefor not making a difference for older solutions.
-		if (loc.geometry.type === "Point") {
+		if (loc.geometry.type === 'Point') {
 			await this.getLocationById(loc.id)
 				.then((l) => location = l);
 		}
@@ -219,13 +259,13 @@ export class LocationService {
 	}
 	// #endregion
 
-	// #region || CLUSTERED LOCATIONS
-	setClusteredLocations(locations) {
+	// #region || CLUSTERED LOCATIONS
+	setClusteredLocations(locations: Location[]) {
 		this.searchService.setIcons(locations)
-			.then((updatedLocations) => this.clusteredLocations.next(updatedLocations));
+			.then((updatedLocations: Location[]) => this.clusteredLocations.next(updatedLocations));
 	}
 
-	getClusteredLocations(): Observable<any> {
+	getClusteredLocations(): Observable<Location[]> {
 		return this.clusteredLocations.asObservable();
 	}
 

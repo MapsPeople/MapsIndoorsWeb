@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, APP_INITIALIZER } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
@@ -28,12 +28,7 @@ import { LocationImgComponent } from './shared/components/location-img/location-
 import { DirectionsModule } from './directions/directions.module';
 
 // Services
-import { GoogleMapService } from './services/google-map.service';
 import { AppConfigService } from './services/app-config.service';
-import { VenueService } from './services/venue.service';
-import { LocationService } from './services/location.service';
-import { MapsIndoorsService } from './services/maps-indoors.service';
-import { DirectionService } from './services/direction.service';
 import { SolutionService } from './services/solution.service';
 import { RoutingStateService} from './services/routing-state.service';
 

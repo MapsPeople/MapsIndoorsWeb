@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, NavigationExtras } from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, Router, NavigationExtras } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { SolutionService } from './services/solution.service';
@@ -15,12 +15,12 @@ export class SolutionGuard implements CanActivate {
     ) { }
 
     canActivate(
-        next: ActivatedRouteSnapshot,
-        state: RouterStateSnapshot
+        next: ActivatedRouteSnapshot
     ): Observable<boolean> | Promise<boolean> | boolean {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this.solutionService.initializeApp(next.params.solutionName)
                 .then(() => {
+                    localStorage.setItem('MI:suggestedSolutionId', next.params.solutionName);
                     resolve(true);
                 })
                 .catch(() => {
@@ -31,7 +31,7 @@ export class SolutionGuard implements CanActivate {
                     };
                     this.router.navigate(['/solution/set'], navigationExtras);
                     resolve(false);
-                })
+                });
         });
     }
 }

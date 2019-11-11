@@ -45,7 +45,7 @@ export class HorizontalDirectionsComponent implements OnDestroy {
 
 	setHorizontalSegment(index) {
 		const jump = ((150 * index) - 75);
-		document.getElementById("hz-scroll").scrollLeft = jump;
+		document.getElementById('hz-scroll').scrollLeft = jump;
 	}
 	// #endregion
 

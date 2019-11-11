@@ -29,7 +29,7 @@ export class LocationImgComponent implements OnChanges {
 			const parameters: string = `size=456x300&pano=${this.streetViewConfig.panoramaId}&heading=${this.streetViewConfig.povHeading}&pitch=${this.streetViewConfig.povPitch}&key=${this.apiKey}`;
 			this.checkAvailability(parameters)
 				.subscribe((complete: any) => {
-					if (complete.status === "OK") {
+					if (complete.status === 'OK') {
 						this.image = 'https://maps.googleapis.com/maps/api/streetview?' + parameters;
 					}
 					else this.useStaticImage();

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserAgentService } from './../services/user-agent.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'app-set-solution',
@@ -17,13 +18,17 @@ export class SetSolutionComponent {
         public router: Router,
         public userAgentService: UserAgentService,
     ) {
+        this.isInternetExplorer = this.userAgentService.IsInternetExplorer();
+
         // If there is a "guard" property in the extras object, it means that the solution guard prevented access.
         const currNav = this.router.getCurrentNavigation();
         if (currNav.extras.state && currNav.extras.state.guard) {
             this.initError = true;
+            return;
         }
 
-        this.isInternetExplorer = this.userAgentService.IsInternetExplorer();
+        // Set a suggested solutionId to help users get started.
+        this.solutionId = localStorage.getItem('MI:suggestedSolutionId') || environment.suggestedSolutionId;
     }
 
     /**

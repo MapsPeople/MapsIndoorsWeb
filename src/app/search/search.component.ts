@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
-import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material';
 import { SolutionService } from '../services/solution.service';
 import { AppConfigService } from '../services/app-config.service';
 import { VenueService } from '../services/venue.service';
@@ -12,11 +12,13 @@ import { GoogleMapService } from '../services/google-map.service';
 import { environment } from '../../environments/environment';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 import { NotificationService } from '../services/notification.service';
 import { SearchService } from '../directions/components/search/search.service';
 
 import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
+import { Category } from '../shared/models/category.interface';
 
 declare const ga: Function;
 
@@ -30,16 +32,16 @@ export class SearchComponent implements OnInit, OnDestroy {
 	colors: object;
 	categoriesMenu: any;
 	venue: any;
-	SearchHintAppTitle: string = "";
+	SearchHintAppTitle: string = '';
 
-	previousQuery: string = ""
+	previousQuery: string = ''
 	category: any;
 	error: string;
 	search: any = {
 		query: null,
 		category: null
 	};
-	locationsArray: any[] = [];
+	locationsArray: Location[] = [];
 	filtered: boolean = false;
 	clusteredLocationsSubscription: Subscription;
 	searchFocus: boolean = false;
@@ -77,6 +79,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 		private infoDialog: MatDialog,
 		private themeService: ThemeService,
 		private notificationService: NotificationService,
+		private translateService: TranslateService,
 		private searchService: SearchService
 	) {
 		this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
@@ -88,10 +91,13 @@ export class SearchComponent implements OnInit, OnDestroy {
 				this.getLocationsForQuery(value);
 			});
 
-		this.clusteredLocationsSubscription = this.locationService.getClusteredLocations().subscribe((locations) => {
-			this.locationsArray = locations;
-			this.filtered = true;
-		});
+		this.clusteredLocationsSubscription = this.locationService.getClusteredLocations()
+			.subscribe((locations) => {
+				if (locations.length > 0) {
+					this.locationsArray = locations;
+					this.filtered = true;
+				}
+			});
 	}
 
 	ngOnInit(): void {
@@ -99,13 +105,13 @@ export class SearchComponent implements OnInit, OnDestroy {
 			if (venue && venue.id) {
 				this.venue = venue;
 				this.zoomForDetails();
-				if (this.locationsArray.length === 0) this.getPreviousCategoryAndQuery();
+				this.getPreviousFiltering();
 			}
 		});
 		// await this.getClusteredLocations();
 		this.SearchHintAppTitle = this.appConfig.appSettings.title;
 		this.categoriesMenu = this.appConfig.menuInfo.mainmenu;
-		window["angularComponentRef"] = { component: this, zone: this._ngZone };
+		window['angularComponentRef'] = { component: this, zone: this._ngZone };
 	}
 
 	// #region || SEARCH AND RESULTS
@@ -137,36 +143,50 @@ export class SearchComponent implements OnInit, OnDestroy {
 	// 	})
 	// }
 
-	async getPreviousCategoryAndQuery() {
-		let category;
-		this.locationService.getCategory().then((result) => category = result);
-		// Get category from URL
-		if (!category && this.route.snapshot.queryParams.cat) category = await this.appConfig.menuInfo.mainmenu.find((x) => x.name.toLowerCase() === this.route.snapshot.queryParams.cat.toLowerCase());
+	/**
+	 * @description Get the previous category and query filtering.
+	 * @private
+	 * @returns {void}
+	 * @memberof SearchComponent
+	 */
+	private getPreviousFiltering(): void {
+		const category: Category = this.getCategoryFromUrl();
+		const query = this.locationService.getQueryFilter();
 
-		const query = await this.locationService.searchQuery;
+		// No filtering
+		if (!category && !query) {
+			return;
+		}
 
-		// Repopulate the category and search query with the previously chosen category and typed query
-		if (category && query) {
-			this.getLocationsForQuery(query);
-			this.search.query = query;
-		}
-		// Repopulate with previously chosen category
-		else if (category) {
-			this.getLocationsForCategory(category);
-		}
-		// Repopulate search-field with previously typed query
-		else if (query) {
+		// Filter by query
+		if (!category) {
 			this.search.query = query;
 			this.getLocationsForQuery(query);
-		}
-		else {
-			this.clearAll(false);
+			return;
 		}
 
-		// TODO: Select value inside input getting back from details page
-		// let input = await document.getElementById('searchInput');
-		// input.focus();
-		// input.select();
+		// Filter by category and query as well if any
+		this.getLocationsForCategory(category)
+			.then(() => {
+				if (query) {
+					this.getLocationsForQuery(query);
+				}
+			});
+		this.search.query = query;
+	}
+
+	/**
+	 * @description Get Category object from URL parameter.
+	 * @private
+	 * @returns {Category} - The category to filter by.
+	 * @memberof SearchComponent
+	 */
+	private getCategoryFromUrl(): Category {
+		const categorySnapshot = this.route.snapshot.queryParams.cat;
+		if (categorySnapshot) {
+			return this.appConfig.menuInfo.mainmenu
+				.find((category: Category) => category.categoryKey.toLowerCase() === categorySnapshot.toLowerCase());
+		}
 	}
 
 	// Show/hide search hint when focus/blur on input
@@ -182,48 +202,73 @@ export class SearchComponent implements OnInit, OnDestroy {
 		// }
 	}
 
-	async getLocationsForCategory(category) {
-		if (!category) {
-			const solutionName = await this.solutionService.getSolutionName();
-			this.router.navigate([`${solutionName}/${this.venue.id}/search`]);
-			return;
-		}
-		this.loading = true;
-		this.locationsArray = [];
-		this.endOfArray = false;
+	/**
+	 * @description Populates the LocationsArray property with locations for the given category.
+	 * @param {Category} category - The category to filter by.
+	 * @returns {Promise<void>}
+	 * @memberof SearchComponent
+	 */
+	public getLocationsForCategory(category: Category): Promise<void> {
+		return new Promise((resolve, reject) => {
+			this.loading = true;
+			this.locationsArray = [];
+			this.endOfArray = false;
 
-		// Set category
-		this.mapsIndoorsService.setPageTitle(category.name);
-		this.search.category = category.name;
-		this.category = category;
-		this.locationService.setCategory(category);
+			// Update category properties
+			this.search.category = category.name;
+			this.category = category;
+			this.locationService.setCategoryFilter(category);
 
-		// If no existing cat in the URL
-		if (!this.route.snapshot.queryParams.cat) {
-			this.router.navigate([], { queryParams: { cat: category.name.toLowerCase() } });
-		}
+			this.mapsIndoorsService.setPageTitle(category.name);
+			// Update the category URL parameter
+			if (!this.route.snapshot.queryParams.cat) {
+				this.router.navigate([], { queryParams: { cat: category.categoryKey.toLowerCase() } });
+			}
 
-		await this.categoryRequest(category).then((locations: any[]) => {
-			this.locationsArray = locations && locations.length > 0 ? locations : [];
-			this.filtered = true;
-			// Set floor for best match
-			if (locations.length > 0) this.mapsIndoorsService.setFloor(this.locationsArray[0].properties.floor);
+			this.categoryRequest(category.categoryKey)
+				.then((locations: Location[]) => {
+					this.filtered = true;
+					if (locations.length === 0) {
+						this.error = 'EmptyCategory';
+						this.loading = false;
+						resolve();
+						return;
+					}
+					this.locationsArray = locations;
+					this.pushLocationsToMap(locations);
+					// Set floor for best match
+					this.mapsIndoorsService.setFloor(this.locationsArray[0].properties.floor);
+					this.loading = false;
+					resolve();
+				})
+				.catch(() => {
+					this.loading = false;
+					this.notificationService.displayNotification(
+						this.translateService.instant('Error.General')
+					);
+					reject();
+				});
+			// Google Analytics
+			ga('send', 'event', 'Search page', 'Category list', `${category.name} was selected`);
 		});
-		// Check if empty category
-		this.error = this.locationsArray.length < 1 ? "EmptyCategory" : null;
-		this.loading = false;
-
-		// Google Analytics
-		ga('send', 'event', 'Search page', 'Category list', `${category.categoryKey} was selected`);
 	}
 
-	async categoryRequest(category, skip?) {
-		const s = skip | 0;
-		const parameters = { take: 50, skip: s, venue: this.venue.name, categories: category.categoryKey, orderBy: 'name' };
-		const locations = await this.searchService.getLocations(parameters);
-		// Display this locations on map
-		await this.pushLocationsToMap(locations, skip);
-		return locations;
+	/**
+	 * @description Get 50 locations for a category.
+	 * @param {string} categoryKey - The category key to search for locations within.
+	 * @param {number} [locationsToSkip=0] - Amount of locations to request.
+	 * @returns {Promise<Location[]>} - Returns 50 locations.
+	 * @memberof SearchComponent
+	 */
+	categoryRequest(categoryKey: string, locationsToSkip: number = 0): Promise<Location[]> {
+		return this.searchService.getLocations(
+			{
+				take: 50,
+				skip: locationsToSkip,
+				venue: this.venue.name,
+				categories: categoryKey,
+				orderBy: 'name'
+			});
 	}
 
 	searchValueChanged(value: string): void {
@@ -258,7 +303,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 			this.endOfArray = false;
 			// Set query for later use
 			this.previousQuery = query;
-			this.locationService.searchQuery = query;
+			this.locationService.setQueryFilter(query);
 			// Send request
 			await this.queryRequest(query).then((locations: any[]) => {
 				this.locationsArray = locations && locations.length > 0 ? locations : [];
@@ -268,9 +313,9 @@ export class SearchComponent implements OnInit, OnDestroy {
 			// If locationsArray is empty
 			if (this.locationsArray.length < 1) {
 				// If no locations for query
-				if (!self.category) self.error = "NoResults";
+				if (!self.category) self.error = 'NoResults';
 				// If no locations for query in category
-				else { self.error = "NoResultsInCategory"; }
+				else { self.error = 'NoResultsInCategory'; }
 			}
 			this.loading = false;
 		}
@@ -280,13 +325,12 @@ export class SearchComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	async queryRequest(query, skip?) {
-		const s = skip | 0;
+	async queryRequest(query, skip: number = 0) {
 		const parameters = this.category ?
 			// If there are a category
-			{ q: query, take: 50, skip: s, categories: this.category.categoryKey, orderBy: 'name' } :
+			{ q: query, take: 50, skip: skip, categories: this.category.categoryKey, orderBy: 'name' } :
 			// Else request without
-			{ q: query, take: 50, skip: s, orderBy: 'name' };
+			{ q: query, take: 50, skip: skip, orderBy: 'name' };
 		const locations = await this.searchService.getLocations(parameters);
 		// Display this locations on map
 		await this.pushLocationsToMap(locations, skip);
@@ -294,7 +338,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 	}
 
 	// Used for showing search results on map
-	pushLocationsToMap(locations, skip): void {
+	pushLocationsToMap(locations: Location[], skip: number = 0): void {
 		const locationsIdArray = [];
 		if (locations.length <= 0) {
 			return;
@@ -318,44 +362,42 @@ export class SearchComponent implements OnInit, OnDestroy {
 	async getMoreLocations() {
 		const query = await this.search.query;
 		this.loadingLocations = true;
-		let s = this.skip ? this.skip : 50;
+		let locationsToSkip = this.skip ? this.skip : 50;
 		// If searching by a query
 		if (query && query.length !== 0) {
-			await this.queryRequest(query, s).then((locations: any[]) => {
-				if (locations.length <= 0) {
-					// No more locations
-					this.endOfArray = true;
-					return;
-				}
-				for (const location of locations) {
-					this.locationsArray.push(location);
-				}
-			});
+			await this.queryRequest(query, locationsToSkip)
+				.then((locations: Location[]) => {
+					if (locations.length === 0) {
+						this.endOfArray = true;
+						return;
+					}
+					this.locationsArray.push(...locations);
+				});
 		}
 		// If searching only by a category
 		else {
-			await this.categoryRequest(this.category, s).then((locations: any[]) => {
-				if (locations.length <= 0) {
-					// No more locations
-					this.endOfArray = true;
-					return;
-				}
-				for (const location of locations) {
-					this.locationsArray.push(location);
-				}
-			});
+			await this.categoryRequest(this.category.categoryKey, locationsToSkip)
+				.then((locations: Location[]) => {
+					if (locations.length === 0) {
+						this.endOfArray = true;
+						return;
+					}
+					this.pushLocationsToMap(locations);
+					this.locationsArray.push(...locations);
+				});
 		}
 		this.loadingLocations = false;
-		this.skip = (s += 50);
+		this.skip = (locationsToSkip += 50);
 	}
 
 	// Clear query
 	clearQuery(fitView = true): void {
-		this.search.query = "";
-		this.previousQuery = "";
+		this.search.query = '';
+		this.previousQuery = '';
 		this.skip = 0;
-		this.locationService.searchQuery = "";
+		this.locationService.clearQueryFilter();
 		this.searchFocus = false;
+		this.error = null;
 		// If both a category and a query
 		if (this.category) {
 			this.getLocationsForCategory(this.category);
@@ -444,16 +486,16 @@ export class SearchComponent implements OnInit, OnDestroy {
 		this.error = null;
 		this.category = null;
 		this.search.category = null;
-		this.locationService.clearCategory();
+		this.locationService.clearCategoryFilter();
 		this.previousQuery = null;
 		this.search.query = null;
-		this.locationService.searchQuery = null;
+		this.locationService.clearQueryFilter();
 		this.loading = false;
 	}
 
 	ngOnDestroy(): void {
 		if (this.zoomBtn) this.hideZoomBtn();
-		window["angularComponentRef"] = null;
+		window['angularComponentRef'] = null;
 		// this.mapsIndoorsService.mapsIndoors.filter(null)
 		// this.googleMapService.infoWindow.close();
 		if (this.dialogSubscription) this.dialogSubscription.unsubscribe();

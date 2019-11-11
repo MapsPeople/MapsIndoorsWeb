@@ -1,113 +1,116 @@
 <aside id="sidebar" *ngIf="location">
 
-	<!-- Hero -->
-	<section class="elevation-z2">
-		<header>
-			<div class="hero" [style.background-color]="colors.primary">
-				<nav class="hero-nav">
-					<button mat-icon-button (click)="goBack()">
-						<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
-					</button>
-					<button id="shareDialogOpenButton" mat-icon-button (click)="openShareUrlDialog()">
-						<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">share</mat-icon>
-					</button>
-				</nav>
-				<h1 [style.color]="colors.onPrimary">
-					{{location.properties.name}}
-				</h1>
-				<div class="hero-img">
-					<location-img [imageURL]="location.properties.imageURL"
-					[apiKey]="'AIzaSyBOUv8R8xOta4bQ0nAEyb_jJdwI7sB7DHg'"
-					[streetViewConfig]="location.properties.streetViewConfig ? location.properties.streetViewConfig : null">
-					</location-img>
-				</div>
-			</div>
-		</header>
-	</section>
+    <!-- Hero -->
+    <section class="elevation-z2">
+        <header>
+            <div class="hero" [style.background-color]="colors.primary">
+                <nav class="hero-nav">
+                    <button mat-icon-button (click)="goBack()">
+                        <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
+                    </button>
+                    <button id="shareDialogOpenButton" mat-icon-button (click)="openShareUrlDialog()">
+                        <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">share</mat-icon>
+                    </button>
+                </nav>
+                <h1 [style.color]="colors.onPrimary">
+                    {{location.properties.name}}
+                </h1>
+                <div class="hero-img">
+                    <location-img [imageURL]="location.properties.imageURL"
+                        [apiKey]="'AIzaSyBOUv8R8xOta4bQ0nAEyb_jJdwI7sB7DHg'"
+                        [streetViewConfig]="location.properties.streetViewConfig ? location.properties.streetViewConfig : null">
+                    </location-img>
+                </div>
+            </div>
+        </header>
+    </section>
 
-	<!-- Content -->
-	<section class="content-container">
-		<section class="content">
-			<!-- Aliases  -->
-			<div class="content-text" *ngIf="displayAliases && location.properties.aliases && location.properties.aliases.length > 0">
-				<mat-icon class="content-icon">stars</mat-icon>
-				<p>{{location.properties.aliases ? location.properties.aliases.join(', ') : ''}}</p>
-			</div>
+    <!-- Content -->
+    <section class="content-container">
+        <section class="content">
+            <!-- Aliases  -->
+            <div class="content-text"
+                *ngIf="displayAliases && location.properties.aliases && location.properties.aliases.length > 0">
+                <mat-icon class="content-icon">stars</mat-icon>
+                <p>{{location.properties.aliases ? location.properties.aliases.join(', ') : ''}}</p>
+            </div>
 
-			<!-- RoomId and category -->
-			<div class="content-text" *ngIf="location.properties.roomId || location.properties.category">
-				<mat-icon class="content-icon">info</mat-icon>
-				<p>
-					<span *ngIf="location.properties.category">{{location.properties.category}}</span>
-					<br *ngIf="location.properties.roomId && location.properties.category">
-					<span *ngIf="location.properties.roomId">{{location.properties.roomId}}</span>
-				</p>
-			</div>
+            <!-- RoomId and category -->
+            <div class="content-text" *ngIf="location.properties.roomId || location.properties.category">
+                <mat-icon class="content-icon">info</mat-icon>
+                <p>
+                    <span *ngIf="location.properties.category">{{location.properties.category}}</span>
+                    <br *ngIf="location.properties.roomId && location.properties.category">
+                    <span *ngIf="location.properties.roomId">{{location.properties.roomId}}</span>
+                </p>
+            </div>
 
-			<!-- Optional custom fields -->
-			<div *ngIf="location.properties.fields && location.properties.fields.length > 0">
-				<div *ngFor="let field of location.properties.fields">
-					<!-- Email -->
-					<div class="content-text" *ngIf="field.key === 'Email'">
-						<mat-icon class="content-icon">email</mat-icon>
-						<p>{{field.value.value}}</p>
-					</div>
-					<!-- Phone -->
-					<div class="content-text" *ngIf="field.key === 'Phone'">
-						<mat-icon class="content-icon">phone</mat-icon>
-						<p>{{field.value.value}}</p>
-					</div>
-					<!-- Website -->
-					<div class="content-text" *ngIf="field.key === 'Website'">
-						<mat-icon class="content-icon">open_in_new</mat-icon>
-						<p><a class="text-link" href="{{field.value.value}}" target="_blank">www</a></p>
-					</div>
-					<!-- Opening hours -->
-					<div class="content-text icon-top" *ngIf="field.key === 'Openinghours'">
-						<mat-icon class="content-icon">access_time</mat-icon>
-						<p class="text-multiple-lines">{{field.value.value}}</p>
-					</div>
-				</div>
-			</div>
+            <!-- Optional custom fields -->
+            <div *ngIf="location.properties.fields">
+                <!-- Email -->
+                <div class="content-text" *ngIf="location.properties.fields.email">
+                    <mat-icon class="content-icon">email</mat-icon>
+                    <p>{{location.properties.fields.email.value}}</p>
+                </div>
+                <!-- Phone -->
+                <div class="content-text" *ngIf="location.properties.fields.phone">
+                    <mat-icon class="content-icon">phone</mat-icon>
+                    <p>{{location.properties.fields.phone.value}}</p>
+                </div>
+                <!-- Website -->
+                <div class="content-text" *ngIf="location.properties.fields.website">
+                    <mat-icon class="content-icon">open_in_new</mat-icon>
+                    <p><a class="text-link" href="{{location.properties.fields.website.value}}" target="_blank">www</a>
+                    </p>
+                </div>
+                <!-- Opening hours -->
+                <div class="content-text icon-top" *ngIf="location.properties.fields.openinghours">
+                    <mat-icon class="content-icon">access_time</mat-icon>
+                    <p class="text-multiple-lines">{{location.properties.fields.openinghours.value}}</p>
+                </div>
+            </div>
 
-			<!-- Description -->
-			<div class="content-text icon-top" *ngIf="location.properties.description">
-				<mat-icon class="content-icon">description</mat-icon>
-				<p *ngIf="!isInternetExplorer">{{location.properties.description}}</p>
-				<!-- isInternetExplorer -->
-				<p *ngIf="isInternetExplorer" style="max-width: 100%; padding-left: 8px;">{{location.properties.description}}</p>
-			</div>
+            <!-- Description -->
+            <div class="content-text icon-top" *ngIf="location.properties.description">
+                <mat-icon class="content-icon">description</mat-icon>
+                <p *ngIf="!isInternetExplorer">{{location.properties.description}}</p>
+                <!-- isInternetExplorer -->
+                <p *ngIf="isInternetExplorer" style="max-width: 100%; padding-left: 8px;">
+                    {{location.properties.description}}</p>
+            </div>
 
-			<!-- Building and floor -->
-			<div class="content-text" *ngIf="location.properties.building || location.properties.floorName">
-				<mat-icon class="content-icon">location_city</mat-icon>
-				<p class="line-break">
-					<span *ngIf="location.properties.floorName">Level {{location.properties.floorName}}</span>
-					<span *ngIf="location.properties.buildingName">{{location.properties.buildingName}}</span>
-					<!-- Hiding venue name if it's the same as building name -->
-					<span *ngIf="location.properties.venueName && location.properties.buildingName != location.properties.venueName">{{location.properties.venueName}}</span>
-				</p>
-			</div>
+            <!-- Building and floor -->
+            <div class="content-text" *ngIf="location.properties.building || location.properties.floorName">
+                <mat-icon class="content-icon">location_city</mat-icon>
+                <p class="line-break">
+                    <span *ngIf="location.properties.floorName">Level {{location.properties.floorName}}</span>
+                    <span *ngIf="location.properties.buildingName">{{location.properties.buildingName}}</span>
+                    <!-- Hiding venue name if it's the same as building name -->
+                    <span
+                        *ngIf="location.properties.venueName && location.properties.buildingName != location.properties.venueName">{{location.properties.venueName}}</span>
+                </p>
+            </div>
 
-			<!-- Footer -->
-			<footer class="footer-content">
-				<nav class="content-text">
-					<span>
-						<button mat-raised-button *ngIf="isHandset" (click)="showOnMap()">
-							{{ 'Buttons.ShowOnMap' | translate }}
-						</button>
-					</span>
-					<span>
-						<button [style.background-color]="colors.accent" mat-raised-button (click)="getDirections(location.id)">
-							<mat-icon [style.color]="colors.onAccent" aria-label="Get directions">directions</mat-icon>
-							<span [style.color]="colors.onAccent">
-								{{ 'Buttons.Directions' | translate }}
-							</span>
-						</button>
-					</span>
-				</nav>
-			</footer>
+            <!-- Footer -->
+            <footer class="footer-content">
+                <nav class="content-text">
+                    <span>
+                        <button mat-raised-button *ngIf="isHandset" (click)="showOnMap()">
+                            {{ 'Buttons.ShowOnMap' | translate }}
+                        </button>
+                    </span>
+                    <span>
+                        <button [style.background-color]="colors.accent" mat-raised-button
+                            (click)="getDirections(location.id)">
+                            <mat-icon [style.color]="colors.onAccent" aria-label="Get directions">directions</mat-icon>
+                            <span [style.color]="colors.onAccent">
+                                {{ 'Buttons.Directions' | translate }}
+                            </span>
+                        </button>
+                    </span>
+                </nav>
+            </footer>
 
-		</section>
-	</section>
+        </section>
+    </section>
 </aside>
