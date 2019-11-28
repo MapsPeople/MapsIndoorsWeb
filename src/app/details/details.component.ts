@@ -12,7 +12,8 @@ import { ThemeService } from '../services/theme.service';
 import { SolutionService } from '../services/solution.service';
 import { UserAgentService } from '../services/user-agent.service';
 import { RoutingStateService } from '../services/routing-state.service';
-
+import { NotificationService } from '../services/notification.service';
+import { TranslateService } from '@ngx-translate/core';
 import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
 
@@ -57,6 +58,8 @@ export class DetailsComponent implements OnInit, OnDestroy {
 		private solutionService: SolutionService,
 		private googleMapService: GoogleMapService,
 		private shareUrlDialog: MatDialog,
+		private translateService: TranslateService,
+		private notificationService: NotificationService
 	) {
 		this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
 		this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
@@ -97,8 +100,10 @@ export class DetailsComponent implements OnInit, OnDestroy {
 					this.locationService.setLocation(location);
 				})
 				.catch(() => {
+					this.notificationService.displayNotification(
+						this.translateService.instant('Error.IncorrectLocation')
+					);
 					this.goBack();
-					// TODO: Show error to user
 				});
 		}
 		// Room id
@@ -108,8 +113,10 @@ export class DetailsComponent implements OnInit, OnDestroy {
 					this.locationService.setLocation(location);
 				})
 				.catch(() => {
+					this.notificationService.displayNotification(
+						this.translateService.instant('Error.IncorrectRoom')
+					);
 					this.goBack();
-					// TODO: Show error to user
 				});
 		}
 	}

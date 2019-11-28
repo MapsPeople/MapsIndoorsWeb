@@ -40,12 +40,11 @@ export class UserAgentService {
 	 * @returns {Promise} Gets and return the current position of the device.
 	 * @memberof UserAgentService
 	 */
-	getCurrentPosition(options) {
-		return new Promise((resolve, reject) => {
-			navigator.geolocation.getCurrentPosition((position) => resolve(position),
-				(err) => reject(err), options);
+	getCurrentPosition(options: PositionOptions): Promise<{}> {
+		return new Promise((resolve, reject): void  => {
+			navigator.geolocation.getCurrentPosition((position): void => resolve(position),
+				(err): void => reject(err), options);
 		});
 	}
-
 
 }

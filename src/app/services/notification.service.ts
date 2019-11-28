@@ -14,7 +14,7 @@ export class NotificationService {
 
 	// #region || DISPLAY NOTIFICATION
 	displayNotification(value: string, duration?: number) {
-		const milliseconds: number = duration ? duration : 2000;
+		const milliseconds: number = duration ? duration : 4000;
 		// Translating notification and opens snackBar with value
 		this.translateService.get(value).subscribe((notificationValue: string) => {
 			this.snackBar.open(notificationValue, '', {

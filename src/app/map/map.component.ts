@@ -89,7 +89,7 @@ export class MapComponent {
 				this.router.navigate([`${this.solutionService.getSolutionName()}/venues`]);
 				if (err === ErrorVenueId.incorrectId) {
 					this.notificationService.displayNotification(
-						this.translateService.instant('Error.IncorrectId')
+						this.translateService.instant('Error.IncorrectVenue')
 					);
 				}
 			});

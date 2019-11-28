@@ -13,7 +13,7 @@ import { DirectionService } from '../../services/direction.service';
 import { Subject, Subscription } from 'rxjs';
 import { SolutionService } from '../../services/solution.service';
 import { SearchComponent } from '../components/search/search.component';
-
+import { NotificationService } from '../../services/notification.service';
 import { Venue } from '../../shared/models/venue.interface';
 import { SearchData } from '../components/search/searchData.interface';
 
@@ -107,7 +107,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		private googleMapService: GoogleMapService,
 		private locationService: LocationService,
 		private venueService: VenueService,
-		private directionService: DirectionService
+		private directionService: DirectionService,
+		private notificationService: NotificationService
 	) {
 		this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
 		this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
@@ -215,17 +216,20 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 	 * @description Returns a Promise that always resolves because origin isn't required.
 	 * @returns {Promise}
 	 */
-	private populateOrigin() {
-		return new Promise(async (resolve, reject) => {
+	private populateOrigin(): Promise<void> {
+		return new Promise(async (resolve, reject): Promise<void> => {
 			const locationId: string = this.route.snapshot.params.from;
 			if (locationId) {
 				await this.locationService.getLocationById(locationId)
-					.then((location: any) => {
+					.then((location: any): void => {
 						this.originLocation = location;
 						this.originInputValue = location.properties.name;
 						resolve();
 					})
-					.catch(() => {
+					.catch((): void => {
+						this.notificationService.displayNotification(
+							this.translateService.instant('Error.IncorrectLocation')
+						);
 						reject();
 					});
 			}
@@ -234,7 +238,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				this.currentPositionVisible = false;
 				const options = { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 };
 				this.userAgentService.getCurrentPosition(options)
-					.then((position: any) => {
+					.then((position: Position): void => {
 						this.currentPosition = position;
 						this.populateSearchParams({ lat: position.coords.longitude, lng: position.coords.latitude });
 
@@ -243,9 +247,10 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 							geometry: { coordinates: [position.coords.longitude, position.coords.latitude] }
 						};
 						resolve();
-					}).catch(() => {
+					}).catch((): void => {
 						this.originInputValue = '';
 						this.currentPositionVisible = true;
+						this.handleMyPositionError();
 						reject();
 					});
 			}
@@ -264,6 +269,16 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 		this.getRoute();
 	}
 
+	/**
+	 * @description Shows a no position error in the snackbar.
+	 * @memberof DirectionsComponent
+	 */
+	handleMyPositionError(): void {
+		this.notificationService.displayNotification(
+			this.translateService.instant('Error.NoPosition')
+		);
+	}
+
 	// #region - || DESTINATION
 	/**
 	 * @description Returns a promise.
@@ -275,6 +290,12 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 				this.destinationInputValue = `${location.properties.name}, Level ${location.properties.floorName}, ${location.properties.building && location.properties.building !== location.properties.venue ? (location.properties.building + ', ') : ''}${location.properties.venue}`;
 				this.destinationLocation = location;
 				this.directionService.destinationQuery = this.destinationInputValue; // Used for horizontal directions
+			})
+			.catch((error) => {
+				this.notificationService.displayNotification(
+					this.translateService.instant('Error.IncorrectLocation')
+				);
+				throw error;
 			});
 	}
 	// #endregion

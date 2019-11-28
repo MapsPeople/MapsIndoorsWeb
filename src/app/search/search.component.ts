@@ -236,8 +236,6 @@ export class SearchComponent implements OnInit, OnDestroy {
 					}
 					this.locationsArray = locations;
 					this.pushLocationsToMap(locations);
-					// Set floor for best match
-					this.mapsIndoorsService.setFloor(this.locationsArray[0].properties.floor);
 					this.loading = false;
 					resolve();
 				})
@@ -307,8 +305,6 @@ export class SearchComponent implements OnInit, OnDestroy {
 			// Send request
 			await this.queryRequest(query).then((locations: any[]) => {
 				this.locationsArray = locations && locations.length > 0 ? locations : [];
-				// Set floor for best match
-				if (locations.length > 0) this.mapsIndoorsService.setFloor(this.locationsArray[0].properties.floor);
 			});
 			// If locationsArray is empty
 			if (this.locationsArray.length < 1) {
@@ -355,7 +351,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 			locationsIdArray.push(location.id);
 		}
 		// Filter poi's on map based on id's in "locationsIdArray"
-		this.mapsIndoorsService.mapsIndoors.filter(locationsIdArray, true);
+		this.mapsIndoorsService.mapsIndoors.filter(locationsIdArray, false);
 	}
 
 	// If more than 50 locations, then load next 50 locations on button click

@@ -1,83 +1,87 @@
 {
-	"SetSolution": {
-		"Title": "Welcome to MapsIndoors",
-		"Enter": "Enter SolutionID or API Key",
-		"Go": "Go",
-		"InitError": "The requested SolutionID was invalid.",
-		"SubmitError": "Oops. Please try again."
-	},
-	"Venues": {
-		"Title": "Select venue"
-	},
-	"InfoDialog": {
-		"Title": "About",
-		"AppName": "App Name",
-		"Supplier": "Supplier",
-		"AppVersion": "App Version",
-		"SdkVersion": "SDK Version"
-	},
-	"ShareDialog": {
-		"Title": "Share location",
-		"Text": "Copy the link below to share the location of"
-	},
-	"Search": {
-		"SearchPlaces": "Search places",
-		"SearchIn": "Search in {{category}}"
-	},
-	"SearchHint": {
-		"Hint": "Use the search to search across",
-		"EmptyCategory": "has no {{category}}. Use search to find {{category}} across",
-		"NoResults": "Sorry, we couldn't find any results matching \"{{query}}\"",
-		"NoResultsInCategory": "Sorry, we couldn't find any results matching \"{{query}}\" in {{category}}"
-	},
-	"Direction": {
-		"Directions": "Directions",
-		"From": "From",
-		"To": "To",
-		"AvoidStairs": "Avoid stairs",
-		"MyPosition": "My Position",
+    "SetSolution": {
+        "Title": "Welcome to MapsIndoors",
+        "Enter": "Enter SolutionID or API Key",
+        "Go": "Go",
+        "InitError": "The requested SolutionID was invalid.",
+        "SubmitError": "Oops. Please try again."
+    },
+    "Venues": {
+        "Title": "Select venue"
+    },
+    "InfoDialog": {
+        "Title": "About",
+        "AppName": "App Name",
+        "Supplier": "Supplier",
+        "AppVersion": "App Version",
+        "SdkVersion": "SDK Version"
+    },
+    "ShareDialog": {
+        "Title": "Share location",
+        "Text": "Copy the link below to share the location of"
+    },
+    "Search": {
+        "SearchPlaces": "Search places",
+        "SearchIn": "Search in {{category}}"
+    },
+    "SearchHint": {
+        "Hint": "Use the search to search across",
+        "EmptyCategory": "has no {{category}}. Use search to find {{category}} across",
+        "NoResults": "Sorry, we couldn't find any results matching \"{{query}}\"",
+        "NoResultsInCategory": "Sorry, we couldn't find any results matching \"{{query}}\" in {{category}}"
+    },
+    "Direction": {
+        "Directions": "Directions",
+        "From": "From",
+        "To": "To",
+        "AvoidStairs": "Avoid stairs",
+        "MyPosition": "My Position",
         "EnableMyPosition": "Enable location sharing to use your position",
         "RouteSettings": "Route Settings",
         "ChooseTheAppUserRoles...": "Choose the App User Roles you are part of. This only affacts the directions you get, not the locations you see on the map",
         "AppUserRoles": "App User Roles"
-	},
-	"DirectionRoute": {
-		"Start": "Start",
-		"End": "End",
-		"Next": "Next",
-		"Previous": "Previous",
-		"ToDestination": "to destination",
-		"Walk":  "Walk",
-		"Ride": "Ride",
-		"Drive": "Drive",
-		"Directions": "Directions",
-		"AgencyInfo": "Agency Info",
-		"Phone": "Phone",
-		"Website": "Website",
-		"Park": "Park"
-	},
-	"DirectionHint": {
-		"searchHint": "Search for locations indoors or outdoors",
-		"NoMatchingResults": "Sorry, we couldn't find any results matching",
-		"FromAndTo": "Please select a start and end location",
-		"NoRoute": "Sorry, no route was found"
-	},
-	"Buttons": {
-		"ZoomForDetails": "Zoom for more details",
-		"ReturnTo": "Return to",
-		"ClearMap": "Clear map",
-		"Directions": "Directions",
-		"ShowOnMap": "Show on Map",
-		"LoadMore": "Load more",
-		"CopyLink": "Copy link"
-	},
-	"Notification": {
-		"LinkCopied": "Link added to clipboard",
-		"LinkCopiedError": "This browser does not support this function",
-		"GeoLocationError": "Enable location sharing to use your position"
-	},
-	"Error": {
-		"IncorrectId": "Incorrect id",
-		"General": "Oops! An error occurred, please try again later."
-	}
+    },
+    "DirectionRoute": {
+        "Start": "Start",
+        "End": "End",
+        "Next": "Next",
+        "Previous": "Previous",
+        "ToDestination": "to destination",
+        "Walk": "Walk",
+        "Ride": "Ride",
+        "Drive": "Drive",
+        "Directions": "Directions",
+        "AgencyInfo": "Agency Info",
+        "Phone": "Phone",
+        "Website": "Website",
+        "Park": "Park"
+    },
+    "DirectionHint": {
+        "searchHint": "Search for locations indoors or outdoors",
+        "NoMatchingResults": "Sorry, we couldn't find any results matching",
+        "FromAndTo": "Please select a start and end location",
+        "NoRoute": "Sorry, no route was found"
+    },
+    "Buttons": {
+        "ZoomForDetails": "Zoom for more details",
+        "ReturnTo": "Return to",
+        "ClearMap": "Clear map",
+        "Directions": "Directions",
+        "ShowOnMap": "Show on Map",
+        "LoadMore": "Load more",
+        "CopyLink": "Copy link"
+    },
+    "Notification": {
+        "LinkCopied": "Link added to clipboard",
+        "LinkCopiedError": "This browser does not support this function",
+        "GeoLocationError": "Enable location sharing to use your position"
+    },
+    "Error": {
+        "IncorrectVenue": "Oops, couldn’t find that venue",
+        "IncorrectBuilding": "Oops, couldn’t find that building",
+        "IncorrectRoom": "Oops, couldn’t find that room",
+        "IncorrectLocation": "Oops, couldn’t find that location",
+        "NoPosition": "Sorry, we couldn’t find your position",
+        "General": "Oops! An error occurred, please try again later"
+    }
 }

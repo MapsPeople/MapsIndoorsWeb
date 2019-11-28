@@ -117,18 +117,13 @@ export class LocationService {
 						this.mapsIndoorsService.mapsIndoors.location = location; // Used for a check for the "Return to *" button
 					}
 
-					// Set center
-					if (this.googleMapService.googleMap.getZoom() < 19) this.googleMapService.googleMap.panTo(anchor);
-
-					// Set Google Maps zoom level
-					if (this.googleMapService.googleMap.getZoom() < 19) this.googleMapService.googleMap.setZoom(19);
-
 					// Populate and open info window
 					this.googleMapService.updateInfoWindow(location.properties.name, anchor);
 					this.googleMapService.openInfoWindow();
 
 					// Set floor
 					this.mapsIndoorsService.setFloor(location.properties.floor);
+					this.mapsIndoorsService.showFloorSelector();
 
 					resolve();
 				})

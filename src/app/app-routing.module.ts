@@ -42,10 +42,6 @@ const routes: Routes = [
 				component: SearchComponent
 			},
 			{
-				path: ':venueId/search/:category',
-				component: SearchComponent
-			},
-			{
 				path: ':venueId/details/:id',
 				component: DetailsComponent
 			},

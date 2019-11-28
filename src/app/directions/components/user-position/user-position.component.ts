@@ -18,7 +18,7 @@ export class UserPositionComponent implements OnInit {
 	userPosition: UserPosition;
 
 	@Output('eventTriggered') originPosition: EventEmitter<UserPosition> = new EventEmitter();
-
+	@Output() error: EventEmitter<boolean> = new EventEmitter();
 
 	constructor(
 		private userAgentService: UserAgentService
@@ -26,14 +26,16 @@ export class UserPositionComponent implements OnInit {
 
 	async ngOnInit() {
 		const options = { enableHighAccuracy: false, maximumAge: 300000, timeout: 15000 };
+		this.loading = true;
 		await this.userAgentService.getCurrentPosition(options)
-			.then((position: any) => {
+			.then((position: Position): void => {
 				this.userPosition = {
 					name: 'My Position',
 					coordinates: [position.coords.longitude, position.coords.latitude]
 				};
 				this.loading = false;
-			}).catch(() => {
+			}).catch((): void => {
+				this.error.emit(true);
 				this.disabledInBrowser = true;
 				this.loading = false;
 			});

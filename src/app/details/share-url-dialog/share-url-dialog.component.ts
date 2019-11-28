@@ -32,7 +32,7 @@ export class ShareUrlDialogComponent {
 			link.select();
 			document.execCommand('copy');
 
-			this.notificationService.displayNotification('Notification.LinkCopied');
+			this.notificationService.displayNotification('Notification.LinkCopied', 2000);
 		} catch (err) {
 			// Browser doesn't support this function
 			this.notificationService.displayNotification('Notification.LinkCopiedError');

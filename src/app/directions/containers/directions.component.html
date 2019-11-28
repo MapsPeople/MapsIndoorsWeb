@@ -87,12 +87,12 @@
 				<mat-spinner></mat-spinner>
 			</div>
 			<!-- Error message -->
-			<div *ngIf="error && !loading" class="hint content-text text-discreet">
-				<p>{{error}}</p>
+			<div *ngIf="error && !loading && !searchInputFieldHasFocus" class="content-text">
+				<p class="text-discreet">{{error}}</p>
 			</div>
 			<!-- List -->
 			<user-position *ngIf="useBrowserPositioning && currentPositionVisible && currentInputField === 'start'"
-				(eventTriggered)="handleMyPositionClick($event)"></user-position>
+				(eventTriggered)="handleMyPositionClick($event)" (error)="handleMyPositionError()"></user-position>
 			<div class="content-text" *ngIf="!loading && searchResults.length === 0 && searchInputFieldHasFocus">
 				<p class="hint">{{ 'DirectionHint.searchHint' | translate }}</p>
 			</div>

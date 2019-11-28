@@ -165,10 +165,6 @@ export class MapsIndoorsService {
 		if (this.mapsIndoors.getFloor() !== floor) {
 			this.mapsIndoors.setFloor(floor);
 		}
-
-		if (!this.floorSelectorIsVisible) {
-			this.showFloorSelector();
-		}
 	}
 	// #endregion
 
