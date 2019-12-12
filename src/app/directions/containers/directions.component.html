@@ -590,16 +590,16 @@
 				</span>
 
 				<!-- Show on map, Previous and next button -->
-				<div class="flex-h-center direction-btn-wrap" *ngIf="directionService.directionsLegs.length > 1">
-					<button mat-raised-button *ngIf="isHandset" (click)="showOnMap()">
+				<div class="flex-h-center direction-btn-wrap">
+					<button mat-raised-button *ngIf="isHandset && directionService.directionsLegs.length >= 1" (click)="showOnMap()">
 						{{ 'Buttons.ShowOnMap' | translate }}
 					</button>
-					<button mat-raised-button [disabled]="currentLegIndex == 0" *ngIf="!isHandset"
+					<button mat-raised-button [disabled]="currentLegIndex == 0" *ngIf="!isHandset && directionService.directionsLegs.length > 1"
 						(click)="prevSegment()">
 						{{'DirectionRoute.Previous' | translate }}
 					</button>
 					<button mat-raised-button
-						[disabled]="currentLegIndex == (directionService.directionsLegs.length - 1)" *ngIf="!isHandset"
+						[disabled]="currentLegIndex == (directionService.directionsLegs.length - 1)" *ngIf="!isHandset && directionService.directionsLegs.length > 1"
 						(click)="nextSegment()" [style.background-color]="colors.accent"
 						[style.color]="colors.onAccent">
 						{{ 'DirectionRoute.Next' | translate }}
