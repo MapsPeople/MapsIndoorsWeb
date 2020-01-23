@@ -1,5 +1,6 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { UserAgentService } from 'src/app/services/user-agent.service';
+import { TranslateService } from '@ngx-translate/core';
 
 interface UserPosition {
 	name: string,
@@ -21,7 +22,8 @@ export class UserPositionComponent implements OnInit {
 	@Output() error: EventEmitter<boolean> = new EventEmitter();
 
 	constructor(
-		private userAgentService: UserAgentService
+		private userAgentService: UserAgentService,
+		private translateService: TranslateService
 	) { }
 
 	async ngOnInit() {
@@ -30,7 +32,7 @@ export class UserPositionComponent implements OnInit {
 		await this.userAgentService.getCurrentPosition(options)
 			.then((position: Position): void => {
 				this.userPosition = {
-					name: 'My Position',
+					name: this.translateService.instant('Direction.MyPosition'),
 					coordinates: [position.coords.longitude, position.coords.latitude]
 				};
 				this.loading = false;

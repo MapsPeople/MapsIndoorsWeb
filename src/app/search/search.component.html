@@ -1,165 +1,112 @@
 <aside id="sidebar" *ngIf="venue">
-	<section class="elevation-z2">
-		<header>
-			<div class="hero" [style.background-color]="colors.primary">
-				<nav class="hero-nav">
-					<button mat-icon-button *ngIf="!filtered && !venue.onlyVenue" (click)="goBack()">
-						<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">location_city</mat-icon>
-					</button>
-					<button mat-icon-button *ngIf="locationsArray.length > 0 || filtered" (click)="goBack()">
-						<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
-					</button>
-					<button id="infoDialogOpenButton" mat-icon-button class="info-button" (click)="openInfoDialog()">
-						<svg class="info-button-icon" [style.fill]="colors.onPrimary" version="1.1" xmlns="http://www.w3.org/2000/svg"
-						 xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 24 24"
-						 enable-background="new 0 0 24 24" xml:space="preserve">
-							<g id="Bounding_Boxes">
-								<g id="ui_x5F_spec_x5F_header_copy_3" display="none">
-								</g>
-								<path fill="none" d="M0,0h24v24H0V0z" />
-							</g>
-							<g id="Rounded" display="none">
-								<g id="ui_x5F_spec_x5F_header_copy_5">
-								</g>
-								<g display="inline">
-									<path d="M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10s10-4.48,10-10C22,6.48,17.52,2,12,2z M12,17L12,17c-0.55,0-1-0.45-1-1v-4
-			c0-0.55,0.45-1,1-1h0c0.55,0,1,0.45,1,1v4C13,16.55,12.55,17,12,17z M13,9h-2V7h2V9z" />
-								</g>
-							</g>
-							<g id="Sharp" display="none">
-								<g id="ui_x5F_spec_x5F_header_copy_4">
-								</g>
-								<g display="inline">
-									<path d="M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10s10-4.48,10-10C22,6.48,17.52,2,12,2z M13,17h-2v-6h2V17z M13,9h-2V7h2V9z" />
-								</g>
-							</g>
-							<g id="Outline">
-								<g id="ui_x5F_spec_x5F_header" display="none">
-								</g>
-								<g>
-									<rect x="11" y="7" width="2" height="2" />
-									<rect x="11" y="11" width="2" height="6" />
-									<path d="M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10s10-4.48,10-10C22,6.48,17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8
-			c0-4.41,3.59-8,8-8s8,3.59,8,8C20,16.41,16.41,20,12,20z" />
-								</g>
-							</g>
-							<g id="Duotone" display="none">
-								<g id="ui_x5F_spec_x5F_header_copy_2">
-								</g>
-								<g display="inline">
-									<path opacity="0.3" d="M12,4c-4.41,0-8,3.59-8,8c0,4.41,3.59,8,8,8s8-3.59,8-8C20,7.59,16.41,4,12,4z M13,17h-2v-6h2V17z M13,9h-2
-			V7h2V9z" />
-									<rect x="11" y="7" width="2" height="2" />
-									<rect x="11" y="11" width="2" height="6" />
-									<path d="M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10s10-4.48,10-10C22,6.48,17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8
-			c0-4.41,3.59-8,8-8s8,3.59,8,8C20,16.41,16.41,20,12,20z" />
-								</g>
-							</g>
-							<g id="Material" display="none">
-								<g id="ui_x5F_spec_x5F_header_copy">
-								</g>
-								<g display="inline">
-									<path d="M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10s10-4.48,10-10C22,6.48,17.52,2,12,2z M13,17h-2v-6h2V17z M13,9h-2V7h2V9z" />
-								</g>
-							</g>
-						</svg>
-					</button>
-				</nav>
-				<h1 [style.color]="colors.onPrimary">{{venue.venueInfo.name}}</h1>
-				<img src="{{venue.image}}" />
-			</div>
-		</header>
-		<mat-toolbar [style.background-color]="colors.primary" class="search">
-			<div class="search-wrap">
-				<mat-icon [style.color]="colors.onPrimary" class="input-icon">search</mat-icon>
-				<!-- If no category is selected  -->
-				<input *ngIf="!search.category" id="searchInput" type="text" placeholder="{{ 'Search.SearchPlaces' | translate }}"
-				 aria-label="Search" [(ngModel)]="search.query" (ngModelChange)="searchValueChanged($event)" (focus)="searchInFocus(true)"
-				 (blur)="searchInFocus(false)" />
+    <section class="elevation-z2">
+        <header>
+            <div class="hero" [style.background-color]="colors.primary">
+                <nav class="hero-nav">
+                    <button mat-icon-button *ngIf="!filtered && !venue.onlyVenue" (click)="goBack()">
+                        <mat-icon [style.color]="colors.onPrimary" aria-label="Venues">location_city</mat-icon>
+                    </button>
+                    <button mat-icon-button *ngIf="locationsArray.length > 0 || filtered" (click)="goBack()">
+                        <mat-icon [style.color]="colors.onPrimary" aria-label="Back">arrow_back</mat-icon>
+                    </button>
+                    <button mat-icon-button class="info-button" (click)="openInfoDialog()">
+                        <mat-icon [style.fill]="colors.onPrimary" aria-label="Info">info_outline</mat-icon>
+                    </button>
+                </nav>
+                <h1 [style.color]="colors.onPrimary">{{venue.venueInfo.name}}</h1>
+                <img src="{{venue.image}}" />
+            </div>
+        </header>
+        <mat-toolbar [style.background-color]="colors.primary" class="search">
+            <div class="search-wrap">
+                <mat-icon [style.color]="colors.onPrimary" class="input-icon">search</mat-icon>
+                <input id="searchInput" type="text" [placeholder]="search.category ? ('Search.SearchIn' | translate:{category: search.category}) : ('Search.SearchPlaces' | translate)" aria-label="search.category ? ('Search.SearchIn' | translate:{category: search.category}) : ('Search.SearchPlaces' | translate)" [(ngModel)]="search.query" (ngModelChange)="searchValueChanged($event)" (focus)="searchInFocus(true)" (blur)="searchInFocus(false)" />
+                <button class="input-clear" mat-button *ngIf="search.query" matSuffix mat-icon-button aria-label="Clear" (click)="clearQuery()">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+        </mat-toolbar>
+    </section>
 
-				<!-- If a category is selected -->
-				<input *ngIf="search.category" id="searchInput" type="text" placeholder="{{ 'Search.SearchIn' | translate:search }}"
-				 aria-label="Search" [(ngModel)]="search.query" (ngModelChange)="searchValueChanged($event)" (focus)="searchInFocus(true)"
-				 (blur)="searchInFocus(false)" />
+    <section class="content-container">
 
-				<button class="input-clear" mat-button *ngIf="search.query" matSuffix mat-icon-button aria-label="Clear" (click)="clearQuery()">
-					<mat-icon>close</mat-icon>
-				</button>
-			</div>
-		</mat-toolbar>
-	</section>
+        <!-- Loading -->
+        <div class="content" *ngIf="loading">
+            <div class="content-text center">
+                <mat-spinner></mat-spinner>
+            </div>
+        </div>
 
-	<section class="content-container">
+        <!-- shows categories if searchQuery is empty  -->
+        <section class="content" *ngIf="!search.query && !search.category && !searchFocus && !locationsArray.length > 0">
+            <mat-nav-list>
+                <a mat-list-item *ngFor="let category of categoriesMenu" (click)="getLocationsForCategory(category, $event)">
+                    <span class="list-icon">
+                        <img class="material-icons" src="{{category.iconUrl}}" alt="">
+                    </span>
+                    <span class="list-text">
+                        {{category.name}}
+                    </span>
+                </a>
+            </mat-nav-list>
+        </section>
 
-		<!-- Loading -->
-		<div class="content" *ngIf="loading">
-			<div class="content-text center">
-				<mat-spinner></mat-spinner>
-			</div>
-		</div>
+        <!-- If search field is in focus and there are no locations yet-->
+        <section class="content" *ngIf="searchFocus && !loading && !search.category && !error && locationsArray.length < 1">
+            <div class="content-text">
+                <!-- NOTE: Search icon is added with css -->
+                <p class="search hint">{{ 'SearchHint.Hint' | translate }} {{SearchHintAppTitle}}.</p>
+            </div>
+        </section>
 
-		<!-- shows categories if searchQuery is empty  -->
-		<section class="content" *ngIf="!search.query && !search.category && !searchFocus && !locationsArray.length > 0">
-			<mat-nav-list>
-				<a mat-list-item *ngFor="let category of categoriesMenu" (click)="getLocationsForCategory(category)">
-					<span class="list-icon">
-						<img class="material-icons" src="{{category.iconUrl}}" alt="">
-					</span>
-					<span class="list-text">
-						{{category.name}}
-					</span>
-				</a>
-			</mat-nav-list>
-		</section>
+        <!-- Error -->
+        <section class="content" *ngIf="error && (search.query || search.category)">
+            <div class="hint" class="content-text text-discreet">
+                <!-- Empty category -->
+                <p *ngIf="error === 'EmptyCategory'">
+                    {{venue.venueInfo.name }} {{ 'SearchHint.EmptyCategory' | translate:search }} {{appConfig.appSettings.title}}.
+                </p>
+                <!-- No results for query -->
+                <p *ngIf="error === 'NoResults'">
+                    {{ 'SearchHint.NoResults' | translate:search }}.
+                </p>
+                <!-- No results for query in category -->
+                <p *ngIf="error === 'NoResultsInCategory'">
+                    {{ 'SearchHint.NoResultsInCategory' | translate:search }}.
+                </p>
+            </div>
+        </section>
 
-		<!-- If search field is in focus and there are no locations yet-->
-		<section class="content" *ngIf="searchFocus && !loading && !search.category && !error && locationsArray.length < 1">
-			<div class="content-text">
-				<!-- NOTE: Search icon is added with css -->
-				<p class="search hint">{{ 'SearchHint.Hint' | translate }} {{SearchHintAppTitle}}.</p>
-			</div>
-		</section>
+        <!-- searchQuery results -->
+        <!-- <section class="content" *ngIf="locationsArray.length > 0 && (search.query || search.category)"> -->
+        <section class="content" *ngIf="locationsArray.length > 0">
+            <mat-nav-list>
+                <a mat-list-item *ngFor="let location of locationsArray" (click)="setLocation(location)">
+                    <span class="list-icon">
+                        <img class="material-icons" src="{{location.properties.iconUrl}}">
+                    </span>
+                    <span class="list-text">
+                        <span class="list-title">{{location.properties.name}}</span>
+                        <span class="list-title-sub">
+                            <span *ngIf="location.properties.roomId"> {{location.properties.roomId}}</span>
+                            <span *ngIf="location.properties.floorName">Level {{location.properties.floorName}}</span>
+                            <span *ngIf="location.properties.building && !venue.onlyVenue">{{location.properties.building}}</span>
+                            <span *ngIf="location.properties.building != location.properties.venue && !venue.onlyVenue">{{location.properties.venue}}</span>
+                        </span>
+                    </span>
+                </a>
+            </mat-nav-list>
 
-		<!-- Error -->
-		<section class="content" *ngIf="error && (search.query || search.category)">
-			<div class="hint" class="content-text text-discreet">
-				<!-- Empty category -->
-				<p *ngIf="error === 'EmptyCategory'">{{venue.venueInfo.name }} {{ 'SearchHint.EmptyCategory' | translate:search }} {{appConfig.appSettings.title}}.</p>
-				<!-- No results for query -->
-				<p *ngIf="error === 'NoResults'">{{ 'SearchHint.NoResults' | translate:search }}.</p>
-				<!-- No results for query in category -->
-				<p *ngIf="error === 'NoResultsInCategory'">{{ 'SearchHint.NoResultsInCategory' | translate:search }}.</p>
-			</div>
-		</section>
+            <!-- Load more locations button -->
+            <div class="flex-h-center" style="padding-top:8px;" *ngIf="!endOfArray">
+                <span *ngIf="loadingLocations">
+                    <mat-spinner></mat-spinner>
+                </span>
+                <button mat-raised-button (click)="getMoreLocations()" *ngIf="!loadingLocations && locationsArray.length >= 50">
+                    {{ 'Buttons.LoadMore' | translate }}
+                </button>
+            </div>
 
-		<!-- searchQuery results -->
-		<!-- <section class="content" *ngIf="locationsArray.length > 0 && (search.query || search.category)"> -->
-		<section class="content" *ngIf="locationsArray.length > 0">
-			<mat-nav-list>
-				<a mat-list-item *ngFor="let location of locationsArray" (click)="setLocation(location)">
-					<span class="list-icon">
-						<img class="material-icons" src="{{location.properties.iconUrl}}">
-					</span>
-					<span class="list-text">
-						<span class="list-title">{{location.properties.name}}</span>
-						<span class="list-title-sub">
-							<span *ngIf="location.properties.roomId"> {{location.properties.roomId}}</span>
-							<span *ngIf="location.properties.floorName">Level {{location.properties.floorName}}</span>
-							<span *ngIf="location.properties.building && !venue.onlyVenue">{{location.properties.building}}</span>
-							<span *ngIf="location.properties.building != location.properties.venue && !venue.onlyVenue">{{location.properties.venue}}</span>
-						</span>
-					</span>
-				</a>
-			</mat-nav-list>
-
-			<!-- Load more locations button -->
-			<div class="flex-h-center" style="padding-top:8px;" *ngIf="!endOfArray">
-				<span *ngIf="loadingLocations">
-					<mat-spinner></mat-spinner>
-				</span>
-				<button mat-raised-button (click)="getMoreLocations()" *ngIf="!loadingLocations && locationsArray.length >= 50">{{ 'Buttons.LoadMore' | translate }}</button>
-			</div>
-
-		</section>
-	</section>
+        </section>
+    </section>
 </aside>

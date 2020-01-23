@@ -6,7 +6,7 @@
 				<button mat-icon-button (click)="goBack()">
 					<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
 				</button>
-				<div class="travel-mode">
+				<div class="travel-mode" *ngIf="!fixedOrigin">
 					<button mat-icon-button [class.active]="travelMode === 'WALKING'"
 						(click)="setNewTravelMode('WALKING')">
 						<mat-icon [style.color]="colors.onPrimary">directions_walk</mat-icon>
@@ -24,7 +24,7 @@
 						<mat-icon [style.color]="colors.onPrimary">drive_eta</mat-icon>
 					</button>
 				</div>
-				<button mat-icon-button (click)="toggleUserRolesPanel()" *ngIf="userRolesList.length > 0">
+				<button mat-icon-button (click)="toggleUserRolesPanel()" *ngIf="userRolesList.length > 0 && !fixedOrigin">
 					<mat-icon [style.color]="colors.onPrimary">tune</mat-icon>
 				</button>
 			</nav>
@@ -32,7 +32,7 @@
 
 		<div class="searchbox-container" [style.background-color]="colors.primary">
 			<!-- Dots -->
-			<div class="dots-wrap">
+			<div class="dots-wrap" *ngIf="!fixedOrigin">
 				<div>
 					<span class="circle" [style.border-color]="colors.onPrimary"></span>
 				</div>
@@ -46,9 +46,9 @@
 				</div>
 			</div>
 			<!-- Search -->
-			<div style="width:100%">
+			<div [ngClass]="!fixedOrigin ? 'search-wrap' : 'search-wrap-small'">
 				<!-- Origin search -->
-				<search-input #originSearchComponent *ngIf="searchParameters"
+                <search-input #originSearchComponent *ngIf="searchParameters && !fixedOrigin"
 					(currentInputField)="setCurrentInputField('start')"
 					(blurred)="blurInputField()"
 					[query]="originInputValue" [searchParameters]="searchParameters"
@@ -64,14 +64,14 @@
 				</search-input>
 
 				<!-- Stairs checkbox -->
-				<div class="checkbox">
+				<div class="checkbox" *ngIf="!fixedOrigin">
 					<mat-checkbox [style.color]="colors.onPrimary" (change)="changeAvoidStairs()">
 						{{'Direction.AvoidStairs' | translate }}
 					</mat-checkbox>
-				</div>
+                </div>
 			</div>
 			<!-- Switch direction -->
-			<div class="switch-direction">
+			<div class="switch-direction" *ngIf="!fixedOrigin">
 				<button mat-icon-button (click)="switchOriginAndDest()">
 					<mat-icon [style.color]="colors.onPrimary" aria-label="Switch values">&#xE8D5;</mat-icon>
 				</button>
@@ -581,6 +581,10 @@
 					</section>
 				</div>
 			</section>
+			<!-- #endregion -->
+
+            <!-- #region Share route -->
+             <share-route class="content-text flex-h-center" *ngIf="directionService.directionsLegs.length && originLocation.id && destinationLocation.id && modules.sms" [venueId]="venue?.id" [originId]="originLocation?.id" [destination]="destinationLocation" [travelMode]="travelMode" [totalTravelDuration]="totalTravelDuration"></share-route>
 			<!-- #endregion -->
 
 			<!-- #region Footer -->

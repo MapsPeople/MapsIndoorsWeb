@@ -1,5 +1,15 @@
 .instruction-title p {
-	margin-right: 8px; 
-	font-weight: 600; 
-	font-size: 13px;
+  margin-right: 8px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.search-wrap {
+  width: 100%;
+  display: block;
+
+  &-small {
+    width: 100%;
+    padding: 0 14px 0 0;
+  }
 }

@@ -1,11 +1,5 @@
-.flex-space-between {
-    display: flex;
-    flex-direction: row;
-    flex: 1;
-    justify-content: space-between
-}
-
 .flex {
+    display: flex;
     &-h-center {
 		display: flex;
         justify-content: center;
@@ -18,7 +12,13 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-	}
+    }
+    &-space-between {
+        display: flex;
+        flex-direction: row;
+        flex: 1;
+        justify-content: space-between
+    }
 }
 
 .hidden {

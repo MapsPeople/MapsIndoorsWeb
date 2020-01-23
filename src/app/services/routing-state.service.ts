@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Router, RouterEvent, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class RoutingStateService {
-	private history: NavigationEnd[] = [];
+	private history: string[] = [];
 
 	constructor(
 		private router: Router
@@ -17,17 +17,10 @@ export class RoutingStateService {
 	 * @memberof RoutingStateService
 	 */
 	public loadRouting(): void {
-		// TODO: Move map.component analytics page-view event in here
 		this.router.events
-			.pipe(
-				filter(
-					(event: RouterEvent) => {
-						return (event instanceof NavigationEnd);
-					}
-				)
-			)
-			.subscribe((urlAfterRedirects: NavigationEnd) => {
-				this.history = [...this.history, urlAfterRedirects];
+			.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+			.subscribe((event: NavigationEnd): void => {
+				this.history = [...this.history, event.urlAfterRedirects];
 				// History max-limit
 				if (this.history.length > 20) {
 					this.history.shift();

@@ -8,6 +8,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, MatListModule, MatGridListModule, MatCardModule, MatMenuModule, MatFormFieldModule, MatInputModule, MatRippleModule, MatProgressSpinnerModule, MatDialogModule, MatCheckboxModule } from '@angular/material';
 import { AppRoutingModule } from './/app-routing.module';
+import { environment } from './../environments/environment';
+
 // Translations
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
@@ -30,7 +32,7 @@ import { DirectionsModule } from './directions/directions.module';
 // Services
 import { AppConfigService } from './services/app-config.service';
 import { SolutionService } from './services/solution.service';
-import { RoutingStateService} from './services/routing-state.service';
+import { RoutingStateService } from './services/routing-state.service';
 
 @NgModule({
 	declarations: [
@@ -100,5 +102,5 @@ import { RoutingStateService} from './services/routing-state.service';
 export class AppModule { }
 
 export function HttpLoaderFactory(http: HttpClient) {
-	return new TranslateHttpLoader(http);
+	return new TranslateHttpLoader(http, './assets/i18n/', `.json?v=${environment.version}`);
 }

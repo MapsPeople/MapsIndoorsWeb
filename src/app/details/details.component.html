@@ -8,7 +8,7 @@
                     <button mat-icon-button (click)="goBack()">
                         <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
                     </button>
-                    <button id="shareDialogOpenButton" mat-icon-button (click)="openShareUrlDialog()">
+                    <button mat-icon-button (click)="openShareUrlDialog()">
                         <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">share</mat-icon>
                     </button>
                 </nav>
@@ -101,7 +101,7 @@
                     </span>
                     <span>
                         <button [style.background-color]="colors.accent" mat-raised-button
-                            (click)="getDirections(location.id)">
+                            (click)="getDirections(location)">
                             <mat-icon [style.color]="colors.onAccent" aria-label="Get directions">directions</mat-icon>
                             <span [style.color]="colors.onAccent">
                                 {{ 'Buttons.Directions' | translate }}

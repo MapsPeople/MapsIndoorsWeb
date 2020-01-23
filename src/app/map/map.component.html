@@ -1,38 +1,35 @@
 <mat-sidenav-container class="sidenav-container">
-    <mat-sidenav #drawer class="sidenav" fixedInViewport="true" [attr.role]="isHandset ? 'dialog' : 'navigation'" [mode]="isHandset ? 'over' : 'side'"
-     [disableClose]="!isHandset" [opened]="!isHandset" [autoFocus]="false">
-      <router-outlet></router-outlet>
+    <mat-sidenav #drawer class="sidenav" fixedInViewport="true" [attr.role]="isHandset ? 'dialog' : 'navigation'" [mode]="isHandset ? 'over' : 'side'" [disableClose]="!isHandset" [opened]="!isHandset" [autoFocus]="false">
+        <router-outlet></router-outlet>
     </mat-sidenav>
     <mat-sidenav-content>
-      <!-- Top bar  -->
-      <mat-toolbar *ngIf="statusOk" [style.background-color]="colors.primary">
-        <button type="button" aria-label="Toggle sidenav" [style.color]="colors.onPrimary" mat-icon-button (click)="drawer.toggle()"
-         *ngIf="isHandset">
-          <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-        </button>
-        <div class="flex-space-between flex-v-center">
-          <h1 [style.color]="colors.onPrimary">{{pageTitle}}</h1>
-          <button mat-icon-button [style.color]="colors.onPrimary" class="btn-clear-map" *ngIf="mapsIndoorsService.isMapDirty"
-           (click)="clearMap()">
-            <mat-icon aria-label="Clear">close</mat-icon>
-          </button>
+        <!-- Top bar  -->
+        <mat-toolbar *ngIf="statusOk" [style.background-color]="colors.primary">
+            <button type="button" aria-label="Toggle sidenav" [style.color]="colors.onPrimary" mat-icon-button (click)="drawer.toggle()" *ngIf="isHandset">
+                <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+            </button>
+            <div class="flex-space-between flex-v-center">
+                <h1 [style.color]="colors.onPrimary">{{pageTitle}}</h1>
+                <button mat-icon-button [style.color]="colors.onPrimary" class="btn-clear-map" *ngIf="mapsIndoorsService.isMapDirty" (click)="isKioskMode ? resetAppToInitialState() : clearMap()">
+                    <mat-icon aria-label="Clear">close</mat-icon>
+                </button>
+            </div>
+        </mat-toolbar>
+        <div id="zoom-for-details" class="mapsindoors return-to-venue-container hidden">
+            <button class="btn-return-to-venue">{{ 'Buttons.ZoomForDetails' | translate }}</button>
         </div>
-      </mat-toolbar>
-      <div id="zoom-for-details" class="mapsindoors return-to-venue-container hidden">
-        <button class="btn-return-to-venue">{{ 'Buttons.ZoomForDetails' | translate }}</button>
-      </div>
-      <div id="return-to-venue" class="mapsindoors return-to-venue-container hidden">
-        <button class="btn-return-to-venue" (click)="returnToButtonClickHandler()">
-			{{ 'Buttons.ReturnTo' | translate }}
-			<span *ngIf="returnToValues && returnToValues.name">{{returnToValues.name}}</span>
-		</button>
-      </div>
-      <!-- Google map -->
-      <div id="gmap" [ngClass]="{ 'small-map': isHandset, 'small-map-with-legs': (isHandset && directionService.directionsLegs.length > 0 && !isInternetExplorer)
+        <div id="return-to-venue" class="mapsindoors return-to-venue-container hidden">
+            <button class="btn-return-to-venue" (click)="returnToButtonClickHandler()">
+                {{ 'Buttons.ReturnTo' | translate }}
+                <span *ngIf="returnToValues && returnToValues.name">{{returnToValues.name}}</span>
+            </button>
+        </div>
+        <!-- Google map -->
+        <div id="gmap" [ngClass]="{ 'small-map': isHandset, 'small-map-with-legs': (isHandset && directionService.directionsLegs.length > 0 && !isInternetExplorer)
       }"></div>
 
-      <!-- Horizontal directions for mobile -->
-      <horizontal-directions *ngIf="isHandset && !isInternetExplorer && directionService.directionsLegs.length > 0"></horizontal-directions>
+        <!-- Horizontal directions for mobile -->
+        <horizontal-directions *ngIf="isHandset && !isInternetExplorer && directionService.directionsLegs.length > 0"></horizontal-directions>
 
     </mat-sidenav-content>
-  </mat-sidenav-container>
+</mat-sidenav-container>

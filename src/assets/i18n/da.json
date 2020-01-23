@@ -18,7 +18,12 @@
     },
     "ShareDialog": {
         "Title": "Del placering",
-        "Text": "Kopier linket nedenfor for at dele"
+        "Text": "Kopier linket nedenfor for at dele",
+        "EnterPhoneNumber": "Indtast dit telefonnummer",
+        "SendDirections": "Send rutevejledning",
+        "SendDirectionsToPhone": "Send som SMS",
+        "SmsSuccess": "SMS’en er sendt",
+        "SmsError": "SMS’en blev ikke sendt"
     },
     "Search": {
         "SearchPlaces": "Søg",
@@ -36,6 +41,7 @@
         "To": "Til",
         "AvoidStairs": "Undgå trapper",
         "MyPosition": "Min placering",
+        "YouAreHere": "Du er her",
         "EnableMyPosition": "Slå lokationsdeling til for at bruge din position",
         "RouteSettings": "Rute Indstillinger",
         "ChooseTheAppUserRoles...": "Vælg de app bruger roller du tilhører. Dette påvirker kun ruter, notikke de lokationer du ser på kortet",

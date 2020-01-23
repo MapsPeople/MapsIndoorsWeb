@@ -18,7 +18,12 @@
     },
     "ShareDialog": {
         "Title": "Share location",
-        "Text": "Copy the link below to share the location of"
+        "Text": "Copy the link below to share the location of",
+        "EnterPhoneNumber": "Enter phone number",
+        "SendDirections": "Send Directions",
+        "SendDirectionsToPhone": "Send as SMS",
+        "SmsSuccess": "SMS succesfully sent",
+        "SmsError": "SMS failed to send"
     },
     "Search": {
         "SearchPlaces": "Search places",
@@ -36,6 +41,7 @@
         "To": "To",
         "AvoidStairs": "Avoid stairs",
         "MyPosition": "My Position",
+        "YouAreHere": "You are here",
         "EnableMyPosition": "Enable location sharing to use your position",
         "RouteSettings": "Route Settings",
         "ChooseTheAppUserRoles...": "Choose the App User Roles you are part of. This only affacts the directions you get, not the locations you see on the map",

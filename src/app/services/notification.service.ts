@@ -12,15 +12,20 @@ export class NotificationService {
 		private translateService: TranslateService
 	) { }
 
-	// #region || DISPLAY NOTIFICATION
-	displayNotification(value: string, duration?: number) {
+    /**
+     * @description Show a snackbar with a message.
+     * @param {string} value - The message to be shown.
+     * @param {number} [duration] - How long the snackbar should be visible in milliseconds.
+     * @memberof NotificationService
+     */
+    displayNotification(value: string, duration?: number): void {
 		const milliseconds: number = duration ? duration : 4000;
 		// Translating notification and opens snackBar with value
-		this.translateService.get(value).subscribe((notificationValue: string) => {
+        this.translateService.get(value)
+            .subscribe((notificationValue: string): void => {
 			this.snackBar.open(notificationValue, '', {
 				duration: milliseconds
 			});
 		});
 	}
-	// #endregion
 }
