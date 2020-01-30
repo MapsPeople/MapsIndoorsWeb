@@ -57,7 +57,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
         private mapsIndoorsService: MapsIndoorsService,
         private solutionService: SolutionService,
         private googleMapService: GoogleMapService,
-        private shareUrlDialog: MatDialog,
+        private dialog: MatDialog,
         private translateService: TranslateService,
         private notificationService: NotificationService,
         private trackerService: TrackerService
@@ -92,18 +92,16 @@ export class DetailsComponent implements OnInit, OnDestroy {
 	 * @description Gets and sets the location based on the URL id parameter
 	 * @memberof DetailsComponent
 	 */
-    setLocation() {
+    setLocation(): void {
         const id = this.route.snapshot.params.id;
         // Location id
         if (id.length === 24) {
             this.locationService.getLocationById(id)
-                .then((location: Location) => {
+                .then((location: Location): void => {
                     this.locationService.setLocation(location);
                 })
-                .catch(() => {
-                    this.notificationService.displayNotification(
-                        this.translateService.instant('Error.IncorrectLocation')
-                    );
+                .catch((err: Error): void => {
+                    this.notificationService.displayNotification(err.message);
                     this.goBack();
                 });
         }
@@ -113,10 +111,8 @@ export class DetailsComponent implements OnInit, OnDestroy {
                 .then((location: Location) => {
                     this.locationService.setLocation(location);
                 })
-                .catch(() => {
-                    this.notificationService.displayNotification(
-                        this.translateService.instant('Error.IncorrectRoom')
-                    );
+                .catch((err: Error): void => {
+                    this.notificationService.displayNotification(err.message);
                     this.goBack();
                 });
         }
@@ -176,7 +172,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
      * @memberof DetailsComponent
      */
     public openShareUrlDialog(): void {
-        this.dialogRef = this.shareUrlDialog.open(ShareUrlDialogComponent, {
+        this.dialogRef = this.dialog.open(ShareUrlDialogComponent, {
             width: '500px',
             autoFocus: true,
             disableClose: false,

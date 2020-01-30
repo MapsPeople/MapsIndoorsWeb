@@ -1,8 +1,10 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, switchMap, distinctUntilChanged, tap, map } from 'rxjs/operators';
 import { SearchService } from './search.service';
 import { SearchData } from './searchData.interface';
-import { debounceTime, filter, switchMap, distinctUntilChanged, tap, map } from 'rxjs/operators';
+import { SearchParameters } from '../../../shared/models/searchParameters.interface';
+
 
 @Component({
 	selector: 'search-input',
@@ -15,7 +17,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 	@ViewChild('searchInput') searchElement: ElementRef;
 
 	@Input() query: string;
-	@Input() searchParameters: {};
+	@Input() parameters: SearchParameters;
 	@Input() placeHolder: string;
 
 	@Output('update') searchResults: EventEmitter<SearchData> = new EventEmitter<SearchData>();
@@ -41,7 +43,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 				}),
 				filter((query) => query.length > 1),
 				tap(() => this.loading.emit()),
-				switchMap((term) => this.searchService.searchEntries(term, this.searchParameters))
+				switchMap((term) => this.searchService.searchEntries(term, this.parameters))
 			)
 			.subscribe((results) => {
 				this.searchResults.emit({ query: this.query, results: results });

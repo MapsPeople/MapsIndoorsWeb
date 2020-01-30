@@ -21,6 +21,7 @@ import { Location } from '../../shared/models/location.interface';
 import { BaseLocation } from '../../shared/models/baseLocation.interface';
 import { SearchData } from '../components/search/searchData.interface';
 import { Modules } from '../../shared/models/modules.interface';
+import { SearchParameters } from '../../shared/models/searchParameters.interface';
 
 declare const mapsindoors: any;
 
@@ -58,15 +59,15 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
     segmentHover: number; // Used for when hovering a segment
 
-    searchParameters = {
+    searchParameters: SearchParameters = {
         take: 10,
-        startingPoint: {},
+        near: {},
         getGoogleResults: true,
         countryCodeRestrictions: ''
     };
     searchResults = [];
     isPoweredByGoogle = false;
-    fixedOrigin: boolean;
+    fixedOriginSet: boolean;
     originLocation: BaseLocation;
     originInputValue: string;
     @ViewChild('originSearchComponent') originSearchComponent: SearchComponent;
@@ -137,7 +138,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             // Fixed origin observable
             .add(this.appConfigService.getFixedOrigin()
                 .subscribe((fixedOrigin: Location): void => {
-                    this.fixedOrigin = true;
+                    this.fixedOriginSet = true;
                     this.originLocation = fixedOrigin as BaseLocation;
                     this.originInputValue = fixedOrigin.properties.name;
                 })
@@ -146,7 +147,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             .add(this.venueService.getVenueObservable()
                 .subscribe((venue: Venue): void => {
                     this.venue = venue;
-                    this.populateSearchParams(`venue:${venue.id}`);
+                    const near = this.fixedOriginSet ? { lat: this.originLocation.geometry.coordinates[1], lng: this.originLocation.geometry.coordinates[0] } : `venue:${this.venue.id}`;
+                    this.populateSearchParams(near);
                 })
             );
 
@@ -226,10 +228,12 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
     /**
      * @description Populates search parameters used for search.
-     * @param {any} startingPoint Coordinate or venue id.
+     * @private
+     * @param {(string | Object)} near - Coordinate or venue id.
+     * @memberof DirectionsComponent
      */
-    private populateSearchParams(startingPoint: any) {
-        this.searchParameters.startingPoint = startingPoint;
+    private populateSearchParams(near: string | Object): void {
+        this.searchParameters.near = near;
         this.searchParameters.countryCodeRestrictions = this.appConfig.appSettings.countryCode ? this.appConfig.appSettings.countryCode : '';
     }
 
@@ -242,15 +246,13 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             if (this.originLocation) resolve();
             else if (this.route.snapshot.params.from) {
                 await this.locationService.getLocationById(this.route.snapshot.params.from)
-                    .then((location: any): void => {
+                    .then((location: Location): void => {
                         this.originLocation = location as BaseLocation;
                         this.originInputValue = location.properties.name;
                         resolve();
                     })
-                    .catch((): void => {
-                        this.notificationService.displayNotification(
-                            this.translateService.instant('Error.IncorrectLocation')
-                        );
+                    .catch((err: Error): void => {
+                        this.notificationService.displayNotification(err.message);
                         reject();
                     });
             }
@@ -325,10 +327,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                         this.directionService.destinationQuery = this.destinationInputValue; // Used for horizontal directions
                         resolve();
                     })
-                    .catch((): void => {
-                        this.notificationService.displayNotification(
-                            this.translateService.instant('Error.IncorrectLocation')
-                        );
+                    .catch((err: Error): void => {
+                        this.notificationService.displayNotification(err.message);
                         reject();
                     });
             }

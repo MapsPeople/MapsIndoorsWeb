@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { SolutionService } from 'src/app/services/solution.service';
 import { Location } from '../../../shared/models/location.interface';
+import { SearchParameters } from '../../../shared/models/searchParameters.interface';
 
 declare const mapsindoors: any;
 
@@ -21,19 +22,20 @@ export class SearchService {
     /**
      * @description Searches and returns MapsIndoors and Google Places locations.
      * @param {string} term - The search term.
-     * @param {Object} searchParameters - The parameters to search by.
-     * @returns {Promise} - A promise with an array of locations.
+     * @param {SearchParameters} parameters - The parameters to search by.
+     * @returns {Promise<Location[]>} - A promise with an array of locations.
      * @memberof SearchService
      */
-    searchEntries(term: string, searchParameters) {
+    searchEntries(term: string, parameters: SearchParameters): Promise<Location[]> {
+        const args: SearchParameters = {
+            q: term,
+            take: parameters.take,
+            orderBy: 'relevance',
+            near: parameters.near,
+        };
         return Promise.all([
-            this.getLocations({
-                q: term,
-                take: searchParameters.take,
-                orderBy: 'relevance',
-                near: searchParameters.startingPoint,
-            }),
-            this.getGooglePlaces(term, searchParameters)
+            this.getLocations(args),
+            this.getGooglePlaces(term, parameters)
         ])
             .then((searchResults: any[]) => searchResults[0].concat(searchResults[1]))
             .catch((err) => console.log(err)); /* eslint-disable-line no-console */ /* TODO: Improve error handling */
@@ -45,7 +47,7 @@ export class SearchService {
      * @returns {Promise<Location[]>} - Returns an array of filtered MapsIndoors POI's.
      * @memberof SearchService
      */
-    getLocations(parameters): Promise<Location[]> {
+    getLocations(parameters: SearchParameters): Promise<Location[]> {
         return mapsindoors.LocationsService.getLocations(parameters)
             .then((locations: Location[]) => this.setIcons(locations));
     }
@@ -92,20 +94,20 @@ export class SearchService {
 
     /**
      * @description Uses the search term to search for matching Google places results.
-     * @access Private
+     * @private
      * @param {string} term - The search term.
-     * @param {boolean, string} { getGoogleResults, countryCodeRestrictions } - Include Place Predictions. Restrict search to specific countries.
-     * @returns {Promise} - Returns search results if any otherwise an empty array.
+     * @param {SearchParameters} { getGoogleResults, countryCodeRestrictions } - Include Place Predictions. Restrict search to specific countries.
+     * @returns {Promise<Location[]>} - Array of locations.
      * @memberof SearchService
      */
-    private getGooglePlaces(term: string, { getGoogleResults, countryCodeRestrictions }) {
-        return new Promise((resolve) => {
+    private getGooglePlaces(term: string, { getGoogleResults, countryCodeRestrictions }: SearchParameters): Promise<Location[]> {
+        return new Promise((resolve): void => {
             if (getGoogleResults) {
                 this.autocompleteService.getPlacePredictions({
                     input: term,
                     componentRestrictions: { country: countryCodeRestrictions }
-                }, (results) => {
-                    const places = (results || []).map((result) => {
+                }, (results): void => {
+                    const places = (results || []).map((result): any => {
                         return {
                             type: 'Feature',
                             properties: {

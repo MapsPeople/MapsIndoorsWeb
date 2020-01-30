@@ -6,7 +6,7 @@
 				<button mat-icon-button (click)="goBack()">
 					<mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
 				</button>
-				<div class="travel-mode" *ngIf="!fixedOrigin">
+				<div class="travel-mode" *ngIf="!fixedOriginSet">
 					<button mat-icon-button [class.active]="travelMode === 'WALKING'"
 						(click)="setNewTravelMode('WALKING')">
 						<mat-icon [style.color]="colors.onPrimary">directions_walk</mat-icon>
@@ -24,7 +24,7 @@
 						<mat-icon [style.color]="colors.onPrimary">drive_eta</mat-icon>
 					</button>
 				</div>
-				<button mat-icon-button (click)="toggleUserRolesPanel()" *ngIf="userRolesList.length > 0 && !fixedOrigin">
+				<button mat-icon-button (click)="toggleUserRolesPanel()" *ngIf="userRolesList.length > 0 && !fixedOriginSet">
 					<mat-icon [style.color]="colors.onPrimary">tune</mat-icon>
 				</button>
 			</nav>
@@ -32,7 +32,7 @@
 
 		<div class="searchbox-container" [style.background-color]="colors.primary">
 			<!-- Dots -->
-			<div class="dots-wrap" *ngIf="!fixedOrigin">
+			<div class="dots-wrap" *ngIf="!fixedOriginSet">
 				<div>
 					<span class="circle" [style.border-color]="colors.onPrimary"></span>
 				</div>
@@ -46,12 +46,12 @@
 				</div>
 			</div>
 			<!-- Search -->
-			<div [ngClass]="!fixedOrigin ? 'search-wrap' : 'search-wrap-small'">
+			<div [ngClass]="!fixedOriginSet ? 'search-wrap' : 'search-wrap-small'">
 				<!-- Origin search -->
-                <search-input #originSearchComponent *ngIf="searchParameters && !fixedOrigin"
+                <search-input #originSearchComponent *ngIf="searchParameters && !fixedOriginSet"
 					(currentInputField)="setCurrentInputField('start')"
 					(blurred)="blurInputField()"
-					[query]="originInputValue" [searchParameters]="searchParameters"
+					[query]="originInputValue" [parameters]="searchParameters"
 					[placeHolder]="'Direction.From'" (loading)="loadingHandler()" (update)="searchResultsChange($event)">
 				</search-input>
 
@@ -59,19 +59,19 @@
 				<search-input #destinationSearchComponent *ngIf="searchParameters"
 					(currentInputField)="setCurrentInputField('dest')"
 					(blurred)="blurInputField()"
-					[query]="destinationInputValue" [searchParameters]="searchParameters"
+					[query]="destinationInputValue" [parameters]="searchParameters"
 					[placeHolder]="'Direction.To'" (loading)="loading = true" (update)="searchResultsChange($event)">
 				</search-input>
 
 				<!-- Stairs checkbox -->
-				<div class="checkbox" *ngIf="!fixedOrigin">
+				<div class="checkbox" *ngIf="!fixedOriginSet">
 					<mat-checkbox [style.color]="colors.onPrimary" (change)="changeAvoidStairs()">
 						{{'Direction.AvoidStairs' | translate }}
 					</mat-checkbox>
                 </div>
 			</div>
 			<!-- Switch direction -->
-			<div class="switch-direction" *ngIf="!fixedOrigin">
+			<div class="switch-direction" *ngIf="!fixedOriginSet">
 				<button mat-icon-button (click)="switchOriginAndDest()">
 					<mat-icon [style.color]="colors.onPrimary" aria-label="Switch values">&#xE8D5;</mat-icon>
 				</button>

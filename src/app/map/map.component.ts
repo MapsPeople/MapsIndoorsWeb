@@ -1,5 +1,6 @@
 import { Component, NgZone } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material';
 import { GoogleMapService } from './../services/google-map.service';
 import { MapsIndoorsService } from './../services/maps-indoors.service';
 import { LocationService } from './../services/location.service';
@@ -48,6 +49,7 @@ export class MapComponent {
         private route: ActivatedRoute,
         private router: Router,
         public _ngZone: NgZone,
+        private dialog: MatDialog,
         private userAgentService: UserAgentService,
         private googleMapService: GoogleMapService,
         private mapsIndoorsService: MapsIndoorsService,
@@ -75,6 +77,7 @@ export class MapComponent {
         this.appConfigService.getResetView()
             .subscribe((): void => {
                 this.resetAppToInitialState();
+                this.dialog.closeAll();
             });
         this.appConfigService.getInitVenue()
             .subscribe((venue: Venue): void => {
@@ -110,6 +113,12 @@ export class MapComponent {
                 if (this.route.snapshot.queryParams.origin) {
                     this.locationService.getLocationById(this.route.snapshot.queryParams.origin)
                         .then((location: Location): void => {
+
+                            // Throw error if location does not exist on venue
+                            if (venue.name !== location.properties.venue) {
+                                throw new Error(this.translateService.instant('Error.IncorrectLocation') as string);
+                            }
+
                             this.appConfigService.setFixedOrigin(location);
                             this.focusOnLocation(location);
                             this.mapsIndoorsService.mapsIndoors.setDisplayRule(location.id, {
@@ -126,10 +135,8 @@ export class MapComponent {
                                 zIndex: 1000
                             });
                         })
-                        .catch((): void => {
-                            this.notificationService.displayNotification(
-                                this.translateService.instant('Error.IncorrectLocation')
-                            );
+                        .catch((err: Error): void => {
+                            this.notificationService.displayNotification(err.message);
                         });
                 }
 

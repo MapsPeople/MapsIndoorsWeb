@@ -20,6 +20,7 @@ import { TrackerService } from '../services/tracker.service';
 import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
 import { Category } from '../shared/models/category.interface';
+import { SearchParameters } from '../shared/models/searchParameters.interface';
 
 @Component({
     selector: 'app-search',
@@ -31,6 +32,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     colors: object;
     categoriesMenu: any;
     venue: Venue;
+    private fixedOrigin: Location;
     SearchHintAppTitle: string = '';
 
     previousQuery: string = ''
@@ -83,7 +85,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         private googleMapService: GoogleMapService,
         private locationService: LocationService,
         private mapsIndoorsService: MapsIndoorsService,
-        private infoDialog: MatDialog,
+        private dialog: MatDialog,
         private themeService: ThemeService,
         private notificationService: NotificationService,
         private translateService: TranslateService,
@@ -114,6 +116,12 @@ export class SearchComponent implements OnInit, OnDestroy {
             .add(this.route.queryParams
                 .subscribe((params: Params): void => {
                     this.urlParameters = params;
+                })
+            )
+            // Fixed origin observable
+            .add(this.appConfigService.getFixedOrigin()
+                .subscribe((fixedOrigin: Location): void => {
+                    this.fixedOrigin = fixedOrigin;
                 })
             )
             // Venue observable
@@ -273,15 +281,15 @@ export class SearchComponent implements OnInit, OnDestroy {
 	 * @memberof SearchComponent
 	 */
     private categoryRequest(categoryKey: string): Promise<Location[]> {
-        return this.searchService.getLocations(
-            {
-                take: 50,
-                skip: this.locationsArray.length,
-                venue: this.venue.name,
-                categories: categoryKey,
-                orderBy: 'relevance',
-                near: `venue:${this.venue.id}`
-            });
+        const parameters: SearchParameters = {
+            take: 50,
+            skip: this.locationsArray.length,
+            venue: this.venue.name,
+            categories: categoryKey,
+            orderBy: 'relevance',
+        };
+        parameters.near = this.fixedOrigin ? { lat: this.fixedOrigin.geometry.coordinates[1], lng: this.fixedOrigin.geometry.coordinates[0] } : `venue:${this.venue.id}`;
+        return this.searchService.getLocations(parameters);
     }
 
     searchValueChanged(value: string): void {
@@ -339,14 +347,17 @@ export class SearchComponent implements OnInit, OnDestroy {
      * @memberof SearchComponent
      */
     private queryRequest(query: string): Promise<Location[]> {
-        const parameters: any = {
+        const parameters: SearchParameters = {
             q: query,
             take: 50,
             skip: this.locationsArray.length,
             orderBy: 'relevance',
-            near: `venue:${this.venue.id}`
         };
-        if (this.category) parameters.categories = this.category.categoryKey;
+        parameters.near = this.fixedOrigin ? { lat: this.fixedOrigin.geometry.coordinates[1], lng: this.fixedOrigin.geometry.coordinates[0] } : `venue:${this.venue.id}`;
+        if (this.category) {
+            parameters.categories = this.category.categoryKey;
+        }
+
         return this.searchService.getLocations(parameters);
     }
 
@@ -495,7 +506,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     // #region || DIALOG || INFO
     openInfoDialog(): void {
-        this.dialogRef = this.infoDialog.open(InfoDialogComponent, {
+        this.dialogRef = this.dialog.open(InfoDialogComponent, {
             width: '500px',
             autoFocus: false,
             disableClose: false,

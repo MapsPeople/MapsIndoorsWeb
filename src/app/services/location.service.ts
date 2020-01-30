@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 import { MapsIndoorsService } from './maps-indoors.service';
 import { VenueService } from './venue.service';
 import { SearchService } from '../directions/components/search/search.service';
+import { TranslateService } from '@ngx-translate/core';
 
 import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
@@ -29,16 +30,19 @@ export class LocationService {
     private clusteredLocations = new BehaviorSubject<Location[]>([]);
 
     constructor(
+        private translateService: TranslateService,
         private appConfigService: AppConfigService,
         private mapsIndoorsService: MapsIndoorsService,
         private googleMapService: GoogleMapService,
         private venueService: VenueService,
-        private searchService: SearchService
-
+        private searchService: SearchService,
     ) {
-        this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
+        this.appConfigService.getAppConfig()
+            .subscribe((appConfig): void => {
+                this.appConfig = appConfig;
+            });
         this.venueService.getVenueObservable()
-            .subscribe((venue: Venue) => {
+            .subscribe((venue: Venue): void => {
                 this.venue = venue;
             });
     }
@@ -163,7 +167,9 @@ export class LocationService {
         // OBS: Only newer solutions have room coordinates and the request is therefor not making a difference for older solutions.
         if (loc.geometry.type === 'Point') {
             await this.getLocationById(loc.id)
-                .then((l) => location = l);
+                .then((populatedLocation: Location): void => {
+                    location = populatedLocation;
+                });
         }
         else location = loc;
 
@@ -226,11 +232,20 @@ export class LocationService {
     /**
      * @description Get a location by it's id.
      * @param {string} locationId Id of the location.
-     * @returns {Promise} Returns a location.
+     * @returns {(Promise<Location>)} Returns the location.
      * @memberof LocationService
      */
-    getLocationById(locationId: string) {
-        return mapsindoors.LocationsService.getLocation(locationId);
+    getLocationById(locationId: string): Promise<Location> {
+        return new Promise((resolve, reject): void => {
+            mapsindoors.LocationsService.getLocation(locationId)
+                .then((location: Location): void => {
+                    resolve(location);
+                })
+                .catch((err: Error): void => {
+                    err.message = this.translateService.instant('Error.IncorrectLocation') as string;
+                    reject(err);
+                });
+        });
     }
 
     /**
@@ -239,16 +254,19 @@ export class LocationService {
      * @returns {Promise} - Resolves a location.
      * @memberof LocationService
      */
-    getLocationByRoomId(roomId: string) {
-        return new Promise((resolve, reject) => {
-            this.searchService.getLocations({ roomId: roomId })
-                .then((locations: Location[]) => {
-                    const location = locations.find((location: Location) =>
+    getLocationByRoomId(roomId: string): Promise<Location> {
+        return new Promise((resolve, reject): void => {
+            this.searchService.getLocations({ room: roomId })
+                .then((locations: Location[]): void => {
+                    const location = locations.find((location: Location): boolean =>
                         location.properties.roomId === roomId
                         && location.properties.venue === this.venue.venueInfo.name
                     );
-                    if (location) resolve(location);
-                    else reject('No location found');
+                    if (location) {
+                        resolve(location);
+                    } else {
+                        reject(new Error(this.translateService.instant('Error.IncorrectLocation') as string));
+                    }
                 });
         });
     }
