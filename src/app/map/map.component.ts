@@ -115,7 +115,7 @@ export class MapComponent {
                         .then((location: Location): void => {
 
                             // Throw error if location does not exist on venue
-                            if (venue.name !== location.properties.venue) {
+                            if (venue.name.toLowerCase() !== location.properties.venueId.toLowerCase()) {
                                 throw new Error(this.translateService.instant('Error.IncorrectLocation') as string);
                             }
 
