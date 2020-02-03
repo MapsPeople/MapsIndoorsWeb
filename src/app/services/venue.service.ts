@@ -75,7 +75,7 @@ export class VenueService {
      * @returns {Promise<void>}
      * @memberof VenueService
      */
-    setVenue(venue, appConfig): Promise<void> {
+    setVenue(venue, appConfig, fitVenue = true): Promise<void> {
         return new Promise((resolve): void => {
             venue.anchor.center = [].concat(venue.anchor.coordinates).reverse();
 
@@ -89,7 +89,9 @@ export class VenueService {
             this.returnBtnActive = true;
             this.favouredVenue = true;
             this.mapsIndoorsService.mapsIndoors.setVenue(venue);
-            this.mapsIndoorsService.mapsIndoors.fitVenue(venue.id);
+            if (fitVenue) {
+                this.mapsIndoorsService.mapsIndoors.fitVenue(venue.id);
+            }
 
             Promise.all([
                 this.getVenueBoundingBox(venue),

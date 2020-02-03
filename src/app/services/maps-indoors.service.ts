@@ -51,8 +51,8 @@ export class MapsIndoorsService {
     }
 
     // #region || SET MAPS INDOORS
-    initMapsIndoors() {
-        return new Promise(async (resolve) => {
+    initMapsIndoors():Promise<void> {
+        return new Promise(async (resolve):Promise<void> => {
 
             this.mapsIndoors = await new mapsindoors.MapsIndoors({
                 map: this.googleMapService.googleMap,
@@ -70,17 +70,32 @@ export class MapsIndoorsService {
 
             // Set tittle attribute for map POI's
             this.solutionService.getSolution()
-                .then((solution) => {
+                .then((solution):void => {
                     for (const type of solution.types) {
                         this.mapsIndoors.setDisplayRule(type.name, { title: '{{name}}' });
                     }
                 });
 
+            // Add position control to the map and setup listeners on the user agent service.
+            if (this.appConfig.appSettings.positioningDisabled !== '1') {
+                const positionControlElement = document.createElement('div');
+                this.userAgentService.positionControl = new mapsindoors.PositionControl(positionControlElement, { mapsIndoors: this.mapsIndoors, positionOptions: { enableHighAccuracy: false, maximumAge: 300000, timeout: 10000 } });
+                this.googleMapService.googleMap.controls[google.maps.ControlPosition.TOP_RIGHT].push(positionControlElement);
+
+                google.maps.event.addListener(this.mapsIndoors, 'position_error', (error):void => {
+                    this.userAgentService.positionError(error);
+                });
+
+                google.maps.event.addListener(this.mapsIndoors, 'position_received', (position):void => {
+                    this.userAgentService.positionReceived(position);
+                });
+            }
+
             // Hide Building Outline and FloorSelector if there are any 2.5D tiles available
             const buildingOutlineVisibleFrom: number = parseInt(this.appConfig.appSettings.buildingOutlineVisibleFrom);
             const floorSelectorVisibleFrom: number = parseInt(this.appConfig.appSettings.floorSelectorVisibleFrom);
             if (buildingOutlineVisibleFrom && floorSelectorVisibleFrom) {
-                this.googleMapService.googleMap.addListener('zoom_changed', () => {
+                this.googleMapService.googleMap.addListener('zoom_changed', ():void => {
                     const gmZoomLevel: number = this.googleMapService.googleMap.getZoom();
                     // Building Outline
                     gmZoomLevel >= buildingOutlineVisibleFrom ? this.showBuildingOutline() : this.mapsIndoors.setBuildingOutlineOptions({ visible: false });

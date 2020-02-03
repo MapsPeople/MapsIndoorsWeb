@@ -6,7 +6,7 @@ export const environment = {
 	production: false,
 	version: 'DEV',
 	v: 'DEV',
-	sdkUrl: 'https://app.mapsindoors.com/mapsindoors/js/sdk/3.6.0/mapsindoors-3.6.0.js.gz',
+	sdkUrl: 'https://app.mapsindoors.com/mapsindoors/js/sdk/3.7.0/mapsindoors-3.7.0.js.gz',
 	suggestedSolutionId: 'demo'
 };
 

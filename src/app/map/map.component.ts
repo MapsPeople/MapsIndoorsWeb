@@ -317,10 +317,27 @@ export class MapComponent {
     handleSingleLocationClick(location: Location): void {
         this.loading = true;
         this.locationService.setLocation(location)
-            .then(() => {
-                this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/details/${location.id}`]);
+            .then(():Promise<Venue> => {
+                /*
+                 * Make sure venue is set whenever clicking on a location
+                 */
+                if (this.venue) {
+                    return Promise.resolve(this.venue);
+                }
+                return this.venueService.getVenues().then((venues):Venue => {
+                    const locationVenue = venues.find((venue):boolean => venue.name === location.properties.venue);
+
+                    // Set venue and override default floor by setting it explicitly
+                    this.venueService.setVenue(locationVenue, this.appConfig, false);
+                    this.mapsIndoorsService.setFloor(location.properties.floor);
+
+                    return locationVenue;
+                });
             })
-            .catch((err) => {
+            .then((venue):void => {
+                this.router.navigate([`${this.solutionService.getSolutionName()}/${venue.id}/details/${location.id}`]);
+            })
+            .catch((err):void => {
                 this.notificationService.displayNotification(err);
             });
         this.trackerService.sendEvent('Map', 'Location click', `${location.properties.name} was clicked`, true);

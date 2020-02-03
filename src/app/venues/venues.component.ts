@@ -8,10 +8,12 @@ import { MapsIndoorsService } from '../services/maps-indoors.service';
 import { ThemeService } from '../services/theme.service';
 import { Subscription } from 'rxjs';
 import { TrackerService } from '../services/tracker.service';
+import { UserAgentService } from '../services/user-agent.service';
 
 import { Venue } from '../shared/models/venue.interface';
 
 declare const ga: Function;
+declare const mapsindoors: any;
 
 @Component({
     selector: 'venue-list',
@@ -36,25 +38,26 @@ export class VenuesComponent implements OnInit, OnDestroy {
         private venueService: VenueService,
         private mapsIndoorsService: MapsIndoorsService,
         private googleMapService: GoogleMapService,
-        private trackerService: TrackerService
+        private trackerService: TrackerService,
+        private userAgentService: UserAgentService
     ) {
         this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
         this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
     }
 
-    ngOnInit() {
+    ngOnInit():void {
         this.getPreviousVenue();
         this.statusOk = true;
     }
 
     // #region || GET PREVIOUS VENUE
-    async getPreviousVenue() {
+    async getPreviousVenue():Promise<void> {
         // If any venueId in localStorage from previous visit then load it directly
         this.solutionId = await this.solutionService.getSolutionId();
         this.solutionId = this.solutionId ? this.solutionId : null;
 
         this.appInfo = JSON.parse(localStorage.getItem('MI:' + this.solutionId)) || {};
-        if (this.appInfo.lastVenue) {
+        if (this.appInfo.lastVenue && (!this.userAgentService.positionControl.hasValidPosition() || this.userAgentService.positionControl.positionState === mapsindoors.PositionState.POSITION_INACCURATE)) {
             const venue = await this.venueService.getVenueById(this.appInfo.lastVenue);
             this.setVenue(venue);
         }
@@ -81,7 +84,11 @@ export class VenuesComponent implements OnInit, OnDestroy {
             });
     }
 
-    async fitVenuesInView(venues) {
+    private async fitVenuesInView(venues):Promise<any> {
+        if (this.userAgentService.positionControl.hasValidPosition() && this.userAgentService.positionControl.positionState !== mapsindoors.PositionState.POSITION_INACCURATE) {
+            return;
+        }
+
         // If the solution have multiple venues fit them all inside bbox
         let bounds = new google.maps.LatLngBounds();
         if (this.appConfig.appSettings && !this.appConfig.appSettings.defaultVenue) {
@@ -113,7 +120,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
 
     // #region || SET VENUE
     // Set venue and go to search-page
-    async setVenue(venue) {
+    async setVenue(venue):Promise<void> {
         this.venueService.setVenue(venue, this.appConfig);
 
         // Save venueId in local storage and load venue directly next time
@@ -129,7 +136,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
     }
     // #endregion
 
-    ngOnDestroy() {
+    ngOnDestroy():void {
         this.appConfigSubscription.unsubscribe();
         this.themeServiceSubscription.unsubscribe();
     }

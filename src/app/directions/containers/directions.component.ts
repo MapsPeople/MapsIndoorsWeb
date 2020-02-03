@@ -259,8 +259,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             else if (this.useBrowserPositioning) {
                 this.originInputValue = this.translateService.instant('Direction.MyPosition');
                 this.currentPositionVisible = false;
-                const options = { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 };
-                this.userAgentService.getCurrentPosition(options)
+                this.userAgentService.getCurrentPosition()
                     .then((position: Position): void => {
                         if (this.originInputValue !== this.translateService.instant('Direction.MyPosition')) {
                             return; // Only populate if input hasn't changed.

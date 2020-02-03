@@ -26,10 +26,9 @@ export class UserPositionComponent implements OnInit {
 		private translateService: TranslateService
 	) { }
 
-	async ngOnInit() {
-		const options = { enableHighAccuracy: false, maximumAge: 300000, timeout: 15000 };
+	ngOnInit():void {
 		this.loading = true;
-		await this.userAgentService.getCurrentPosition(options)
+		this.userAgentService.getCurrentPosition()
 			.then((position: Position): void => {
 				this.userPosition = {
 					name: this.translateService.instant('Direction.MyPosition'),
@@ -43,7 +42,7 @@ export class UserPositionComponent implements OnInit {
 			});
 	}
 
-	handleClick() {
+	handleClick():void {
 		if (!this.loading) this.originPosition.emit(this.userPosition);
 	}
 }
