@@ -1,6 +1,6 @@
 {
     "name": "maps-indoors-webapp",
-    "version": "3.9.0",
+    "version": "3.9.1",
     "scripts": {
         "ng": "ng",
         "start": "npm run build:dev --prefix ./modules/sdk | ng serve",

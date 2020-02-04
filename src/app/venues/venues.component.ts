@@ -57,7 +57,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
         this.solutionId = this.solutionId ? this.solutionId : null;
 
         this.appInfo = JSON.parse(localStorage.getItem('MI:' + this.solutionId)) || {};
-        if (this.appInfo.lastVenue && (!this.userAgentService.positionControl.hasValidPosition() || this.userAgentService.positionControl.positionState === mapsindoors.PositionState.POSITION_INACCURATE)) {
+        if (this.appInfo.lastVenue && (!this.userAgentService.positionControl || !this.userAgentService.positionControl.hasValidPosition() || this.userAgentService.positionControl.positionState === mapsindoors.PositionState.POSITION_INACCURATE)) {
             const venue = await this.venueService.getVenueById(this.appInfo.lastVenue);
             this.setVenue(venue);
         }
@@ -85,7 +85,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
     }
 
     private async fitVenuesInView(venues):Promise<any> {
-        if (this.userAgentService.positionControl.hasValidPosition() && this.userAgentService.positionControl.positionState !== mapsindoors.PositionState.POSITION_INACCURATE) {
+        if (this.userAgentService.positionControl && this.userAgentService.positionControl.hasValidPosition() && this.userAgentService.positionControl.positionState !== mapsindoors.PositionState.POSITION_INACCURATE) {
             return;
         }
 
