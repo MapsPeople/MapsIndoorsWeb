@@ -4,6 +4,8 @@ import { BehaviorSubject, ReplaySubject, Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { NotificationService } from './notification.service';
 
+declare const mapsindoors: any;
+
 @Injectable({
 	providedIn: 'root'
 })
@@ -99,4 +101,19 @@ export class UserAgentService {
 		});
 	}
 
+	/**
+	 * Pans to current position if:
+	 * a) there is a valid and accurate position
+	 * b) the position is within given bounds
+	 *
+	 * @param bounds google.maps.LatLngBounds
+	 */
+	public panToPositionIfWithinBounds(bounds: google.maps.LatLngBounds):void {
+		if (this.positionControl && this.positionControl.hasValidPosition() && this.positionControl.positionState !== mapsindoors.PositionState.POSITION_INACCURATE) {
+			const posLatLng = new google.maps.LatLng({ lat: this.positionControl.currentPosition.coords.latitude, lng: this.positionControl.currentPosition.coords.longitude });
+			if (bounds.contains(posLatLng)) {
+				this.positionControl.panToCurrentPosition();
+			}
+		}
+	}
 }

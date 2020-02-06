@@ -57,7 +57,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
         this.solutionId = this.solutionId ? this.solutionId : null;
 
         this.appInfo = JSON.parse(localStorage.getItem('MI:' + this.solutionId)) || {};
-        if (this.appInfo.lastVenue && (!this.userAgentService.positionControl || !this.userAgentService.positionControl.hasValidPosition() || this.userAgentService.positionControl.positionState === mapsindoors.PositionState.POSITION_INACCURATE)) {
+        if (this.appInfo.lastVenue) {
             const venue = await this.venueService.getVenueById(this.appInfo.lastVenue);
             this.setVenue(venue);
         }
@@ -85,10 +85,6 @@ export class VenuesComponent implements OnInit, OnDestroy {
     }
 
     private async fitVenuesInView(venues):Promise<any> {
-        if (this.userAgentService.positionControl && this.userAgentService.positionControl.hasValidPosition() && this.userAgentService.positionControl.positionState !== mapsindoors.PositionState.POSITION_INACCURATE) {
-            return;
-        }
-
         // If the solution have multiple venues fit them all inside bbox
         let bounds = new google.maps.LatLngBounds();
         if (this.appConfig.appSettings && !this.appConfig.appSettings.defaultVenue) {
@@ -101,6 +97,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
                     }
                 }
             }
+            this.googleMapService.googleMap.fitBounds(bounds);
         }
         // Zoom in to default venue if any
         else if (this.appConfig.appSettings && this.appConfig.appSettings.defaultVenue && this.appConfig.appSettings.defaultVenue.length === 24) {
@@ -109,12 +106,17 @@ export class VenuesComponent implements OnInit, OnDestroy {
             if (venue) {
                 const bbox = venue.geometry.bbox;
                 bounds = new google.maps.LatLngBounds({ lat: bbox[1], lng: bbox[0] }, { lat: bbox[3], lng: bbox[2] });
+                this.googleMapService.googleMap.fitBounds(bounds);
             }
             else {
                 console.log('Default venue ID is not correct'); /* eslint-disable-line no-console */ /* TODO: Improve error handling */
             }
+
+            this.googleMapService.googleMap.fitBounds(bounds);
+
+            // If there is a position, and it is inside the venue bounds, pan to the position
+            this.userAgentService.panToPositionIfWithinBounds(bounds);
         }
-        this.googleMapService.googleMap.fitBounds(bounds);
     }
     // #endregion
 

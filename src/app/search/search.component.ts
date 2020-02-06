@@ -16,6 +16,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { NotificationService } from '../services/notification.service';
 import { SearchService } from '../directions/components/search/search.service';
 import { TrackerService } from '../services/tracker.service';
+import { UserAgentService } from '../services/user-agent.service';
 
 import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
@@ -90,7 +91,8 @@ export class SearchComponent implements OnInit, OnDestroy {
         private notificationService: NotificationService,
         private translateService: TranslateService,
         private searchService: SearchService,
-        private trackerService: TrackerService
+        private trackerService: TrackerService,
+        private userAgentService: UserAgentService
     ) {
         this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
         this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
@@ -130,6 +132,7 @@ export class SearchComponent implements OnInit, OnDestroy {
                     this.venue = venue;
                     this.zoomForDetails();
                     this.getPreviousFiltering();
+                    this.panIfWithinBounds();
                 })
             )
             // Reset view observable
@@ -209,6 +212,15 @@ export class SearchComponent implements OnInit, OnDestroy {
                 }
             });
         this.search.query = query;
+    }
+
+    /**
+     * Pan to current position if it is within venue bounds.
+     */
+    private panIfWithinBounds():void {
+        const bbox = this.venue.geometry.bbox;
+        const bounds = new google.maps.LatLngBounds({ lat: bbox[1], lng: bbox[0] }, { lat: bbox[3], lng: bbox[2] });
+        this.userAgentService.panToPositionIfWithinBounds(bounds);
     }
 
     // Show/hide search hint when focus/blur on input
