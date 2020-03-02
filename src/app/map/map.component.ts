@@ -181,8 +181,7 @@ export class MapComponent {
                     .catch(() => {
                         reject(ErrorVenueId.incorrectId);
                     });
-            }
-            else reject(id ?
+            } else reject(id ?
                 ErrorVenueId.incorrectId :
                 ErrorVenueId.undefinedId
             );
@@ -248,9 +247,8 @@ export class MapComponent {
                     if (this.returnBtn.className.includes('hidden') === false) {
                         this.returnBtn.className += ' hidden';
                     }
-                }
-                // Shows the button when panned away from selected venue or location.
-                else {
+                } else {
+                    // Shows the button when panned away from selected venue or location.
                     this.returnBtn.className = this.returnBtn.className.replace(' hidden', '');
                 }
             }
@@ -264,8 +262,7 @@ export class MapComponent {
     returnToButtonClickHandler(): void {
         if (this.returnToValues.isVenue === true) {
             this.mapsIndoorsService.mapsIndoors.fitVenue();
-        }
-        else {
+        } else {
             this.googleMapService.googleMap.panTo(this.returnToValues.latLng);
         }
     }
@@ -300,10 +297,8 @@ export class MapComponent {
                 bounds.extend(this.locationService.getAnchorCoordinates(location));
             }
             this.googleMapService.googleMap.fitBounds(bounds);
-        }
-
-        // If max zoom then go to search page and list clustered locations
-        else {
+        } else {
+            // If max zoom then go to search page and list clustered locations
             this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/search`]);
             this.locationService.setClusteredLocations(locations);
             this.trackerService.sendEvent('Map', 'Cluster click', 'Clustered locations was clicked', true);

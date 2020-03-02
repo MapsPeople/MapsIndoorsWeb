@@ -88,7 +88,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
     }
 
     // #region || LOCATION
-	/**
+    /**
 	 * @description Gets and sets the location based on the URL id parameter
 	 * @memberof DetailsComponent
 	 */
@@ -104,10 +104,9 @@ export class DetailsComponent implements OnInit, OnDestroy {
                     this.notificationService.displayNotification(err.message);
                     this.goBack();
                 });
-        }
-        // Room id
-        else {
-            this.locationService.getLocationByRoomId(id)
+        } else {
+        // Room (external) id
+            this.locationService.getLocationByExternalId(id)
                 .then((location: Location) => {
                     this.locationService.setLocation(location);
                 })
@@ -118,7 +117,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
         }
     }
 
-	/**
+    /**
 	 * @description Closing the sidebar
 	 */
     showOnMap() {
@@ -135,7 +134,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
     // #endregion
 
     // #region || DESTROY
-	/**
+    /**
 	 * @description Return to the previous page "Search-page".
 	 * @returns {void}
 	 * @memberof DetailsComponent

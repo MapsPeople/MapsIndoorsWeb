@@ -70,9 +70,8 @@ export class SearchService {
                 // Advanced icon
                 if (location.properties.displayRule && location.properties.displayRule.icon && location.properties.displayRule.icon.length > 0) {
                     location.properties.iconUrl = location.properties.displayRule.icon;
-                }
-                // Solution icon
-                else {
+                } else {
+                    // Solution icon
                     try {
                         // Set type icon if the locations type matches the type name
                         location.properties.iconUrl = this.locationTypes.find((locationType) => locationType.name.toLowerCase() === location.properties.type.toLowerCase()).icon;
@@ -81,8 +80,7 @@ export class SearchService {
                         if (location.properties.iconUrl.includes('transparent' || 'noicon')) {
                             location.properties.iconUrl = unknownTypeIcon;
                         }
-                    }
-                    catch {
+                    } catch {
                         location.properties.iconUrl = unknownTypeIcon;
                     }
                 }
@@ -122,8 +120,7 @@ export class SearchService {
                     });
                     resolve(places);
                 });
-            }
-            else resolve([]);
+            } else resolve([]);
         });
     }
 }

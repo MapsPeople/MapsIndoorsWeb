@@ -3,14 +3,14 @@ import { MatSnackBar } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
-	providedIn: 'root'
+    providedIn: 'root'
 })
 export class NotificationService {
 
-	constructor(
+    constructor(
 		public snackBar: MatSnackBar,
 		private translateService: TranslateService
-	) { }
+    ) { }
 
     /**
      * @description Show a snackbar with a message.
@@ -19,13 +19,13 @@ export class NotificationService {
      * @memberof NotificationService
      */
     displayNotification(value: string, duration?: number): void {
-		const milliseconds: number = duration ? duration : 4000;
-		// Translating notification and opens snackBar with value
+        const milliseconds: number = duration ? duration : 4000;
+        // Translating notification and opens snackBar with value
         this.translateService.get(value)
             .subscribe((notificationValue: string): void => {
-			this.snackBar.open(notificationValue, '', {
-				duration: milliseconds
-			});
-		});
-	}
+                this.snackBar.open(notificationValue, '', {
+                    duration: milliseconds
+                });
+            });
+    }
 }

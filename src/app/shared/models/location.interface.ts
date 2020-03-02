@@ -27,7 +27,7 @@ interface LocationProperties {
     locationType: string,
     mapElement: string,
     name: string,
-    roomId: string,
+    externalId: string,
     streetViewConfig?: StreetViewConfig,
     subtitle?: string,
     type: string,

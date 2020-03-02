@@ -3,11 +3,12 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-	production: false,
-	version: 'DEV',
-	v: 'DEV',
-	sdkUrl: 'https://app.mapsindoors.com/mapsindoors/js/sdk/3.7.1/mapsindoors-3.7.1.js.gz',
-	suggestedSolutionId: 'demo'
+    production: false,
+    version: 'DEV',
+    v: 'DEV',
+    sdkUrl: 'https://app.mapsindoors.com/mapsindoors/js/sdk/3.8.0/mapsindoors-3.8.0.js.gz',
+    sentryDsn: ''
+    suggestedSolutionId: 'demo'
 };
 
 /*

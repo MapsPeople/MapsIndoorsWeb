@@ -147,8 +147,7 @@ export class LocationService {
         if (this.polygon) {
             this.polygon.setPath(coordinates);
             this.polygon.setMap(this.googleMapService.googleMap);
-        }
-        else {
+        } else {
             this.polygon = new google.maps.Polygon({
                 paths: coordinates,
                 strokeColor: '#43aaa0',
@@ -170,8 +169,7 @@ export class LocationService {
                 .then((populatedLocation: Location): void => {
                     location = populatedLocation;
                 });
-        }
-        else location = loc;
+        } else location = loc;
 
         // Check if there are a image else set venue image
         if (!location.properties.imageURL || location.properties.imageURL.length <= 0) {
@@ -249,17 +247,17 @@ export class LocationService {
     }
 
     /**
-     * @description Get a location by it's Room id.
-     * @param {string} roomId - Room id of the location.
+     * @description Get a location by it's external id.
+     * @param {string} externalId - External id of the location.
      * @returns {Promise} - Resolves a location.
      * @memberof LocationService
      */
-    getLocationByRoomId(roomId: string): Promise<Location> {
+    getLocationByExternalId(externalId: string): Promise<Location> {
         return new Promise((resolve, reject): void => {
-            this.searchService.getLocations({ room: roomId })
+            this.searchService.getLocations({ q: externalId, fields: 'externalid' })
                 .then((locations: Location[]): void => {
                     const location = locations.find((location: Location): boolean =>
-                        location.properties.roomId === roomId
+                        location.properties.externalId === externalId
                         && location.properties.venue === this.venue.venueInfo.name
                     );
                     if (location) {

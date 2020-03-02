@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
@@ -34,73 +34,76 @@ import { AppConfigService } from './services/app-config.service';
 import { SolutionService } from './services/solution.service';
 import { RoutingStateService } from './services/routing-state.service';
 
+import { errorHandlerFactory } from './app.error-handler';
+
 @NgModule({
-	declarations: [
-		AppComponent,
-		VenuesComponent,
-		SearchComponent,
-		DetailsComponent,
-		InfoDialogComponent,
-		ShareUrlDialogComponent,
-		HorizontalDirectionsComponent,
-		LocationImgComponent,
-		SetSolutionComponent,
-		MapComponent,
-		SetupComponent,
-	],
-	imports: [
-		BrowserModule,
-		BrowserAnimationsModule,
-		MatSnackBarModule,
-		FormsModule,
-		ReactiveFormsModule,
-		MatFormFieldModule,
-		MatInputModule,
-		LayoutModule,
-		MatToolbarModule,
-		MatButtonModule,
-		MatSidenavModule,
-		MatIconModule,
-		MatListModule,
-		MatGridListModule,
-		MatCardModule,
-		MatMenuModule,
-		MatProgressSpinnerModule,
-		MatDialogModule,
-		MatCheckboxModule,
-		AppRoutingModule,
-		HttpClientModule,
-		TranslateModule.forRoot({
-			loader: {
-				provide: TranslateLoader,
-				useFactory: HttpLoaderFactory,
-				deps: [HttpClient]
-			}
-		}),
-		DirectionsModule
-	],
-	exports: [
-		MatButtonModule,
-		MatFormFieldModule,
-		MatInputModule,
-		MatRippleModule,
-		MatDialogModule,
-	],
-	providers: [
-		SolutionService,
-		AppConfigService,
-		RoutingStateService
-	],
-	bootstrap: [
-		AppComponent
-	],
-	entryComponents: [
-		InfoDialogComponent,
-		ShareUrlDialogComponent
-	]
+    declarations: [
+        AppComponent,
+        VenuesComponent,
+        SearchComponent,
+        DetailsComponent,
+        InfoDialogComponent,
+        ShareUrlDialogComponent,
+        HorizontalDirectionsComponent,
+        LocationImgComponent,
+        SetSolutionComponent,
+        MapComponent,
+        SetupComponent,
+    ],
+    imports: [
+        BrowserModule,
+        BrowserAnimationsModule,
+        MatSnackBarModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        LayoutModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatSidenavModule,
+        MatIconModule,
+        MatListModule,
+        MatGridListModule,
+        MatCardModule,
+        MatMenuModule,
+        MatProgressSpinnerModule,
+        MatDialogModule,
+        MatCheckboxModule,
+        AppRoutingModule,
+        HttpClientModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient]
+            }
+        }),
+        DirectionsModule
+    ],
+    exports: [
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatRippleModule,
+        MatDialogModule,
+    ],
+    providers: [
+        SolutionService,
+        AppConfigService,
+        RoutingStateService,
+        { provide: ErrorHandler, useFactory: errorHandlerFactory }
+    ],
+    bootstrap: [
+        AppComponent
+    ],
+    entryComponents: [
+        InfoDialogComponent,
+        ShareUrlDialogComponent
+    ]
 })
 export class AppModule { }
 
 export function HttpLoaderFactory(http: HttpClient) {
-	return new TranslateHttpLoader(http, './assets/i18n/', `.json?v=${environment.version}`);
+    return new TranslateHttpLoader(http, './assets/i18n/', `.json?v=${environment.version}`);
 }

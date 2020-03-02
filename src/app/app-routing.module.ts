@@ -12,62 +12,62 @@ import { SetupComponent } from './setup/setup.component';
 import { SolutionGuard } from './solution.guard';
 
 const routes: Routes = [
-	{
-		path: 'solution',
-		component: SetupComponent,
-		children: [
-			{
-				path: 'set',
-				component: SetSolutionComponent
-			}
-		]
-	},
-	{
-		path: ':solutionName',
-		component: MapComponent,
-		canActivate: [SolutionGuard],
-		children: [
-			// Parent component defaults to AppComponent
-			{
-				path: '',
-				redirectTo: 'venues',
-				pathMatch: 'full'
-			},
-			{
-				path: 'venues',
-				component: VenuesComponent
-			},
-			{
-				path: ':venueId/search',
-				component: SearchComponent
-			},
-			{
-				path: ':venueId/details/:id',
-				component: DetailsComponent
-			},
-			{
-				path: ':venueId/route/destination/:id',
-				component: DirectionsComponent
-			},
-			{
-				path: ':venueId/route/from/:from/to/:to',
-				component: DirectionsComponent
-			},
-			{
-				path: '**',
-				redirectTo: 'venues',
-			}
-		]
-	},
-	{
-		path: '',
-		pathMatch: 'full',
-		redirectTo: 'solution/set'
-	}
+    {
+        path: 'solution',
+        component: SetupComponent,
+        children: [
+            {
+                path: 'set',
+                component: SetSolutionComponent
+            }
+        ]
+    },
+    {
+        path: ':solutionName',
+        component: MapComponent,
+        canActivate: [SolutionGuard],
+        children: [
+            // Parent component defaults to AppComponent
+            {
+                path: '',
+                redirectTo: 'venues',
+                pathMatch: 'full'
+            },
+            {
+                path: 'venues',
+                component: VenuesComponent
+            },
+            {
+                path: ':venueId/search',
+                component: SearchComponent
+            },
+            {
+                path: ':venueId/details/:id',
+                component: DetailsComponent
+            },
+            {
+                path: ':venueId/route/destination/:id',
+                component: DirectionsComponent
+            },
+            {
+                path: ':venueId/route/from/:from/to/:to',
+                component: DirectionsComponent
+            },
+            {
+                path: '**',
+                redirectTo: 'venues',
+            }
+        ]
+    },
+    {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'solution/set'
+    }
 ];
 
 @NgModule({
-	imports: [RouterModule.forRoot(routes)],
-	exports: [RouterModule],
+    imports: [RouterModule.forRoot(routes)],
+    exports: [RouterModule],
 })
 export class AppRoutingModule { }

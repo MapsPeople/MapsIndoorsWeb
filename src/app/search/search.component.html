@@ -88,7 +88,7 @@
                     <span class="list-text">
                         <span class="list-title">{{location.properties.name}}</span>
                         <span class="list-title-sub">
-                            <span *ngIf="location.properties.roomId"> {{location.properties.roomId}}</span>
+                            <span *ngIf="location.properties.externalId"> {{location.properties.externalId}}</span>
                             <span *ngIf="location.properties.floorName">Level {{location.properties.floorName}}</span>
                             <span *ngIf="location.properties.building && !venue.onlyVenue">{{location.properties.building}}</span>
                             <span *ngIf="location.properties.building != location.properties.venue && !venue.onlyVenue">{{location.properties.venue}}</span>

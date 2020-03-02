@@ -150,11 +150,11 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     // #region || SEARCH AND RESULTS
 
-	/**
-	 * @description Setting the selected location.
-	 * @param {Location} location
-	 * @memberof SearchComponent
-	 */
+    /**
+     * @description Setting the selected location.
+     * @param {Location} location
+     * @memberof SearchComponent
+     */
     setLocation(location: Location): void {
         this.locationsArray = [];
         this.loading = true;
@@ -178,12 +178,12 @@ export class SearchComponent implements OnInit, OnDestroy {
     // 	})
     // }
 
-	/**
-	 * @description Get the previous category and query filtering.
-	 * @private
-	 * @returns {void}
-	 * @memberof SearchComponent
-	 */
+    /**
+     * @description Get the previous category and query filtering.
+     * @private
+     * @returns {void}
+     * @memberof SearchComponent
+     */
     private getPreviousFiltering(): void {
         let category: Category;
         if (this.urlParameters && this.urlParameters.cat) {
@@ -236,12 +236,12 @@ export class SearchComponent implements OnInit, OnDestroy {
         // }
     }
 
-	/**
-	 * @description Populates the LocationsArray property with locations for the given category.
-	 * @param {Category} category - The category to filter by.
-	 * @returns {Promise<void>}
-	 * @memberof SearchComponent
-	 */
+    /**
+     * @description Populates the LocationsArray property with locations for the given category.
+     * @param {Category} category - The category to filter by.
+     * @returns {Promise<void>}
+     * @memberof SearchComponent
+     */
     public getLocationsForCategory(category: Category, clickEvent?): Promise<void> {
         return new Promise((resolve, reject): void => {
             this.loading = true;
@@ -285,13 +285,13 @@ export class SearchComponent implements OnInit, OnDestroy {
         });
     }
 
-	/**
-	 * @description Get locations for a category.
+    /**
+     * @description Get locations for a category.
      * @private
-	 * @param {string} categoryKey - The category key to search for locations within.
-	 * @returns {Promise<Location[]>} - Array of 50 locations or less.
-	 * @memberof SearchComponent
-	 */
+     * @param {string} categoryKey - The category key to search for locations within.
+     * @returns {Promise<Location[]>} - Array of 50 locations or less.
+     * @memberof SearchComponent
+     */
     private categoryRequest(categoryKey: string): Promise<Location[]> {
         const parameters: SearchParameters = {
             take: 50,
@@ -315,13 +315,11 @@ export class SearchComponent implements OnInit, OnDestroy {
                 this.error = null;
                 this.locationsArray = [];
                 this.searchFocus = true;
-            }
-            else {
+            } else {
                 this.getLocationsForCategory(this.category);
             }
-        }
-        // Get locations
-        else if (query && query.length > 1) {
+        } else if (query && query.length > 1) {
+            // Get locations
             this.loading = true;
             this.error = null;
             this.searchFocus = false;
@@ -344,8 +342,7 @@ export class SearchComponent implements OnInit, OnDestroy {
                     this.mapsIndoorsService.setMapFilter(this.locationsArray);
                 });
             this.loading = false;
-        }
-        else {
+        } else {
             this.error = null;
             this.clearQuery();
         }
@@ -361,6 +358,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     private queryRequest(query: string): Promise<Location[]> {
         const parameters: SearchParameters = {
             q: query,
+            fields: 'name,description,aliases,categories,externalid',
             take: 50,
             skip: this.locationsArray.length,
             orderBy: 'relevance',
@@ -385,9 +383,8 @@ export class SearchComponent implements OnInit, OnDestroy {
         // Query search
         if (this.search.query && this.search.query.length !== 0) {
             locations = await this.queryRequest(this.search.query);
-        }
-        // Category search
-        else {
+        } else {
+            // Category search
             locations = await this.categoryRequest(this.category.categoryKey);
         }
 
@@ -411,8 +408,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         // If both a category and a query
         if (this.category) {
             this.getLocationsForCategory(this.category);
-        }
-        else {
+        } else {
             this.clearAll();
         }
     }
@@ -472,9 +468,8 @@ export class SearchComponent implements OnInit, OnDestroy {
 
             const solutionName = await this.solutionService.getSolutionName();
             this.router.navigate([`${solutionName}/${this.venue.id}/search`]);
-        }
-        // Go back to venues page
-        else {
+        } else {
+            // Go back to venues page
             const solutionId = await this.solutionService.getSolutionId();
             localStorage.removeItem('MI:' + solutionId);
             this.mapsIndoorsService.hideFloorSelector();

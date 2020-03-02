@@ -1,5 +1,6 @@
 export interface SearchParameters {
     q?: string,
+    fields?: string,
     room?: string,
     take?: number,
     skip?: number,

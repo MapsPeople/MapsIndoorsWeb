@@ -184,16 +184,13 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             this.searchResults = results;
             this.isPoweredByGoogle = this.anyGoogleResults(results);
             this.currentPositionVisible = false;
-        }
-        else if (query.length > 0) { // No Results
+        } else if (query.length > 0) { // No Results
             this.error = `${this.translateService.instant('DirectionHint.NoMatchingResults')} "${query}"`;
-        }
-        else { // Input cleared
+        } else { // Input cleared
             if (this.currentInputField === 'start') {
                 this.currentPositionVisible = true;
                 this.originLocation = null;
-            }
-            else this.destinationLocation = null;
+            } else this.destinationLocation = null;
             if (!this.mapsIndoorsService.floorSelectorIsVisible) {
                 this.mapsIndoorsService.showFloorSelector();
             }
@@ -255,8 +252,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                         this.notificationService.displayNotification(err.message);
                         reject();
                     });
-            }
-            else if (this.useBrowserPositioning) {
+            } else if (this.useBrowserPositioning) {
                 this.originInputValue = this.translateService.instant('Direction.MyPosition');
                 this.currentPositionVisible = false;
                 this.userAgentService.getCurrentPosition()
@@ -281,8 +277,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                         this.handleMyPositionError();
                         reject();
                     });
-            }
-            else reject();
+            } else reject();
         });
     }
 
@@ -330,8 +325,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                         this.notificationService.displayNotification(err.message);
                         reject();
                     });
-            }
-            else reject();
+            } else reject();
         });
     }
     // #endregion
@@ -428,14 +422,12 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                         };
                         self.originLocation = location as BaseLocation;
                         self.getRoute();
-                    }
-                    else {
+                    } else {
                         console.log('Geocode was not successful for the following reason: ' + status); /* eslint-disable-line no-console */ /* TODO: Improve error handling */
                     }
                 });
-            }
-            // MapsIndoors location
-            else {
+            } else {
+                // MapsIndoors location
                 const query = this.getPrettyQuery(location);
                 this.originInputValue = query;
                 this.originSearchComponent.query = query;
@@ -443,8 +435,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                 this.getRoute();
             }
             this.trackerService.sendEvent('Directions page', 'Origin Search', `${self.originInputValue} was set as start position`, true);
-        }
-        else if (this.currentInputField === 'dest') {
+        } else if (this.currentInputField === 'dest') {
             this.isPoweredByGoogle = false;
             // Google location
             if (location.properties.type === 'google_places') {
@@ -460,14 +451,12 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                         };
                         self.destinationLocation = location;
                         self.getRoute();
-                    }
-                    else {
+                    } else {
                         console.log('Geocode was not successful for the following reason: ' + status); /* eslint-disable-line no-console */ /* TODO: Improve error handling */
                     }
                 });
-            }
-            // MapsIndoors location
-            else {
+            } else {
+                // MapsIndoors location
                 const query = this.getPrettyQuery(location);
                 this.destinationInputValue = query;
                 this.destinationSearchComponent.query = query;
@@ -583,8 +572,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                     this.loading = false;
                     this.error = this.translateService.instant('DirectionHint.NoRoute');
                 });
-        }
-        else {
+        } else {
             this.error = this.translateService.instant('DirectionHint.FromAndTo');
         }
     }
@@ -610,8 +598,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                                 step._mi = { type: 'google.maps.DirectionsLeg' };
                                 legsExtended.push(step);
                             }
-                        }
-                        else legsExtended.push(leg);
+                        } else legsExtended.push(leg);
                     }
                     await this.setIndexForLegs(legsExtended).then((data) => {
                         resolve(data);
@@ -713,33 +700,30 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                         if (prev && prev._mi.type !== 'mapsindoors.DirectionsLeg' && leg._mi.type === 'mapsindoors.DirectionsLeg') {
                             leg.steps[0].instructions = '<span class="action">Enter:</span>';
                             entranceOrExits.push(leg.steps[0]);
-                        }
-                        else if (prev && prev._mi.type === 'mapsindoors.DirectionsLeg' && leg._mi.type !== 'mapsindoors.DirectionsLeg') {
+                        } else if (prev && prev._mi.type === 'mapsindoors.DirectionsLeg' && leg._mi.type !== 'mapsindoors.DirectionsLeg') {
                             leg.steps[0].instructions = '<span class="action">Exit:</span>';
                             entranceOrExits.push(leg.steps[0]);
-                        }
-                        else if (prev && isInside.test(prev.steps[prev.steps.length - 1].abutters) && leg && isOutside.test(leg.steps[0].abutters)) {
+                        } else if (prev && isInside.test(prev.steps[prev.steps.length - 1].abutters) && leg && isOutside.test(leg.steps[0].abutters)) {
                             leg.steps[0].instructions = '<span class="action">Exit:</span>';
                             entranceOrExits.push(leg.steps[0]);
-                        }
-                        else if (prev && isOutside.test(prev.steps[prev.steps.length - 1].abutters) && leg && isInside.test(leg.steps[0].abutters)) {
+                        } else if (prev && isOutside.test(prev.steps[prev.steps.length - 1].abutters) && leg && isInside.test(leg.steps[0].abutters)) {
                             leg.steps[0].instructions = '<span class="action">Enter:</span>';
                             entranceOrExits.push(leg.steps[0]);
                         }
 
                         switch (leg.steps[0].highway) {
-                            case 'steps':
-                            case 'stairs':
-                                leg.steps[0].instructions = '<span class="action">Stairs: </span>Level ' + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
-                                break;
-                            case 'elevator':
-                                leg.steps[0].instructions = '<span class="action">Elevator: </span>Level ' + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
-                                break;
-                            case 'escalator':
-                                leg.steps[0].instructions = '<span class="action">Escalator: </span>Level ' + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
-                                break;
-                            default:
-                                break;
+                        case 'steps':
+                        case 'stairs':
+                            leg.steps[0].instructions = '<span class="action">Stairs: </span>Level ' + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
+                            break;
+                        case 'elevator':
+                            leg.steps[0].instructions = '<span class="action">Elevator: </span>Level ' + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
+                            break;
+                        case 'escalator':
+                            leg.steps[0].instructions = '<span class="action">Escalator: </span>Level ' + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
+                            break;
+                        default:
+                            break;
                         }
                     }
                 }
@@ -812,32 +796,32 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
         if (step.highway && (!step.instructions || step.instructions === '')) {
             switch (step.maneuver) {
-                case 'straight':
-                    step.instructions = 'Continue straight ahead';
-                    break;
-                case 'turn-left':
-                    step.instructions = 'Go left and continue';
-                    break;
-                case 'turn-right':
-                    step.instructions = 'Go right and continue';
-                    break;
-                case 'turn-sharp-left':
-                    step.instructions = 'Go sharp left and continue';
-                    break;
-                case 'turn-sharp-right':
-                    step.instructions = 'Go sharp right and continue';
-                    break;
-                case 'turn-slight-left':
-                    step.instructions = 'Go slight left and continue';
-                    break;
-                case 'turn-slight-right':
-                    step.instructions = 'Go slight right and continue';
-                    break;
-                case 'uturn-left':
-                case 'uturn-right':
-                case 'uturn':
-                    step.instructions = 'Turn around and continue';
-                    break;
+            case 'straight':
+                step.instructions = 'Continue straight ahead';
+                break;
+            case 'turn-left':
+                step.instructions = 'Go left and continue';
+                break;
+            case 'turn-right':
+                step.instructions = 'Go right and continue';
+                break;
+            case 'turn-sharp-left':
+                step.instructions = 'Go sharp left and continue';
+                break;
+            case 'turn-sharp-right':
+                step.instructions = 'Go sharp right and continue';
+                break;
+            case 'turn-slight-left':
+                step.instructions = 'Go slight left and continue';
+                break;
+            case 'turn-slight-right':
+                step.instructions = 'Go slight right and continue';
+                break;
+            case 'uturn-left':
+            case 'uturn-right':
+            case 'uturn':
+                step.instructions = 'Turn around and continue';
+                break;
             }
         }
     }
@@ -863,17 +847,14 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             if (meters < 1609.344) {
                 const ft = meters * 3.2808;
                 return Math.round(ft * 10) / 10 + ' ft';
-            }
-            else {
+            } else {
                 const miles = meters / 1609.344;
                 return (miles <= 328 ? Math.round(miles * 10) / 10 : Math.round(miles)) + ' mi';
             }
-        }
-        else {
+        } else {
             if (meters < 100) {
                 return Math.round(meters * 10) / 10 + ' m';
-            }
-            else {
+            } else {
                 meters = meters / 1000;
                 return (meters <= 100 ? Math.round(meters * 10) / 10 : Math.round(meters)) + ' km';
             }
@@ -885,9 +866,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
         // If startPosition is a google place
         if (this.originLocation.properties.subtitle) {
             this.startLegLabel = `${this.originLocation.properties.name} (${this.originLocation.properties.subtitle})`;
-        }
-        // If startPosition is a MI poi or user position
-        else {
+        } else {
+            // If startPosition is a MI poi or user position
             let startPosition = this.originLocation.properties.name;
             let address = this.originLocation.properties.floorName ? 'Level ' + this.originLocation.properties.floorName : '';
             address += this.originLocation.properties.building ? ', ' + this.originLocation.properties.building : '';

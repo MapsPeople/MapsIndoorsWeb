@@ -63,7 +63,7 @@ export class AppConfigService {
    * @memberof AppConfigService
    */
     public addResetListeners(): void {
-        ['touchstart', 'keyup']
+        ['mousedown', 'touchstart', 'keyup']
             .forEach((evt): void =>
                 document.addEventListener(evt, (): void => {
                     this.resetTimeoutTimer();

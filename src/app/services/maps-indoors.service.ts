@@ -102,8 +102,7 @@ export class MapsIndoorsService {
                     // Floor Selector
                     gmZoomLevel >= floorSelectorVisibleFrom ? this.showFloorSelector() : this.hideFloorSelector();
                 });
-            }
-            else this.showBuildingOutline();
+            } else this.showBuildingOutline();
             resolve();
         });
     }
@@ -136,7 +135,7 @@ export class MapsIndoorsService {
     }
 
 
-	/**
+    /**
 	 * @description Creates a new floor selector.
 	 * @memberof MapsIndoorsService
 	 */
@@ -163,7 +162,7 @@ export class MapsIndoorsService {
         });
     }
 
-	/**
+    /**
 	 * @description Removes the floor selector.
 	 * @memberof MapsIndoorsService
 	 */
@@ -178,7 +177,7 @@ export class MapsIndoorsService {
         this.isHandsetSubscription.unsubscribe();
     }
 
-	/**
+    /**
 	 * @description Sets the floor.
 	 * @param {string} floor - The new floor to be set.
 	 * @memberof MapsIndoorsService
@@ -191,7 +190,7 @@ export class MapsIndoorsService {
     // #endregion
 
     // #region || RETURN
-	/**
+    /**
 	 * @description Set the values for return button.
 	 * @param {string} name
 	 * @param {google.maps.LatLng} latLng
@@ -202,7 +201,7 @@ export class MapsIndoorsService {
         this.returnToValues.next(values);
     }
 
-	/**
+    /**
 	 * @description Sets the values for return to location button.
 	 * @param {Location} location – The selected location.
 	 * @memberof MapsIndoorsService
@@ -216,7 +215,7 @@ export class MapsIndoorsService {
         this.setReturnToValues(values);
     }
 
-	/**
+    /**
 	 * @description Sets the values for return to venue button.
 	 * @param {Venue} venue The selected venue.
 	 * @memberof MapsIndoorsService
@@ -230,7 +229,7 @@ export class MapsIndoorsService {
         this.setReturnToValues(values);
     }
 
-	/**
+    /**
 	 * @description Returning the selected item name, lat lng and isVenue boolean.
 	 * @returns The return to values needed for button.
 	 * @memberof MapsIndoorsService

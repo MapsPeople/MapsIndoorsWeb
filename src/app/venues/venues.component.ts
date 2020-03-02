@@ -60,9 +60,8 @@ export class VenuesComponent implements OnInit, OnDestroy {
         if (this.appInfo.lastVenue) {
             const venue = await this.venueService.getVenueById(this.appInfo.lastVenue);
             this.setVenue(venue);
-        }
-        // Else get all venues
-        else {
+        } else {
+            // Else get all venues
             this.mapsIndoorsService.setPageTitle();
             this.getVenues();
         }
@@ -76,8 +75,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
                 // Set Venue and navigate to search page if solution only have one venue
                 if (venues && venues.length === 1) {
                     this.setVenue(venues[0]);
-                }
-                else if (this.venueService.fitVenues) {
+                } else if (this.venueService.fitVenues) {
                     this.fitVenuesInView(venues);
                 }
                 this.venues = venues;
@@ -98,17 +96,15 @@ export class VenuesComponent implements OnInit, OnDestroy {
                 }
             }
             this.googleMapService.googleMap.fitBounds(bounds);
-        }
-        // Zoom in to default venue if any
-        else if (this.appConfig.appSettings && this.appConfig.appSettings.defaultVenue && this.appConfig.appSettings.defaultVenue.length === 24) {
+        } else if (this.appConfig.appSettings && this.appConfig.appSettings.defaultVenue && this.appConfig.appSettings.defaultVenue.length === 24) {
+            // Zoom in to default venue if any
             const venueId = await this.appConfig.appSettings.defaultVenue;
             const venue = await this.venueService.getVenueById(venueId);
             if (venue) {
                 const bbox = venue.geometry.bbox;
                 bounds = new google.maps.LatLngBounds({ lat: bbox[1], lng: bbox[0] }, { lat: bbox[3], lng: bbox[2] });
                 this.googleMapService.googleMap.fitBounds(bounds);
-            }
-            else {
+            } else {
                 console.log('Default venue ID is not correct'); /* eslint-disable-line no-console */ /* TODO: Improve error handling */
             }
 

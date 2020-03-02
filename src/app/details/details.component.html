@@ -35,13 +35,13 @@
                 <p>{{location.properties.aliases ? location.properties.aliases.join(', ') : ''}}</p>
             </div>
 
-            <!-- RoomId and category -->
-            <div class="content-text" *ngIf="location.properties.roomId || location.properties.category">
+            <!-- ExternalId and category -->
+            <div class="content-text" *ngIf="location.properties.externalId || location.properties.category">
                 <mat-icon class="content-icon">info</mat-icon>
                 <p>
                     <span *ngIf="location.properties.category">{{location.properties.category}}</span>
-                    <br *ngIf="location.properties.roomId && location.properties.category">
-                    <span *ngIf="location.properties.roomId">{{location.properties.roomId}}</span>
+                    <br *ngIf="location.properties.externalId && location.properties.category">
+                    <span *ngIf="location.properties.externalId">{{location.properties.externalId}}</span>
                 </p>
             </div>
 
