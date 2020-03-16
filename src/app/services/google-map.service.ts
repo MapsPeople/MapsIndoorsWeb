@@ -14,11 +14,16 @@ export class GoogleMapService {
         zoom: 17,
         maxZoom: 21,
         mapTypeControl: false,
-        streetViewControl: false
+        streetViewControl: false,
+        fullscreenControl: true
     }
 
     // #region || LOAD GOOGLE MAP
-    initMap() {
+    initMap(kioskMode):Promise<void> {
+        if (kioskMode) {
+            this.mapOptions.fullscreenControl = false;
+        }
+
         return new Promise(async (resolve) => {
             this.googleMap = await new google.maps.Map(document.getElementById('gmap'), this.mapOptions);
             resolve();
@@ -51,5 +56,17 @@ export class GoogleMapService {
      */
     public closeInfoWindow(): void {
         this.infoWindow.close();
+    }
+
+    /**
+     * @description Prevent opening Google logo and terms links when in kiosk mode to avoid leaving the kiosk.
+     */
+    public setMapRestrictionsForKiosk(): void {
+        document.querySelector('#gmap').addEventListener('click', (event):void => {
+            const externalLink = (event.target as Element).closest('a[target="_blank"]');
+            if (externalLink) {
+                event.preventDefault();
+            }
+        });
     }
 }

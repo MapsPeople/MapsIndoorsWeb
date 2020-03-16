@@ -97,7 +97,13 @@ export class MapComponent {
         this.userAgentService.isHandset()
             .subscribe((value: boolean) => this.isHandset = value);
         this.isInternetExplorer = this.userAgentService.IsInternetExplorer();
-        await this.googleMapService.initMap();
+
+        if (this.route.snapshot.queryParams.origin || this.route.snapshot.queryParams.timeout) {
+            this.appConfigService.setKioskMode();
+            this.googleMapService.setMapRestrictionsForKiosk();
+        }
+
+        await this.googleMapService.initMap(this.isKioskMode);
         await this.mapsIndoorsService.initMapsIndoors();
 
         this.getVenueFromUrl()
@@ -105,10 +111,6 @@ export class MapComponent {
                 this.venueService.setVenue(venue, this.appConfig);
                 this.mapsIndoorsService.showFloorSelectorAfterUserInteraction();
                 this.appConfigService.setInitVenue(venue);
-
-                if (this.route.snapshot.queryParams.origin || this.route.snapshot.queryParams.timeout) {
-                    this.appConfigService.setKioskMode();
-                }
 
                 if (this.route.snapshot.queryParams.origin) {
                     this.locationService.getLocationById(this.route.snapshot.queryParams.origin)

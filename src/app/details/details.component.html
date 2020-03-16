@@ -8,7 +8,7 @@
                     <button mat-icon-button (click)="goBack()">
                         <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
                     </button>
-                    <button mat-icon-button (click)="openShareUrlDialog()">
+                    <button *ngIf="!isKioskMode" mat-icon-button (click)="openShareUrlDialog()">
                         <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">share</mat-icon>
                     </button>
                 </nav>
@@ -60,7 +60,9 @@
                 <!-- Website -->
                 <div class="content-text" *ngIf="location.properties.fields.website">
                     <mat-icon class="content-icon">open_in_new</mat-icon>
-                    <p><a class="text-link" href="{{location.properties.fields.website.value}}" target="_blank">www</a>
+                    <p>
+                        <a *ngIf="!isKioskMode" class="text-link" href="{{location.properties.fields.website.value}}" target="_blank" rel="noopener">www</a>
+                        <span *ngIf="isKioskMode">{{location.properties.fields.website.value}}</span>
                     </p>
                 </div>
                 <!-- Opening hours -->

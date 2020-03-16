@@ -15,6 +15,7 @@ import { RoutingStateService } from '../services/routing-state.service';
 import { NotificationService } from '../services/notification.service';
 import { TranslateService } from '@ngx-translate/core';
 import { TrackerService } from '../services/tracker.service';
+import { AppMode } from '../shared/enums';
 
 import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
@@ -42,6 +43,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
     isHandsetSubscription: Subscription;
     themeServiceSubscription: Subscription;
     venueSubscription: Subscription;
+    public isKioskMode: boolean;
 
     constructor(
         private route: ActivatedRoute,
@@ -74,13 +76,18 @@ export class DetailsComponent implements OnInit, OnDestroy {
             .subscribe((value: boolean) => this.isHandset = value);
     }
 
-    ngOnInit() {
+    ngOnInit():void {
         this.venueSubscription = this.venueService.getVenueObservable()
-            .subscribe((venue: Venue) => {
+            .subscribe((venue: Venue):void => {
                 this.venue = venue;
                 if (!this.location) { // True when user comes from a direct link
                     this.setLocation();
                 }
+            });
+
+        this.appConfigService.getAppMode()
+            .subscribe((mode): void => {
+                this.isKioskMode = mode === AppMode.Kiosk ? true : false;
             });
         this.isInternetExplorer = this.userAgentService.IsInternetExplorer();
         this.displayAliases = this.appConfig.appSettings.displayAliases || false;

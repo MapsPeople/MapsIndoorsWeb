@@ -15,6 +15,7 @@ import { SolutionService } from '../../services/solution.service';
 import { SearchComponent } from '../components/search/search.component';
 import { NotificationService } from '../../services/notification.service';
 import { TrackerService } from 'src/app/services/tracker.service';
+import { AppMode } from '../../shared/enums';
 
 import { Venue } from '../../shared/models/venue.interface';
 import { Location } from '../../shared/models/location.interface';
@@ -35,6 +36,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     isHandset: boolean;
     isViewActive: boolean;
     public modules: Modules;
+    public isKioskMode: boolean;
 
     searchInputFieldHasFocus = false;
     error: string;
@@ -67,7 +69,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     };
     searchResults = [];
     isPoweredByGoogle = false;
-    fixedOriginSet: boolean;
+    private fixedOriginSet: boolean;
     originLocation: BaseLocation;
     originInputValue: string;
     @ViewChild('originSearchComponent') originSearchComponent: SearchComponent;
@@ -141,6 +143,12 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                     this.fixedOriginSet = true;
                     this.originLocation = fixedOrigin as BaseLocation;
                     this.originInputValue = fixedOrigin.properties.name;
+                })
+            )
+            // App mode observable
+            .add(this.appConfigService.getAppMode()
+                .subscribe((mode): void => {
+                    this.isKioskMode = mode === AppMode.Kiosk ? true : false;
                 })
             )
             // Venue observable
