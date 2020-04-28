@@ -237,6 +237,7 @@ export class LocationService {
         return new Promise((resolve, reject): void => {
             mapsindoors.LocationsService.getLocation(locationId)
                 .then((location: Location): void => {
+                    location.properties.categories = Object.values(location.properties.categories);
                     resolve(location);
                 })
                 .catch((err: Error): void => {

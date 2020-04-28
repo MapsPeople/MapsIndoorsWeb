@@ -163,7 +163,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
         this.useBrowserPositioning = this.appConfig.appSettings.positioningDisabled !== '1';
         this.solutionId = await this.solutionService.getSolutionId();
         this.userRolesList = await this.solutionService.getUserRoles();
-        this.selecedUserRoles = JSON.parse(localStorage.getItem(`MI:${this.solutionId}:APPUSERROLES`) || '[]');
+        this.selecedUserRoles = JSON.parse(this.userAgentService.localStorage.getItem(`MI:${this.solutionId}:APPUSERROLES`) || '[]');
         this.mapsIndoorsService.setPageTitle(this.translateService.instant('Direction.Directions'));
         this.solutionService.getModules()
             .then((modules: Modules): void => {
@@ -398,7 +398,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
      * Puts the selected User Roles into localStorage.
      */
     onUserRolesChange() {
-        localStorage.setItem('MI:' + this.solutionId + ':APPUSERROLES', JSON.stringify(this.selecedUserRoles));
+        this.userAgentService.localStorage.setItem('MI:' + this.solutionId + ':APPUSERROLES', JSON.stringify(this.selecedUserRoles));
         this.getRoute();
     }
     // #endregion

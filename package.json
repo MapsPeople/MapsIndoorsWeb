@@ -1,6 +1,6 @@
 {
     "name": "maps-indoors-webapp",
-    "version": "3.10.1",
+    "version": "3.10.2",
     "scripts": {
         "ng": "ng",
         "start": "npm run build:dev --prefix ./modules/sdk | ng serve",
@@ -57,6 +57,7 @@
         "jest-preset-angular": "^7.1.1",
         "protractor": "^5.4.2",
         "replace-in-file": "^3.4.4",
+        "storage-factory": "^0.1.0",
         "ts-node": "~7.0.1",
         "typescript": "~3.1.6",
         "webpack": "^4.32.1",

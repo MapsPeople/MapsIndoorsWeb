@@ -10,7 +10,7 @@ class SentryErrorHandler implements ErrorHandler {
     constructor() {
         Sentry.init({
             dsn: environment.sentryDsn,
-            release: environment.version
+            release: `maps-indoors-webapp@${environment.version}`
         });
     }
 

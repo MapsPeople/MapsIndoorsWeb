@@ -28,7 +28,7 @@ export class SetSolutionComponent {
         }
 
         // Set a suggested solutionId to help users get started.
-        this.solutionId = localStorage.getItem('MI:suggestedSolutionId') || environment.suggestedSolutionId;
+        this.solutionId = this.userAgentService.localStorage.getItem('MI:suggestedSolutionId') || environment.suggestedSolutionId;
     }
 
     /**

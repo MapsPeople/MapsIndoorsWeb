@@ -16,7 +16,8 @@
                     {{location.properties.name}}
                 </h1>
                 <div class="hero-img">
-                    <location-img [imageURL]="location.properties.imageURL"
+                    <location-img
+                        [imageURL]="location.properties.imageURL"
                         [apiKey]="'AIzaSyBOUv8R8xOta4bQ0nAEyb_jJdwI7sB7DHg'"
                         [streetViewConfig]="location.properties.streetViewConfig ? location.properties.streetViewConfig : null">
                     </location-img>
@@ -29,18 +30,17 @@
     <section class="content-container">
         <section class="content">
             <!-- Aliases  -->
-            <div class="content-text"
-                *ngIf="displayAliases && location.properties.aliases && location.properties.aliases.length > 0">
+            <div class="content-text" *ngIf="displayAliases && location.properties.aliases && location.properties.aliases.length > 0">
                 <mat-icon class="content-icon">stars</mat-icon>
-                <p>{{location.properties.aliases ? location.properties.aliases.join(', ') : ''}}</p>
+                <p>{{location.properties.aliases.join(', ')}}</p>
             </div>
 
             <!-- ExternalId and category -->
-            <div class="content-text" *ngIf="location.properties.externalId || location.properties.category">
+            <div class="content-text" *ngIf="location.properties.externalId || location.properties.categories">
                 <mat-icon class="content-icon">info</mat-icon>
                 <p>
-                    <span *ngIf="location.properties.category">{{location.properties.category}}</span>
-                    <br *ngIf="location.properties.externalId && location.properties.category">
+                    <span *ngIf="location.properties.categories">{{location.properties.categories.join(', ')}}</span>
+                    <br *ngIf="location.properties.externalId && location.properties.categories">
                     <span *ngIf="location.properties.externalId">{{location.properties.externalId}}</span>
                 </p>
             </div>
@@ -77,8 +77,7 @@
                 <mat-icon class="content-icon">description</mat-icon>
                 <p *ngIf="!isInternetExplorer">{{location.properties.description}}</p>
                 <!-- isInternetExplorer -->
-                <p *ngIf="isInternetExplorer" style="max-width: 100%; padding-left: 8px;">
-                    {{location.properties.description}}</p>
+                <p *ngIf="isInternetExplorer" style="max-width: 100%; padding-left: 8px;">{{location.properties.description}}</p>
             </div>
 
             <!-- Building and floor -->
@@ -88,8 +87,7 @@
                     <span *ngIf="location.properties.floorName">Level {{location.properties.floorName}}</span>
                     <span *ngIf="location.properties.buildingName">{{location.properties.buildingName}}</span>
                     <!-- Hiding venue name if it's the same as building name -->
-                    <span
-                        *ngIf="location.properties.venueName && location.properties.buildingName != location.properties.venueName">{{location.properties.venueName}}</span>
+                    <span *ngIf="location.properties.venueName && location.properties.buildingName != location.properties.venueName">{{location.properties.venueName}}</span>
                 </p>
             </div>
 
@@ -102,8 +100,7 @@
                         </button>
                     </span>
                     <span>
-                        <button [style.background-color]="colors.accent" mat-raised-button
-                            (click)="getDirections(location)">
+                        <button [style.background-color]="colors.accent" mat-raised-button (click)="getDirections(location)">
                             <mat-icon [style.color]="colors.onAccent" aria-label="Get directions">directions</mat-icon>
                             <span [style.color]="colors.onAccent">
                                 {{ 'Buttons.Directions' | translate }}

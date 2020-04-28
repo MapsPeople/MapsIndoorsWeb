@@ -3,6 +3,7 @@ import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { BehaviorSubject, ReplaySubject, Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { NotificationService } from './notification.service';
+import { storageFactory } from 'storage-factory';
 
 declare const mapsindoors: any;
 
@@ -16,6 +17,7 @@ export class UserAgentService {
     private currentPosition = new ReplaySubject<Object>(1);
     private positionErrorSubject = new ReplaySubject<Object>(1);
     public positionControl;
+    public localStorage;
     private positionErrorShown = false;
     private positionAutoPanned = false;
 
@@ -28,6 +30,8 @@ export class UserAgentService {
         this.breakpointObserver
             .observe(['(min-width: 600px)'])
             .subscribe((state: BreakpointState) => this.isDeviceHandset.next(state.matches ? false : true));
+
+        this.localStorage = storageFactory(() => localStorage);
     }
 
     /**

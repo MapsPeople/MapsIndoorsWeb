@@ -15,11 +15,11 @@ interface LocationProperties {
     anchor: Anchor,
     building: string,
     buildingId: string,
-    categories: Object,
+    categories: string[]
     contact: Contact,
     description: string
     displayRule: any
-    fields: any[]
+    fields: { [key: string]: { value: string } }
     floor: string,
     floorName: string,
     imageURL?: any,

@@ -68,6 +68,9 @@ export class DetailsComponent implements OnInit, OnDestroy {
         this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
         this.locationSubscription = this.locationService.getCurrentLocation()
             .subscribe((location: Location) => {
+                if (!Array.isArray(location.properties.categories)) {
+                    location.properties.categories = Object.values(location.properties.categories);
+                }
                 this.location = location;
                 this.googleMapService.openInfoWindow();
                 this.mapsIndoorsService.setPageTitle(location.properties.name);

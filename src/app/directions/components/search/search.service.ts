@@ -49,7 +49,7 @@ export class SearchService {
      */
     getLocations(parameters: SearchParameters): Promise<Location[]> {
         return mapsindoors.LocationsService.getLocations(parameters)
-            .then((locations: Location[]) => this.setIcons(locations));
+            .then((locations: Location[]): Promise<Location[]> => this.setIcons(locations));
     }
 
     /**
@@ -58,11 +58,11 @@ export class SearchService {
      * @returns {Promise<Location[]>} - A Promise with locations populated with icons.
      * @memberof SearchService
      */
-    setIcons(locations: Location[]) {
-        return new Promise((resolve, reject) => {
+    setIcons(locations: Location[]): Promise<Location[]> {
+        return new Promise((resolve, reject): void => {
             if (this.locationTypes.length < 1) reject('No solution types');
 
-            const unknownType = this.locationTypes.find((type) => type.name.toLowerCase() === 'unknown');
+            const unknownType = this.locationTypes.find((type): boolean => type.name.toLowerCase() === 'unknown');
             const unknownTypeIcon = unknownType ? unknownType.icon : '/assets/images/icons/noicon.png';
             const updatedLocations = [];
 
@@ -74,7 +74,7 @@ export class SearchService {
                     // Solution icon
                     try {
                         // Set type icon if the locations type matches the type name
-                        location.properties.iconUrl = this.locationTypes.find((locationType) => locationType.name.toLowerCase() === location.properties.type.toLowerCase()).icon;
+                        location.properties.iconUrl = this.locationTypes.find((locationType): boolean => locationType.name.toLowerCase() === location.properties.type.toLowerCase()).icon;
 
                         // If transparent or no icon set
                         if (location.properties.iconUrl.includes('transparent' || 'noicon')) {

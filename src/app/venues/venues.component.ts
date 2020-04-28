@@ -56,7 +56,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
         this.solutionId = await this.solutionService.getSolutionId();
         this.solutionId = this.solutionId ? this.solutionId : null;
 
-        this.appInfo = JSON.parse(localStorage.getItem('MI:' + this.solutionId)) || {};
+        this.appInfo = JSON.parse(this.userAgentService.localStorage.getItem('MI:' + this.solutionId)) || {};
         if (this.appInfo.lastVenue) {
             const venue = await this.venueService.getVenueById(this.appInfo.lastVenue);
             this.setVenue(venue);
@@ -123,7 +123,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
 
         // Save venueId in local storage and load venue directly next time
         this.appInfo.lastVenue = venue.id;
-        localStorage.setItem('MI:' + this.solutionId, JSON.stringify(this.appInfo));
+        this.userAgentService.localStorage.setItem('MI:' + this.solutionId, JSON.stringify(this.appInfo));
 
         this.mapsIndoorsService.setPageTitle();
 

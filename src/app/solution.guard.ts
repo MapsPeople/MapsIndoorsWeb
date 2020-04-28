@@ -3,6 +3,7 @@ import { CanActivate, ActivatedRouteSnapshot, Router, NavigationExtras } from '@
 import { Observable } from 'rxjs';
 
 import { SolutionService } from './services/solution.service';
+import { UserAgentService } from './services/user-agent.service';
 
 @Injectable({
     providedIn: 'root'
@@ -11,6 +12,7 @@ export class SolutionGuard implements CanActivate {
 
     constructor(
         private solutionService: SolutionService,
+        private userAgentService: UserAgentService,
         private router: Router
     ) { }
 
@@ -20,7 +22,7 @@ export class SolutionGuard implements CanActivate {
         return new Promise((resolve) => {
             this.solutionService.initializeApp(next.params.solutionName)
                 .then(() => {
-                    localStorage.setItem('MI:suggestedSolutionId', next.params.solutionName);
+                    this.userAgentService.localStorage.setItem('MI:suggestedSolutionId', next.params.solutionName);
                     resolve(true);
                 })
                 .catch(() => {

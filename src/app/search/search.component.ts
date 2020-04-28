@@ -422,7 +422,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         const solutionId = await this.solutionService.getSolutionId();
 
         // Hide the zoom button if the user has visited the app before else show it
-        const hideZoomBtnLocalStorage = await localStorage.getItem('MI:' + solutionId + '-hideZoom');
+        const hideZoomBtnLocalStorage = this.userAgentService.localStorage.getItem('MI:' + solutionId + '-hideZoom');
         if (hideZoomBtnLocalStorage === 'true') this.hideZoomBtn();
         else showZoomBtn();
 
@@ -454,7 +454,7 @@ export class SearchComponent implements OnInit, OnDestroy {
             this.zoomBtn.className += ' hidden';
         }
         google.maps.event.removeListener(this.zoomBtnListener);
-        localStorage.setItem('MI:' + solutionId + '-hideZoom', 'true');
+        this.userAgentService.localStorage.setItem('MI:' + solutionId + '-hideZoom', 'true');
     }
     // #endregion
 
@@ -471,7 +471,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         } else {
             // Go back to venues page
             const solutionId = await this.solutionService.getSolutionId();
-            localStorage.removeItem('MI:' + solutionId);
+            this.userAgentService.localStorage.removeItem('MI:' + solutionId);
             this.mapsIndoorsService.hideFloorSelector();
             this.clearAll();
             this.venueService.favouredVenue = false;
