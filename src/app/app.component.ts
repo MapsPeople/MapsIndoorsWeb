@@ -10,26 +10,47 @@ import { RoutingStateService } from './services/routing-state.service';
 
 export class AppComponent {
     constructor(
-		private translate: TranslateService,
-		private routingState: RoutingStateService
+        private translate: TranslateService,
+        private routingState: RoutingStateService
     ) {
         // Set default language
         translate.setDefaultLang('en');
         routingState.loadRouting();
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.setLanguage();
     }
 
-    // #region || SET BROWSER LANGUAGE
-    async setLanguage() {
-        const language = await window.navigator.language;
-        // Do nothing if browser language is english
-        if (language === 'en') return;
-        // Else check if browser language is supported in app
-        // if( language == ("da" || "sp" || "la" || "ge"))
-        else if (language === 'da') this.translate.use(language);
+    /**
+     * @description Set language for app based on browser settings.
+     * @private
+     * @returns {void}
+     */
+    private setLanguage(): void {
+        const browserLanguage = window.navigator.language.toLowerCase();
+        const language = {
+            english: 'en',
+            danish: 'da',
+            portuguese: 'pt',
+            portugueseBrazilian: 'pt-br',
+            portuguesePortugal: 'pt-pt'
+        };
+        const supportedLanguage = Object.values(language).find((language: string): boolean => language === browserLanguage) ? true : false;
+
+        if (supportedLanguage) {
+            // English if already set in the constructor as a default language
+            if (browserLanguage === language.english) {
+                return;
+            }
+
+            // Set Brazilian and Portugal Portuguese to Portuguese
+            if (browserLanguage === language.portugueseBrazilian || browserLanguage === language.portuguesePortugal) {
+                this.translate.use(language.portuguese);
+                return;
+            }
+
+            this.translate.use(browserLanguage);
+        }
     }
-    // #endregion
 }

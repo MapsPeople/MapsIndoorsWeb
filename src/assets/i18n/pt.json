@@ -1,0 +1,93 @@
+{
+    "SetSolution": {
+        "Title": "Benvindo ao MapsIndoors",
+        "Enter": "Insira SolutionID ou API Key",
+        "Go": "Ir",
+        "InitError": "O SolutionID pedido era inválido.",
+        "SubmitError": "Por favor tente de novo."
+    },
+    "Venues": {
+        "Title": "Escolha área"
+    },
+    "InfoDialog": {
+        "Title": "Acerca",
+        "AppName": "App Nome",
+        "Supplier": "Fornecedor",
+        "AppVersion": "App Versão",
+        "SdkVersion": "SDK Versão"
+    },
+    "ShareDialog": {
+        "Title": "Partilhe localização",
+        "Text": "Copie o link abaixo e partilhe a localização de",
+        "EnterPhoneNumber": "Insira número de ",
+        "SendDirections": "Enviar direções",
+        "SendDirectionsToPhone": "Enviar por SMS",
+        "SmsSuccess": "SMS enviado com sucesso",
+        "SmsError": "SMS falhou o envio"
+    },
+    "Search": {
+        "SearchPlaces": "Pesquisar locais",
+        "SearchIn": "Pesquisar em {{category}}"
+    },
+    "SearchHint": {
+        "Hint": "Use a Pesquisa para procurar em",
+        "EmptyCategory": "não tem {{category}}. Use Pesquisa e procure {{category}} em",
+        "NoResults": "Desculpe,não encontrámos resultados referentes a \"{{query}}\"",
+        "NoResultsInCategory": "Desculpe,não encontrámos resultados referentes a \"{{query}}\" em {{category}}"
+    },
+    "Direction": {
+        "Directions": "Direções",
+        "From": "De",
+        "To": "Para",
+        "AvoidStairs": "Evitar escadas",
+        "MyPosition": "Minha posição",
+        "YouAreHere": "Está aqui",
+        "EnableMyPosition": "Ative partilha de localização e use a sua posição",
+        "RouteSettings": "Rota Definições",
+        "ChooseTheAppUserRoles...": "Escolha o Perfil de utilizador a que pertence na APP. Apenas afeta as direções obtidas, não as localizações vistas no mapa",
+        "AppUserRoles": "Perfis na App"
+    },
+    "DirectionRoute": {
+        "Start": "Início",
+        "End": "Fim",
+        "Next": "Próxima",
+        "Previous": "Anterior",
+        "ToDestination": "para o destino",
+        "Walk": "Ande",
+        "Ride": "Pedale",
+        "Drive": "Guie",
+        "Directions": "Direções",
+        "AgencyInfo": "Info Agência",
+        "Phone": "Telefone",
+        "Website": "Website",
+        "Park": "Parque"
+    },
+    "DirectionHint": {
+        "searchHint": "Pesquisa localizações interiores e exteriores",
+        "NoMatchingResults": "Desculpe, sem resultados correspondentes",
+        "FromAndTo": "Favor selecionar localização inicial e final",
+        "NoRoute": "Desculpe,rota não encontrada"
+    },
+    "Buttons": {
+        "ZoomForDetails": "Zoom para mais detalhes",
+        "ReturnTo": "Regressar a",
+        "ClearMap": "Limpar mapa",
+        "Directions": "Direções",
+        "ShowOnMap": "Mostrar no mapa",
+        "LoadMore": "Carregar mais",
+        "CopyLink": "Copiar link"
+    },
+    "Notification": {
+        "LinkCopied": "Link copiado para clipboard",
+        "LinkCopiedError": "Este browser não suporta esta função",
+        "GeoLocationError": "Ative partilha de localização e use a sua posição"
+    },
+    "Error": {
+        "IncorrectVenue": "Oops, Área não encontrada",
+        "IncorrectBuilding": "Oops, Edifício não encontrado",
+        "IncorrectRoom": "Oops, Sala não encontrada",
+        "IncorrectLocation": "Oops, Localização não encontrada",
+        "NoPosition": "Desculpe, não encontrámos a sua posição",
+        "General": "Oops! Ocorreu um erro, por favor tente mais tarde"
+    }
+}
