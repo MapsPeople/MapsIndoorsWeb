@@ -85,9 +85,9 @@
                 <mat-icon class="content-icon">location_city</mat-icon>
                 <p class="line-break">
                     <span *ngIf="location.properties.floorName">Level {{location.properties.floorName}}</span>
-                    <span *ngIf="location.properties.buildingName">{{location.properties.buildingName}}</span>
+                    <span *ngIf="location.properties.building">{{location.properties.building}}</span>
                     <!-- Hiding venue name if it's the same as building name -->
-                    <span *ngIf="location.properties.venueName && location.properties.buildingName != location.properties.venueName">{{location.properties.venueName}}</span>
+                    <span *ngIf="location.properties.venue && location.properties.building != location.properties.venue">{{location.properties.venue}}</span>
                 </p>
             </div>
 

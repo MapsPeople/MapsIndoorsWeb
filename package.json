@@ -1,6 +1,6 @@
 {
     "name": "maps-indoors-webapp",
-    "version": "3.10.3",
+    "version": "3.10.7",
     "scripts": {
         "ng": "ng",
         "start": "npm run build:dev --prefix ./modules/sdk | ng serve",
@@ -43,9 +43,9 @@
         "@angular/cli": "^7.3.9",
         "@angular/compiler-cli": "^7.2.15",
         "@angular/language-service": "^7.2.15",
-        "@ngneat/spectator": "^4.5.0",
+        "@ngneat/spectator": "^4.11.1",
         "@sentry/browser": "^5.12.1",
-        "@types/jest": "^24.0.21",
+        "@types/jest": "^24.9.1",
         "@types/node": "^10.14.7",
         "@typescript-eslint/eslint-plugin": "^1.9.0",
         "@typescript-eslint/parser": "^1.9.0",

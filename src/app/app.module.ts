@@ -34,6 +34,9 @@ import { AppConfigService } from './services/app-config.service';
 import { SolutionService } from './services/solution.service';
 import { RoutingStateService } from './services/routing-state.service';
 
+// Pipes
+import { DistancePipe } from './pipes/distance.pipe';
+
 import { errorHandlerFactory } from './app.error-handler';
 
 @NgModule({
@@ -49,6 +52,7 @@ import { errorHandlerFactory } from './app.error-handler';
         SetSolutionComponent,
         MapComponent,
         SetupComponent,
+        DistancePipe
     ],
     imports: [
         BrowserModule,

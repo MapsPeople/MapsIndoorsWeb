@@ -102,27 +102,34 @@ export class LocationService {
     // #endregion
 
     // #region || LOCATION SET
-    setLocation(loc) {
+    /**
+     * @description Set location observable.
+     * @param {string} locationId
+     * @returns {Promise<void>}
+     */
+    setLocation(locationId: string): Promise<void> {
         return new Promise((resolve, reject) => {
             this.mapsIndoorsService.isMapDirty = true;
 
-            this.formatLocation(loc)
-                .then((location) => {
+            this.formatLocation(locationId)
+                .then((location: Location) => {
                     this.selectedLocation.next(location);
 
                     // Draw polygon
-                    if (location.geometry) this.drawRoomPolygon(location);
-
-                    const anchor = new google.maps.LatLng(location.properties.anchor.coordinates[1], location.properties.anchor.coordinates[0]);
+                    if (location.geometry.type.toLowerCase() === 'polygon') {
+                        this.drawRoomPolygon(location);
+                    }
 
                     // Don't update "return to *" btn if POI is outside selected venue
                     if (this.venue && this.venue.name === location.properties.venueId) {
-                        this.mapsIndoorsService.setLocationAsReturnToValue(location);
+                        this.mapsIndoorsService.setLocationAsReturnToValue(location, this.getAnchorCoordinates(location));
                         this.mapsIndoorsService.mapsIndoors.location = location; // Used for a check for the "Return to *" button
                     }
 
+                    const anchorPoint = this.getAnchorCoordinates(location);
+
                     // Populate and open info window
-                    this.googleMapService.updateInfoWindow(location.properties.name, anchor);
+                    this.googleMapService.updateInfoWindow(location.properties.name, anchorPoint);
                     this.googleMapService.openInfoWindow();
 
                     // Set floor
@@ -131,9 +138,8 @@ export class LocationService {
 
                     resolve();
                 })
-                .catch(() => {
-                    // TODO: Send a more detailed reason for promise to fail.
-                    reject('An error occurred, please try again later.');
+                .catch((err: Error) => {
+                    reject(err);
                 });
         });
     }
@@ -160,63 +166,36 @@ export class LocationService {
         }
     }
 
-    async formatLocation(loc) {
-        let location: any;
-        // If loc is a point then request the location to get the room coordinates as well.
-        // OBS: Only newer solutions have room coordinates and the request is therefor not making a difference for older solutions.
-        if (loc.geometry.type === 'Point') {
-            await this.getLocationById(loc.id)
-                .then((populatedLocation: Location): void => {
-                    location = populatedLocation;
-                });
-        } else location = loc;
-
-        // Check if there are a image else set venue image
-        if (!location.properties.imageURL || location.properties.imageURL.length <= 0) {
-            const config = await this.appConfig;
-            for (const venueName in config.venueImages) {
-                if (location.properties.venueId.toLowerCase() === venueName.toLowerCase()) {
-                    location.properties.imageURL = config.venueImages[location.properties.venueId.toLowerCase()];
+    /**
+     * @description Get location formatted and fully populated with missing details.
+     * @private
+     * @param {string} locationId
+     * @returns {Promise<Location>}
+     */
+    private formatLocation(locationId: string): Promise<Location> {
+        // Requesting the location to receive a fully populated location object.
+        return this.getLocationById(locationId)
+            .then((location: Location) => {
+                // Check if there are a image else set venue image
+                if (!location.properties.imageURL || location.properties.imageURL.length <= 0) {
+                    const config = this.appConfig;
+                    for (const venueName in config.venueImages) {
+                        if (location.properties.venueId.toLowerCase() === venueName.toLowerCase()) {
+                            location.properties.imageURL = config.venueImages[location.properties.venueId.toLowerCase()];
+                        }
+                    }
                 }
-            }
-        }
 
-        // Adds http in front of any URL missing it
-        if (location.properties.fields && location.properties.fields.website && location.properties.fields.website.value) {
-            const pattern = /^https?:\/\//;
-            if (!pattern.test(location.properties.fields.website.value)) {
-                location.properties.fields.website.value = 'http://' + location.properties.fields.website.value;
-            }
-        }
-
-        // Set category
-        const categories = Object.keys(location.properties.categories);
-        if (categories && categories.length > 0) {
-            location.properties.category = location.properties.categories[categories[0]];
-        }
-
-        // Set anchor-point
-        // NOTE: Support for old POI-objects
-        if (!location.properties.anchor) {
-            location.properties.anchor = location.geometry;
-            location.geometry = null;
-        }
-
-        // NOTE: I do this because I can't expect the locations venue and building to be readable for the end user
-        this.venueService.getVenues().then((venues) => {
-            for (const venue of venues) {
-                if (venue.name === location.properties.venueId) {
-                    location.properties.venueName = venue.venueInfo.name;
+                // Adds http in front of any URL missing it
+                if (location.properties.fields && location.properties.fields.website && location.properties.fields.website.value) {
+                    const pattern = /^https?:\/\//;
+                    if (!pattern.test(location.properties.fields.website.value)) {
+                        location.properties.fields.website.value = 'http://' + location.properties.fields.website.value;
+                    }
                 }
-            }
-        });
-        // Not all POI's is inside an building
-        if (location.buildingId) {
-            this.venueService.getBuildingById(location.buildingId).then((building) => {
-                location.properties.buildingName = building.buildingInfo.name;
+
+                return location;
             });
-        }
-        return location;
     }
 
     // #endregion
@@ -295,9 +274,9 @@ export class LocationService {
      * @memberof LocationService
      */
     public getAnchorCoordinates(location: Location): google.maps.LatLng {
-        return location.properties.anchor ?
-            new google.maps.LatLng(location.properties.anchor.coordinates[1], location.properties.anchor.coordinates[0]) :
-            new google.maps.LatLng(location.geometry.coordinates[1], location.geometry.coordinates[0]);
+        return location.geometry.type.toLowerCase() === 'point' ?
+            new google.maps.LatLng(location.geometry.coordinates[1], location.geometry.coordinates[0]) :
+            new google.maps.LatLng(location.properties.anchor.coordinates[1], location.properties.anchor.coordinates[0]);
     }
     // #endregion
 }

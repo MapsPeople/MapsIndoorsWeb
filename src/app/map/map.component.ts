@@ -313,8 +313,8 @@ export class MapComponent {
      */
     handleSingleLocationClick(location: Location): void {
         this.loading = true;
-        this.locationService.setLocation(location)
-            .then(():Promise<Venue> => {
+        this.locationService.setLocation(location.id)
+            .then((): Promise<Venue> => {
                 /*
                  * Make sure venue is set whenever clicking on a location
                  */

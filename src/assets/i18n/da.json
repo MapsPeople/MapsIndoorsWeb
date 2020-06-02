@@ -50,6 +50,8 @@
     "DirectionRoute": {
         "Start": "Start",
         "End": "Slut",
+        "Enter": "Gå ind",
+        "Exit": "Gå ud",
         "Next": "Næste",
         "Previous": "Forrige",
         "ToDestination": "til destination",
@@ -60,7 +62,18 @@
         "AgencyInfo": "Bureau information",
         "Phone": "Telefon",
         "Website": "Web",
-        "Park": "Parkér"
+        "Park": "Parkér",
+        "Stairs": "Trappe",
+        "Elevator": "Elevator",
+        "Escalator": "Rulletrappe",
+        "Straight": "Fortsæt ligeud",
+        "TurnLeft": "Drej til venstre og fortsæt",
+        "TurnRight": "Drej til højre og fortsæt",
+        "TurnSharpLeft": "Drej skarpt til venstre og fortsæt",
+        "TurnSharpRight": "Drej skarpt til højre og fortsæt",
+        "TurnSlightLeft": "Drej en smule til venstre og fortsæt",
+        "TurnSlightRight": "Drej en smule til højre og fortsæt",
+        "TurnAround": "Vend om og fortsæt"
     },
     "DirectionHint": {
         "searchHint": "Søg efter indendørs og udendørs lokationer",

@@ -106,10 +106,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
         const id = this.route.snapshot.params.id;
         // Location id
         if (id.length === 24) {
-            this.locationService.getLocationById(id)
-                .then((location: Location): void => {
-                    this.locationService.setLocation(location);
-                })
+            this.locationService.setLocation(id)
                 .catch((err: Error): void => {
                     this.notificationService.displayNotification(err.message);
                     this.goBack();
@@ -118,7 +115,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
         // Room (external) id
             this.locationService.getLocationByExternalId(id)
                 .then((location: Location) => {
-                    this.locationService.setLocation(location);
+                    this.locationService.setLocation(location.id);
                 })
                 .catch((err: Error): void => {
                     this.notificationService.displayNotification(err.message);

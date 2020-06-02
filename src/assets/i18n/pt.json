@@ -50,6 +50,8 @@
     "DirectionRoute": {
         "Start": "Início",
         "End": "Fim",
+        "Enter": "Entrar",
+        "Exit": "Sair",
         "Next": "Próxima",
         "Previous": "Anterior",
         "ToDestination": "para o destino",
@@ -60,7 +62,18 @@
         "AgencyInfo": "Info Agência",
         "Phone": "Telefone",
         "Website": "Website",
-        "Park": "Parque"
+        "Park": "Parque",
+        "Stairs": "Escadas",
+        "Elevator": "Elevador",
+        "Escalator": "Escada rolante",
+        "Straight": "Continue em frente",
+        "TurnLeft": "Vire à esquerda e continue",
+        "TurnRight": "Vire à direita e continue",
+        "TurnSharpLeft": "Curva apertada à esquerda e continue",
+        "TurnSharpRight": "Curva apertada à direita e continue",
+        "TurnSlightLeft": "Curva ligeira à esquerda e continue",
+        "TurnSlightRight": "Curva ligeira à direita e continue",
+        "TurnAround": "Inverta a marcha e continue"
     },
     "DirectionHint": {
         "searchHint": "Pesquisa localizações interiores e exteriores",

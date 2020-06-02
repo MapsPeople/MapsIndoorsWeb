@@ -242,7 +242,7 @@
                                             <span class="icon-destination"></span>
                                         </span>
                                         <!-- Destination icon for parking -->
-                                        <span class="segment-destination-icon flex-center-center" *ngIf="leg.steps[leg.steps.length-1].parking">
+                                        <span class="segment-destination-icon flex-center-center" *ngIf="isParkingLeg(leg)">
                                             <span class="icon-parking"></span>
                                         </span>
                                     </div>
@@ -340,7 +340,7 @@
                                     </div>
 
                                     <!-- Parking -->
-                                    <div class="spacing" style="padding-top:2px;" *ngIf="leg.steps[leg.steps.length-1].parking">
+                                    <div class="spacing" style="padding-top:2px;" *ngIf="isParkingLeg(leg)">
                                         <h2 class="segment-headline">
                                             <span class="action">{{ 'DirectionRoute.Park' | translate }}<span *ngIf="leg.steps[leg.steps.length-1].label">:</span></span>
                                             {{leg.steps[leg.steps.length-1].label}}
@@ -560,7 +560,7 @@
             <p class="content-text">
                 {{ 'Direction.ChooseTheAppUserRoles...' | translate }}
             </p>
-            <mat-selection-list #userRoles [(ngModel)]="selecedUserRoles" (selectionChange)="onUserRolesChange($event)">
+            <mat-selection-list #userRoles [(ngModel)]="selectedUserRoles" (selectionChange)="onUserRolesChange($event)">
                 <mat-list-option *ngFor="let role of userRolesList" [value]="role.id">{{role.name}}</mat-list-option>
             </mat-selection-list>
         </section>

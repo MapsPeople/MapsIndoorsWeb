@@ -1,4 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { NotificationService } from '../services/notification.service';
+import { TranslateService } from '@ngx-translate/core';
 import { SolutionService } from '../services/solution.service';
 import { AppConfigService } from '../services/app-config.service';
 import { VenueService } from '../services/venue.service';
@@ -21,9 +23,7 @@ declare const mapsindoors: any;
     styleUrls: ['./venues.component.scss']
 })
 export class VenuesComponent implements OnInit, OnDestroy {
-    statusOk: boolean = false;
-    appInfo: any; // Used for localstorage
-    colors: object;
+    colors: any;
     venues: any[] = [];
     appConfig: any;
     solutionId: string;
@@ -32,6 +32,8 @@ export class VenuesComponent implements OnInit, OnDestroy {
 
     constructor(
         private router: Router,
+        private notificationService: NotificationService,
+        private translateService: TranslateService,
         private solutionService: SolutionService,
         private appConfigService: AppConfigService,
         private themeService: ThemeService,
@@ -45,26 +47,33 @@ export class VenuesComponent implements OnInit, OnDestroy {
         this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
     }
 
-    ngOnInit():void {
+    ngOnInit(): void {
         this.getPreviousVenue();
-        this.statusOk = true;
     }
 
     // #region || GET PREVIOUS VENUE
-    async getPreviousVenue():Promise<void> {
-        // If any venueId in localStorage from previous visit then load it directly
-        this.solutionId = await this.solutionService.getSolutionId();
-        this.solutionId = this.solutionId ? this.solutionId : null;
-
-        this.appInfo = JSON.parse(this.userAgentService.localStorage.getItem('MI:' + this.solutionId)) || {};
-        if (this.appInfo.lastVenue) {
-            const venue = await this.venueService.getVenueById(this.appInfo.lastVenue);
-            this.setVenue(venue);
-        } else {
-            // Else get all venues
-            this.mapsIndoorsService.setPageTitle();
-            this.getVenues();
-        }
+    /**
+     * @description Auto select previous visited venue if any
+     * @returns {Promise<void>}
+     */
+    getPreviousVenue(): void {
+        this.solutionService.getSolutionId()
+            .then(async (id: string) => {
+                this.solutionId = id;
+                const storedSolution = JSON.parse(this.userAgentService.localStorage.getItem('MI:' + this.solutionId));
+                if (storedSolution && storedSolution.lastVenue) {
+                    const venue = await this.venueService.getVenueById(storedSolution.lastVenue);
+                    this.setVenue(venue);
+                } else {
+                    this.mapsIndoorsService.setPageTitle();
+                    this.getVenues();
+                }
+            })
+            .catch(() => {
+                this.notificationService.displayNotification(
+                    this.translateService.instant('SetSolution.InitError')
+                );
+            });
     }
     // #endregion
 
@@ -82,7 +91,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
             });
     }
 
-    private async fitVenuesInView(venues):Promise<any> {
+    private async fitVenuesInView(venues): Promise<any> {
         // If the solution have multiple venues fit them all inside bbox
         let bounds = new google.maps.LatLngBounds();
         if (this.appConfig.appSettings && !this.appConfig.appSettings.defaultVenue) {
@@ -118,15 +127,10 @@ export class VenuesComponent implements OnInit, OnDestroy {
 
     // #region || SET VENUE
     // Set venue and go to search-page
-    async setVenue(venue):Promise<void> {
+    async setVenue(venue): Promise<void> {
         this.venueService.setVenue(venue, this.appConfig);
-
-        // Save venueId in local storage and load venue directly next time
-        this.appInfo.lastVenue = venue.id;
-        this.userAgentService.localStorage.setItem('MI:' + this.solutionId, JSON.stringify(this.appInfo));
-
+        this.userAgentService.localStorage.setItem('MI:' + this.solutionId, JSON.stringify({ lastVenue: venue.id }));
         this.mapsIndoorsService.setPageTitle();
-
         this.mapsIndoorsService.showFloorSelectorAfterUserInteraction();
         const solutionName = await this.solutionService.getSolutionName();
         this.router.navigate([`${solutionName}/${venue.id}/search`]);
@@ -134,7 +138,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
     }
     // #endregion
 
-    ngOnDestroy():void {
+    ngOnDestroy(): void {
         this.appConfigSubscription.unsubscribe();
         this.themeServiceSubscription.unsubscribe();
     }

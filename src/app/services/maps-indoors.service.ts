@@ -206,10 +206,10 @@ export class MapsIndoorsService {
 	 * @param {Location} location – The selected location.
 	 * @memberof MapsIndoorsService
 	 */
-    setLocationAsReturnToValue(location: Location): void {
+    setLocationAsReturnToValue(location: Location, anchorCoordinates: google.maps.LatLng): void {
         const values: ReturnToValues = {
             name: location.properties.name,
-            latLng: new google.maps.LatLng(location.properties.anchor.coordinates[1], location.properties.anchor.coordinates[0]),
+            latLng: anchorCoordinates,
             isVenue: false
         };
         this.setReturnToValues(values);

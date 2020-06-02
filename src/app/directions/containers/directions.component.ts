@@ -101,8 +101,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
     userRolesPanel = false;
     userRolesList = [];
-    selecedUserRoles = [];
-    private solutionId;
+    selectedUserRoles = [];
+    private solutionId: string;
 
     constructor(
         private route: ActivatedRoute,
@@ -161,9 +161,24 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             );
 
         this.useBrowserPositioning = this.appConfig.appSettings.positioningDisabled !== '1';
-        this.solutionId = await this.solutionService.getSolutionId();
-        this.userRolesList = await this.solutionService.getUserRoles();
-        this.selecedUserRoles = JSON.parse(this.userAgentService.localStorage.getItem(`MI:${this.solutionId}:APPUSERROLES`) || '[]');
+        this.solutionService.getSolutionId()
+            .then((id: string) => {
+                this.solutionId = id;
+                this.selectedUserRoles = JSON.parse(this.userAgentService.localStorage.getItem(`MI:${this.solutionId}:APPUSERROLES`) || '[]');
+            })
+            .catch(() => {
+                this.notificationService.displayNotification(
+                    this.translateService.instant('SetSolution.InitError')
+                );
+            });
+
+        this.solutionService.getUserRoles()
+            .then((roles) => this.userRolesList = roles)
+            .catch(() => {
+                this.notificationService.displayNotification(
+                    this.translateService.instant('Error.General')
+                );
+            });
         this.mapsIndoorsService.setPageTitle(this.translateService.instant('Direction.Directions'));
         this.solutionService.getModules()
             .then((modules: Modules): void => {
@@ -398,7 +413,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
      * Puts the selected User Roles into localStorage.
      */
     onUserRolesChange() {
-        this.userAgentService.localStorage.setItem('MI:' + this.solutionId + ':APPUSERROLES', JSON.stringify(this.selecedUserRoles));
+        this.userAgentService.localStorage.setItem('MI:' + this.solutionId + ':APPUSERROLES', JSON.stringify(this.selectedUserRoles));
         this.getRoute();
     }
     // #endregion
@@ -525,8 +540,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                 userRoles: null
             };
 
-            if (this.selecedUserRoles.length > 0) {
-                args.userRoles = this.selecedUserRoles;
+            if (this.selectedUserRoles.length > 0) {
+                args.userRoles = this.selectedUserRoles;
             }
 
             this.request(args)
@@ -706,32 +721,32 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                         const prev = leg.index > 0 ? legs[leg.index - 1] : null;
 
                         if (prev && prev._mi.type !== 'mapsindoors.DirectionsLeg' && leg._mi.type === 'mapsindoors.DirectionsLeg') {
-                            leg.steps[0].instructions = '<span class="action">Enter:</span>';
+                            leg.steps[0].instructions = `<span class="action">${this.translateService.instant('DirectionRoute.Enter')}:</span>`;
                             entranceOrExits.push(leg.steps[0]);
                         } else if (prev && prev._mi.type === 'mapsindoors.DirectionsLeg' && leg._mi.type !== 'mapsindoors.DirectionsLeg') {
-                            leg.steps[0].instructions = '<span class="action">Exit:</span>';
+                            leg.steps[0].instructions = `<span class="action">${this.translateService.instant('DirectionRoute.Exit')}:</span>`;
                             entranceOrExits.push(leg.steps[0]);
                         } else if (prev && isInside.test(prev.steps[prev.steps.length - 1].abutters) && leg && isOutside.test(leg.steps[0].abutters)) {
-                            leg.steps[0].instructions = '<span class="action">Exit:</span>';
+                            leg.steps[0].instructions = `<span class="action">${this.translateService.instant('DirectionRoute.Exit')}:</span>`;
                             entranceOrExits.push(leg.steps[0]);
                         } else if (prev && isOutside.test(prev.steps[prev.steps.length - 1].abutters) && leg && isInside.test(leg.steps[0].abutters)) {
-                            leg.steps[0].instructions = '<span class="action">Enter:</span>';
+                            leg.steps[0].instructions = `<span class="action">${this.translateService.instant('DirectionRoute.Enter')}:</span>`;
                             entranceOrExits.push(leg.steps[0]);
                         }
 
                         switch (leg.steps[0].highway) {
-                        case 'steps':
-                        case 'stairs':
-                            leg.steps[0].instructions = '<span class="action">Stairs: </span>Level ' + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
-                            break;
-                        case 'elevator':
-                            leg.steps[0].instructions = '<span class="action">Elevator: </span>Level ' + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
-                            break;
-                        case 'escalator':
-                            leg.steps[0].instructions = '<span class="action">Escalator: </span>Level ' + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
-                            break;
-                        default:
-                            break;
+                            case 'steps':
+                            case 'stairs':
+                                leg.steps[0].instructions = `<span class="action">${this.translateService.instant('DirectionRoute.Stairs')}: </span>Level ` + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
+                                break;
+                            case 'elevator':
+                                leg.steps[0].instructions = `<span class="action">${this.translateService.instant('DirectionRoute.Elevator')}: </span>Level ` + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
+                                break;
+                            case 'escalator':
+                                leg.steps[0].instructions = `<span class="action">${this.translateService.instant('DirectionRoute.Escalator')}: </span>Level ` + leg.start_location.floor_name + ' to ' + leg.end_location.floor_name;
+                                break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -797,39 +812,53 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             && prevLeg.transit.arrival_stop.location.lng === currLeg.transit.departure_stop.location.lng;
     }
 
-    addMissingManeuver(step) {
+    /**
+     * Returns if a leg should include parking instructions.
+     * @param {object} routeLeg - Directions result route leg.
+     * @returns {boolean}
+     */
+    public isParkingLeg(routeLeg): boolean {
+        return routeLeg.steps[routeLeg.steps.length-1].parking && ['DRIVING', 'BICYCLING'].includes(routeLeg.steps[routeLeg.steps.length-1].travel_mode);
+    }
+
+    /**
+     * @description Add missing maneuver in step.
+     * @private
+     * @param {*} step
+     */
+    private addMissingManeuver(step): void {
         if (/head|walk/i.test(step.instructions) && step.maneuver === '') {
             step.maneuver = 'straight';
         }
 
         if (step.highway && (!step.instructions || step.instructions === '')) {
             switch (step.maneuver) {
-            case 'straight':
-                step.instructions = 'Continue straight ahead';
-                break;
-            case 'turn-left':
-                step.instructions = 'Go left and continue';
-                break;
-            case 'turn-right':
-                step.instructions = 'Go right and continue';
-                break;
-            case 'turn-sharp-left':
-                step.instructions = 'Go sharp left and continue';
-                break;
-            case 'turn-sharp-right':
-                step.instructions = 'Go sharp right and continue';
-                break;
-            case 'turn-slight-left':
-                step.instructions = 'Go slight left and continue';
-                break;
-            case 'turn-slight-right':
-                step.instructions = 'Go slight right and continue';
-                break;
-            case 'uturn-left':
-            case 'uturn-right':
-            case 'uturn':
-                step.instructions = 'Turn around and continue';
-                break;
+                case 'straight':
+                    step.instructions = this.translateService.instant('DirectionRoute.Straight');
+                    break;
+                case 'turn-left':
+                    step.instructions = this.translateService.instant('DirectionRoute.TurnLeft');
+                    break;
+                case 'turn-right':
+                    step.instructions = this.translateService.instant('DirectionRoute.TurnRight');
+                    break;
+                case 'turn-sharp-left':
+                    step.instructions = this.translateService.instant('DirectionRoute.TurnSharpLeft');
+                    break;
+                case 'turn-sharp-right':
+                    step.instructions = this.translateService.instant('DirectionRoute.TurnSharpRight');
+                    break;
+                case 'turn-slight-left':
+                    step.instructions = this.translateService.instant('DirectionRoute.TurnSlightLeft');
+                    break;
+                case 'turn-slight-right':
+                    step.instructions = this.translateService.instant('DirectionRoute.TurnSlightRight');
+                    break;
+                case 'uturn-left':
+                case 'uturn-right':
+                case 'uturn':
+                    step.instructions = this.translateService.instant('DirectionRoute.TurnAround');
+                    break;
             }
         }
     }

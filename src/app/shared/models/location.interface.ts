@@ -2,9 +2,9 @@ import { Anchor } from './anchor.interface';
 
 export interface Location {
     id: string,
-    type: 0,
+    type: string,
     geometry: {
-        type: 0
+        type: string
         coordinates: Array<number>
     },
     properties: LocationProperties
@@ -32,7 +32,8 @@ interface LocationProperties {
     subtitle?: string,
     type: string,
     venue: string,
-    venueId: string
+    venueId: string,
+    geodesicDistance?: number
 }
 
 interface Contact {

@@ -22,6 +22,7 @@ import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
 import { Category } from '../shared/models/category.interface';
 import { SearchParameters } from '../shared/models/searchParameters.interface';
+import { AppMode } from '../shared/enums';
 
 @Component({
     selector: 'app-search',
@@ -32,6 +33,8 @@ export class SearchComponent implements OnInit, OnDestroy {
     appConfig: any;
     colors: object;
     categoriesMenu: any;
+    public isKioskMode: boolean;
+
     venue: Venue;
     private fixedOrigin: Location;
     SearchHintAppTitle: string = '';
@@ -114,6 +117,11 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.subscriptions
+            // App mode
+            .add(this.appConfigService.getAppMode()
+                .subscribe((mode): void => {
+                    this.isKioskMode = mode === AppMode.Kiosk ? true : false;
+                }))
             // Route Observable
             .add(this.route.queryParams
                 .subscribe((params: Params): void => {
@@ -158,13 +166,15 @@ export class SearchComponent implements OnInit, OnDestroy {
     setLocation(location: Location): void {
         this.locationsArray = [];
         this.loading = true;
-        this.locationService.setLocation(location)
+        this.locationService.setLocation(location.id)
             .then((): void => {
                 this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/details/${location.id}`]);
                 this.trackerService.sendEvent('Search', 'Selected Location in search results list', `"${location.properties.name}" – ${location.id} ${this.search.query ? `("${this.search.query}" search query)` : ''}`);
             })
-            .catch((err): void => {
-                this.notificationService.displayNotification(err);
+            .catch((): void => {
+                this.notificationService.displayNotification(
+                    this.translateService.instant('Error.General')
+                );
                 this.loading = false;
             });
     }
@@ -217,7 +227,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     /**
      * Pan to current position if it is within venue bounds.
      */
-    private panIfWithinBounds():void {
+    private panIfWithinBounds(): void {
         const bbox = this.venue.geometry.bbox;
         const bounds = new google.maps.LatLngBounds({ lat: bbox[1], lng: bbox[0] }, { lat: bbox[3], lng: bbox[2] });
         this.userAgentService.panToPositionIfWithinBounds(bounds);

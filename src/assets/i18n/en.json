@@ -50,6 +50,8 @@
     "DirectionRoute": {
         "Start": "Start",
         "End": "End",
+        "Enter": "Enter",
+        "Exit": "Exit",
         "Next": "Next",
         "Previous": "Previous",
         "ToDestination": "to destination",
@@ -60,7 +62,18 @@
         "AgencyInfo": "Agency Info",
         "Phone": "Phone",
         "Website": "Website",
-        "Park": "Park"
+        "Park": "Park",
+        "Stairs": "Stairs",
+        "Elevator": "Elevator",
+        "Escalator": "Escalator",
+        "Straight": "Continue straight ahead",
+        "TurnLeft": "Go left and continue",
+        "TurnRight": "Go right and continue",
+        "TurnSharpLeft": "Go sharp left and continue",
+        "TurnSharpRight": "Go sharp right and continue",
+        "TurnSlightLeft": "Go slight left and continue",
+        "TurnSlightRight": "Go slight right and continue",
+        "TurnAround": "Turn around and continue"
     },
     "DirectionHint": {
         "searchHint": "Search for locations indoors or outdoors",

@@ -4,20 +4,20 @@
 
 .sidenav {
     width: 320px;
-    box-shadow: 3px 0 6px rgba(0, 0, 0, .24);
+    box-shadow: 3px 0 6px rgba(0, 0, 0, 0.24);
 }
 
 // Fix for overwriting angular border
 .mat-drawer-side {
-	border-right: 0;
+    border-right: 0;
 }
 
 // TODO: Clean up this mess!
 #sidebar {
     height: 100%;
     display: flex;
-	flex-direction: column;
-	overflow-x: hidden;
+    flex-direction: column;
+    overflow-x: hidden;
     ul.tiles {
         // width: 100%;
         padding: 0 8px;
@@ -31,12 +31,12 @@
             a {
                 position: absolute;
                 width: 100%;
-				height: 100%;
-				background: #000000;
+                height: 100%;
+                background: #000000;
                 &:hover {
                     cursor: pointer;
                     img {
-						opacity: .84;
+                        opacity: 0.84;
                     }
                 }
                 img {
@@ -56,36 +56,37 @@
                     background: rgba(0, 0, 0, 0.3);
                     box-sizing: border-box;
                 }
-			}
-			&:last-child {
-				margin-bottom: 8px;
-			}
-		}
+            }
+            &:last-child {
+                margin-bottom: 8px;
+            }
+        }
     }
     .mat-nav-list {
         .mat-list-item {
             height: 52px;
             .list-icon {
-				height: 40px;
-				width: 40px;
-				margin-right: 16px;
+                height: 40px;
+                width: 40px;
+                margin-right: 16px;
                 .material-icons {
                     width: 40px;
                     height: 100%;
-					object-fit: contain;
+                    object-fit: contain;
                 }
             }
             .list-text {
                 display: flex;
-				flex-direction: column;
-    			overflow: hidden;
+                flex: 1;
+                flex-direction: column;
+                overflow: hidden;
                 .list-title {
                     font-size: 16px;
                     line-height: normal;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
-					max-width: 216px;
+                    max-width: 216px;
                 }
                 .list-title-sub {
                     font-size: 11px;
@@ -94,13 +95,16 @@
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
-					max-width: 216px;
+                    max-width: 216px;
 
-					// TODO: Use helper comma-separated class instead
-					span:not(:last-child)::after {
-						content:", ";
-					}
+                    // TODO: Use helper comma-separated class instead
+                    span:not(:last-child)::after {
+                        content: ", ";
+                    }
                 }
+            }
+            .list-distance {
+                padding-left: 8px;
             }
             .list-spinner {
                 width: 24px;
@@ -128,8 +132,8 @@
                 width: calc(320px - 16px);
                 height: 64px;
                 margin: 0 8px; // padding: 0 16px;
-				position: absolute;
-				z-index: 1;
+                position: absolute;
+                z-index: 1;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
@@ -146,16 +150,16 @@
             h1 {
                 position: absolute;
                 bottom: 16px;
-				left: 16px;
-				z-index: 1;
+                left: 16px;
+                z-index: 1;
                 color: $color-white;
                 font-size: 20px;
                 font-weight: bold;
-				text-shadow: 0 0 10px rgba(0, 0, 0, .8);
-			}
-			.hero-img {
-				height: 172px;
-			}
+                text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            }
+            .hero-img {
+                height: 172px;
+            }
         }
     }
     .search {
@@ -171,21 +175,21 @@
         flex-direction: column;
         .content {
             padding: 20px 0;
-			overflow-y: auto;
-			overflow-x: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
             flex: 1;
         }
         .footer-content .content-text {
             justify-content: space-between;
         }
         h1 {
-          font: 500 20px/32px Roboto, "Helvetica Neue", sans-serif;
-          padding: 0 16px;
+            font: 500 20px/32px Roboto, "Helvetica Neue", sans-serif;
+            padding: 0 16px;
         }
         p.content-text {
-          font-size: 14px;
-          font-weight: 200;
-          line-height: 1.5;
+            font-size: 14px;
+            font-weight: 200;
+            line-height: 1.5;
         }
         .content-text {
             padding: 16px;
@@ -212,8 +216,8 @@
             // }
             .hint {
                 // min-height: 64px;
-				// padding: 8px 16px 0 16px;
-				width: 100%;
+                // padding: 8px 16px 0 16px;
+                width: 100%;
                 font-size: 100%;
                 line-height: 150%;
                 text-align: center;
@@ -226,23 +230,23 @@
                     word-break: break-word; // Fix for breaking loooong words
                 }
                 &::before {
-                    font-family: 'Material Icons';
+                    font-family: "Material Icons";
                     font-size: 96px;
                     line-height: 100%;
                     display: block;
                     visibility: visible;
                 }
                 &.warning::before {
-                    content: 'warning';
+                    content: "warning";
                 }
                 &.error::before {
-                    content: 'error';
+                    content: "error";
                 }
                 &.search::before {
-                    content: 'search';
+                    content: "search";
                 }
                 &.info::before {
-                    content: 'info';
+                    content: "info";
                 }
             }
         }
