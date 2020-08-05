@@ -32,6 +32,14 @@
                 ],
                 "input": "./modules/sdk/release/",
                 "output": "/assets/sdk/"
+              },
+              {
+                "glob": "*-dev.*",
+                "ignore": [
+                  "package.json"
+                ],
+                "input": "./modules/sdk/modules/micommon/js/dev_build",
+                "output": "/assets/sdk/"
               }
             ],
             "styles": [
@@ -60,7 +68,7 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true
-            },
+            }
           }
         },
         "serve": {

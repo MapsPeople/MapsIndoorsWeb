@@ -43,7 +43,7 @@ export class SolutionService {
             } else {
                 this.googleMapsApiTag = document.createElement('script');
                 this.googleMapsApiTag.setAttribute('type', 'text/javascript');
-                this.googleMapsApiTag.setAttribute('src', '//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyD8lfGCYzBMiIaGZM2JqHkSDfQbGZ-2zOM&libraries=geometry,places');
+                this.googleMapsApiTag.setAttribute('src', '//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyBNhmxW2OntKAVs7hjxmAjFscioPcfWZSc&libraries=geometry,places');
                 document.body.appendChild(this.googleMapsApiTag);
                 this.googleMapsApiTag.onload = () => resolve();
             }
@@ -62,7 +62,7 @@ export class SolutionService {
 
     setSolution() {
         return new Promise((resolve) => {
-            const gmKey: string = this.appConfig.appSettings.gmKey ? this.appConfig.appSettings.gmKey : 'AIzaSyD8lfGCYzBMiIaGZM2JqHkSDfQbGZ-2zOM';
+            const gmKey: string = this.appConfig.appSettings.gmKey ? this.appConfig.appSettings.gmKey : 'AIzaSyBNhmxW2OntKAVs7hjxmAjFscioPcfWZSc';
             const gaKey: string = this.appConfig.appSettings.gaKey;
 
             // App Title

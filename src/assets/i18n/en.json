@@ -1,9 +1,9 @@
 {
     "SetSolution": {
         "Title": "Welcome to MapsIndoors",
-        "Enter": "Enter SolutionID or API Key",
+        "Enter": "Enter API Key",
         "Go": "Go",
-        "InitError": "The requested SolutionID was invalid.",
+        "InitError": "The requested API Key was invalid.",
         "SubmitError": "Oops. Please try again."
     },
     "Venues": {

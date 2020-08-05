@@ -1,15 +1,16 @@
 {
     "name": "maps-indoors-webapp",
-    "version": "3.10.7",
+    "version": "3.11.0",
     "scripts": {
         "ng": "ng",
-        "start": "npm run build:dev --prefix ./modules/sdk | ng serve",
+        "start": "npm run build:dev --prefix ./modules/sdk && ng serve",
         "build": "ng build",
         "build-prod": "node ./replace.build.js && git add . && git commit -m 'new release version' && ng build --prod",
         "build-prod-patch": "npm version patch && npm run build-prod",
         "build-prod-minor": "npm version minor && npm run build-prod",
         "build-prod-major": "npm version major && npm run build-prod",
-        "postbuild-prod": "git push --follow-tags"
+        "postbuild-prod": "git push --follow-tags",
+        "prepare-dev": "git submodule update --init --recursive && cd modules/sdk && npm ci && cd modules/micommon && npm ci"
     },
     "private": true,
     "dependencies": {
