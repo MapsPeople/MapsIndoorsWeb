@@ -1,10 +1,13 @@
 import { AppConfigService } from './app-config.service';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { UserAgentService } from './../services/user-agent.service';
 import { environment } from '../../environments/environment';
 
 import { Modules } from '../shared/models/modules.interface';
 
 declare let mapsindoors: any;
+declare let Oidc: any;
 
 @Injectable({
     providedIn: 'root'
@@ -15,16 +18,20 @@ export class SolutionService {
     miSdkApiTag: HTMLElement;
 
     constructor(
+        private router: Router,
         private appConfigService: AppConfigService,
+        private userAgentService: UserAgentService
     ) {
         this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
     }
 
     // #region || SOLUTION PROVIDER
-    initializeApp(solutionId) {
+    initializeApp(solutionId): Promise<void> {
         return new Promise(async (resolve, reject) => {
             await this.initializeGoogleMaps();
             await this.initializeSdk(solutionId);
+
+            mapsindoors.MapsIndoors.onAuthRequired = this.initializeAuthenticationHandler(solutionId);
 
             try {
                 await this.appConfigService.setAppConfig();
@@ -36,7 +43,7 @@ export class SolutionService {
         });
     }
 
-    initializeGoogleMaps() {
+    initializeGoogleMaps(): Promise<void> {
         return new Promise((resolve) => {
             if (this.googleMapsApiTag) {
                 resolve();
@@ -50,7 +57,7 @@ export class SolutionService {
         });
     }
 
-    initializeSdk(solutionId) {
+    initializeSdk(solutionId): Promise<void> {
         return new Promise((resolve) => {
             this.miSdkApiTag = document.createElement('script');
             this.miSdkApiTag.setAttribute('type', 'text/javascript');
@@ -60,7 +67,51 @@ export class SolutionService {
         });
     }
 
-    setSolution() {
+    initializeAuthenticationHandler(solutionId): Function {
+        return ({ authClients = [], authIssuer = '' }) => {
+            const oidcScript = document.createElement('script');
+            oidcScript.setAttribute('type', 'text/javascript');
+            oidcScript.setAttribute('src', '//www.unpkg.com/oidc-client@^1/dist/oidc-client.rsa256.slim.min.js');
+            oidcScript.onload = () => {
+                const authClient = authClients[0];
+                const preferredIDP = authClient.preferredIDPs && authClient.preferredIDPs.length > 0 ? authClient.preferredIDPs[0] : '';
+                const acr_values = preferredIDP ? [`idp:${preferredIDP}`] : [];
+                //Setup the Oidc client with the auth settings in the event details
+                const client = new Oidc.OidcClient({
+                    authority: authIssuer,
+                    client_id: authClient.clientId,
+                    response_type: 'code',
+                    scope: 'openid profile account client-apis',
+                    redirect_uri: `${window.location.origin}/solution/set`,
+                    acr_values: acr_values,
+                    loadUserInfo: false
+                });
+
+                if (/[?|&|#]code=/.test(window.location.href)) {
+                    client.processSigninResponse().then((response) => {
+                        //Give the new authentication token to MapsIndoors:
+                        mapsindoors.MapsIndoors.setAuthToken(response.access_token);
+
+
+                    }).catch((err) => {
+                        //Handle authentication errors here:
+                        console.log(err);
+                    });
+                } else {
+                    const origin_uri = client.settings.redirect_uri === `${window.location.origin}${window.location.pathname}` ? `/${solutionId}` : `${window.location.pathname}${window.location.search}${window.location.hash}`;
+                    client.createSigninRequest({ state: { origin_uri } }).then(req => {
+                        this.userAgentService.localStorage.setItem('mi:apiKey', solutionId);
+                        this.userAgentService.localStorage.setItem('mi:originUri', origin_uri);
+                        window.location.href = req.url;
+                    });
+                }
+            };
+
+            document.body.appendChild(oidcScript);
+        };
+    }
+
+    setSolution(): Promise<void> {
         return new Promise((resolve) => {
             const gmKey: string = this.appConfig.appSettings.gmKey ? this.appConfig.appSettings.gmKey : 'AIzaSyBNhmxW2OntKAVs7hjxmAjFscioPcfWZSc';
             const gaKey: string = this.appConfig.appSettings.gaKey;
@@ -116,7 +167,7 @@ export class SolutionService {
     //#endregion
 
     // #region || SOLUTION NAME
-    getSolutionName() {
+    getSolutionName(): String {
         return location.pathname.split('/')[1];
     }
     // #endregion
@@ -177,7 +228,7 @@ export class SolutionService {
      * @returns Array<AppUserRole>
      * @memberof SolutionService
      */
-    getUserRoles() {
+    getUserRoles(): Promise<Array<any>> {
         return mapsindoors.SolutionsService.getUserRoles();
     }
     // #endregion

@@ -26,7 +26,7 @@
               "src/favicon.ico",
               "src/assets",
               {
-                "glob": "**/*",
+                "glob": "mapsindoors.dev.*",
                 "ignore": [
                   "package.json"
                 ],
@@ -68,6 +68,28 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true
+            },
+            "development": {
+              "assets": [
+                "src/favicon.ico",
+                "src/assets",
+                {
+                  "glob": "mapsindoors.dev.*",
+                  "ignore": [
+                    "package.json"
+                  ],
+                  "input": "./modules/sdk/release/",
+                  "output": "/assets/sdk/"
+                },
+                {
+                  "glob": "*-dev.*",
+                  "ignore": [
+                    "package.json"
+                  ],
+                  "input": "./modules/sdk/modules/micommon/js/dev_build",
+                  "output": "/assets/sdk/"
+                }
+              ]
             }
           }
         },
@@ -79,6 +101,9 @@
           "configurations": {
             "production": {
               "browserTarget": "mapsIndoors-webapp:build:production"
+            },
+            "development": {
+              "browserTarget": "mapsIndoors-webapp:build:development"
 			}
           }
         },

@@ -68,6 +68,8 @@ export class MapsIndoorsService {
                 }
             });
 
+            this.mapsIndoors.setDisplayRule(['MI_BUILDING', 'MI_VENUE'], { visible: false });
+
             // Set tittle attribute for map POI's
             this.solutionService.getSolution()
                 .then((solution):void => {

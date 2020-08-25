@@ -1,6 +1,6 @@
 {
     "name": "maps-indoors-webapp",
-    "version": "3.11.0",
+    "version": "3.12.1",
     "scripts": {
         "ng": "ng",
         "start": "npm run build:dev --prefix ./modules/sdk && ng serve",
@@ -51,6 +51,7 @@
         "@typescript-eslint/eslint-plugin": "^1.9.0",
         "@typescript-eslint/parser": "^1.9.0",
         "eslint": "^5.16.0",
+        "eslint-config-mapsindoors": "git+https://git@github.com/MapsPeople/eslint-config-mapsindoors.git",
         "eslint-config-mapsindoors-typescript": "git+https://git@github.com/MapsPeople/eslint-config-mapsindoors-typescript.git",
         "eslint-plugin-import": "^2.17.2",
         "html-webpack-plugin": "^3.2.0",

@@ -1,3 +1,4 @@
+/* global google */
 import { Injectable } from '@angular/core';
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { BehaviorSubject, ReplaySubject, Observable } from 'rxjs';
@@ -18,6 +19,7 @@ export class UserAgentService {
     private positionErrorSubject = new ReplaySubject<Object>(1);
     public positionControl;
     public localStorage;
+    public sessionStorage;
     private positionErrorShown = false;
     private positionAutoPanned = false;
 
@@ -38,7 +40,7 @@ export class UserAgentService {
      * @description Returns a boolean based on user agent.
      * @returns {Boolean} Returns true if IE otherwise false.
      */
-    IsInternetExplorer() {
+    IsInternetExplorer(): boolean {
         return this.isIe;
     }
 
@@ -57,7 +59,7 @@ export class UserAgentService {
      *   11: Inaccurate position.
      * Will show a notification on the first receival if error is not about inaccuracy (this is handled elsewhere)
      */
-    public positionError(error):void {
+    public positionError(error): void {
         this.positionErrorSubject.next(error);
         if (!this.positionErrorShown && error.code !== 11) { // 11: Inaccurate position
             this.notificationService.displayNotification(this.translateService.instant('Error.NoPosition'));
@@ -70,7 +72,7 @@ export class UserAgentService {
      * Pans map to current position if requirements are met, and updates currentPosition.
      * @param eventPayload Object
      */
-    public positionReceived(eventPayload):void {
+    public positionReceived(eventPayload): void {
         if (!this.positionAutoPanned && eventPayload.selfInvoked === true) {
             if (eventPayload.accurate === true) {
                 this.positionControl.panToCurrentPosition();
@@ -88,18 +90,18 @@ export class UserAgentService {
      * @memberof UserAgentService
      */
     public getCurrentPosition(): Promise<{}> {
-        return new Promise((resolve, reject): void  => {
+        return new Promise((resolve, reject): void => {
             if (this.positionControl.currentPosition) {
                 resolve(this.positionControl.currentPosition);
                 return;
             }
 
             this.positionControl.watchPosition();
-            this.currentPosition.subscribe((position):void => {
+            this.currentPosition.subscribe((position): void => {
                 resolve(position);
             });
 
-            this.positionErrorSubject.subscribe((error):void => {
+            this.positionErrorSubject.subscribe((error): void => {
                 reject(error);
             });
         });
@@ -112,7 +114,7 @@ export class UserAgentService {
      *
      * @param bounds google.maps.LatLngBounds
      */
-    public panToPositionIfWithinBounds(bounds: google.maps.LatLngBounds):void {
+    public panToPositionIfWithinBounds(bounds: google.maps.LatLngBounds): void {
         if (this.positionControl && this.positionControl.hasValidPosition() && this.positionControl.positionState !== mapsindoors.PositionState.POSITION_INACCURATE) {
             const posLatLng = new google.maps.LatLng({ lat: this.positionControl.currentPosition.coords.latitude, lng: this.positionControl.currentPosition.coords.longitude });
             if (bounds.contains(posLatLng)) {

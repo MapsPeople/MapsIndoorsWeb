@@ -339,7 +339,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             if (locationId) {
                 this.locationService.getLocationById(locationId)
                     .then((location: Location): void => {
-                        this.destinationInputValue = `${location.properties.name}, Level ${location.properties.floorName}, ${location.properties.building && location.properties.building !== location.properties.venue ? (location.properties.building + ', ') : ''}${location.properties.venue}`;
+                        this.destinationInputValue = this.getPrettyQuery(location);
                         this.destinationLocation = location;
                         this.directionService.destinationQuery = this.destinationInputValue; // Used for horizontal directions
                         resolve();

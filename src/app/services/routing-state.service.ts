@@ -33,7 +33,7 @@ export class RoutingStateService {
      * @returns {string} The previous route URL.
      * @memberof RoutingStateService
      */
-    public getPreviousUrl() {
+    public getPreviousUrl(): string {
         return this.history[this.history.length - 2];
     }
 }
