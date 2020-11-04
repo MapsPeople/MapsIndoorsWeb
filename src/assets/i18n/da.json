@@ -88,7 +88,8 @@
         "Directions": "Instrukser",
         "ShowOnMap": "Vis på kort",
         "LoadMore": "Indlæs flere",
-        "CopyLink": "Kopier linket"
+        "CopyLink": "Kopier linket",
+        "PrintMap": "Print kort"
     },
     "Notification": {
         "LinkCopied": "Kopieret til dit clipboard",

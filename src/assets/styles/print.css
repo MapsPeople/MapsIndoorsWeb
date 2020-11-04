@@ -1,0 +1,22 @@
+mat-sidenav,
+mat-toolbar,
+.mapsindoors.position-control,
+.mapsindoors.floor-selector,
+.mapsindoors.print-control,
+.mapsindoors.return-to-venue-container,
+.gm-fullscreen-control {
+    display: none !important;
+}
+
+mat-sidenav-content {
+    margin: 0 !important;
+}
+
+#gmap {
+    height: 100% !important;
+}
+
+#gmap div > img,
+.gm-style div > img {
+    position: absolute !important;
+}

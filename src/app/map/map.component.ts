@@ -17,6 +17,7 @@ import { TrackerService } from '../services/tracker.service';
 import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
 import { AppMode } from '../shared/enums';
+import { PrintControl } from '../controls/print.control';
 
 enum ErrorVenueId {
     undefinedId,
@@ -44,6 +45,7 @@ export class MapComponent {
     public isKioskMode: boolean;
     private fixedOrigin: Location;
     private initVenue: Venue;
+    private printControlElement: PrintControl;
 
     constructor(
         private route: ActivatedRoute,
@@ -164,6 +166,7 @@ export class MapComponent {
         this.addFloorChangedListener();
 
         this.returnBtn = document.getElementById('return-to-venue');
+        this.addPrintControl();
         this.statusOk = true;
     }
 
@@ -188,6 +191,16 @@ export class MapComponent {
                 ErrorVenueId.undefinedId
             );
         });
+    }
+
+    /**
+     * Add print control element to map.
+     *
+     * @private
+     */
+    private addPrintControl(): void {
+        this.printControlElement = new PrintControl(this.googleMapService.googleMap, this.translateService.instant('Buttons.PrintMap'));
+        this.printControlElement.add(google.maps.ControlPosition.RIGHT_TOP);
     }
 
     // #region || CLEAR MAP
@@ -321,8 +334,8 @@ export class MapComponent {
                 if (this.venue) {
                     return Promise.resolve(this.venue);
                 }
-                return this.venueService.getVenues().then((venues):Venue => {
-                    const locationVenue = venues.find((venue):boolean => venue.name === location.properties.venue);
+                return this.venueService.getVenues().then((venues): Venue => {
+                    const locationVenue = venues.find((venue): boolean => venue.name === location.properties.venue);
 
                     // Set venue and override default floor by setting it explicitly
                     this.venueService.setVenue(locationVenue, this.appConfig, false);
@@ -331,10 +344,10 @@ export class MapComponent {
                     return locationVenue;
                 });
             })
-            .then((venue):void => {
+            .then((venue): void => {
                 this.router.navigate([`${this.solutionService.getSolutionName()}/${venue.id}/details/${location.id}`]);
             })
-            .catch((err):void => {
+            .catch((err): void => {
                 this.notificationService.displayNotification(err);
             });
         this.trackerService.sendEvent('Map', 'Location click', `${location.properties.name} was clicked`, true);

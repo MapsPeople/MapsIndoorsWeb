@@ -88,7 +88,8 @@
         "Directions": "Directions",
         "ShowOnMap": "Show on Map",
         "LoadMore": "Load more",
-        "CopyLink": "Copy link"
+        "CopyLink": "Copy link",
+        "PrintMap": "Print map"
     },
     "Notification": {
         "LinkCopied": "Link added to clipboard",
