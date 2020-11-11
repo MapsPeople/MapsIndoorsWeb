@@ -22,7 +22,6 @@ import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
 import { Category } from '../shared/models/category.interface';
 import { SearchParameters } from '../shared/models/searchParameters.interface';
-import { AppMode } from '../shared/enums';
 
 @Component({
     selector: 'app-search',
@@ -33,10 +32,8 @@ export class SearchComponent implements OnInit, OnDestroy {
     appConfig: any;
     colors: object;
     categoriesMenu: any;
-    public isKioskMode: boolean;
 
     venue: Venue;
-    private fixedOrigin: Location;
     SearchHintAppTitle: string = '';
 
     previousQuery: string = ''
@@ -117,21 +114,10 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.subscriptions
-            // App mode
-            .add(this.appConfigService.getAppMode()
-                .subscribe((mode): void => {
-                    this.isKioskMode = mode === AppMode.Kiosk ? true : false;
-                }))
             // Route Observable
             .add(this.route.queryParams
                 .subscribe((params: Params): void => {
                     this.urlParameters = params;
-                })
-            )
-            // Fixed origin observable
-            .add(this.appConfigService.getFixedOrigin()
-                .subscribe((fixedOrigin: Location): void => {
-                    this.fixedOrigin = fixedOrigin;
                 })
             )
             // Venue observable
@@ -141,12 +127,6 @@ export class SearchComponent implements OnInit, OnDestroy {
                     this.zoomForDetails();
                     this.getPreviousFiltering();
                     this.panIfWithinBounds();
-                })
-            )
-            // Reset view observable
-            .add(this.appConfigService.getResetView()
-                .subscribe((): void => {
-                    this.clearAll();
                 })
             );
 
@@ -310,7 +290,7 @@ export class SearchComponent implements OnInit, OnDestroy {
             categories: categoryKey,
             orderBy: 'relevance',
         };
-        parameters.near = this.fixedOrigin ? { lat: this.fixedOrigin.geometry.coordinates[1], lng: this.fixedOrigin.geometry.coordinates[0] } : `venue:${this.venue.id}`;
+        parameters.near = `venue:${this.venue.id}`;
         return this.searchService.getLocations(parameters);
     }
 
@@ -373,7 +353,7 @@ export class SearchComponent implements OnInit, OnDestroy {
             skip: this.locationsArray.length,
             orderBy: 'relevance',
         };
-        parameters.near = this.fixedOrigin ? { lat: this.fixedOrigin.geometry.coordinates[1], lng: this.fixedOrigin.geometry.coordinates[0] } : `venue:${this.venue.id}`;
+        parameters.near = `venue:${this.venue.id}`;
         if (this.category) {
             parameters.categories = this.category.categoryKey;
         }

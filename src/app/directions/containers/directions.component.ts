@@ -15,13 +15,11 @@ import { SolutionService } from '../../services/solution.service';
 import { SearchComponent } from '../components/search/search.component';
 import { NotificationService } from '../../services/notification.service';
 import { TrackerService } from 'src/app/services/tracker.service';
-import { AppMode } from '../../shared/enums';
 
 import { Venue } from '../../shared/models/venue.interface';
 import { Location } from '../../shared/models/location.interface';
 import { BaseLocation } from '../../shared/models/baseLocation.interface';
 import { SearchData } from '../components/search/searchData.interface';
-import { Modules } from '../../shared/models/modules.interface';
 import { SearchParameters } from '../../shared/models/searchParameters.interface';
 
 declare const mapsindoors: any;
@@ -35,8 +33,6 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     isInternetExplorer: boolean;
     isHandset: boolean;
     isViewActive: boolean;
-    public modules: Modules;
-    public isKioskMode: boolean;
 
     searchInputFieldHasFocus = false;
     error: string;
@@ -69,7 +65,6 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     };
     searchResults = [];
     isPoweredByGoogle = false;
-    private fixedOriginSet: boolean;
     originLocation: BaseLocation;
     originInputValue: string;
     @ViewChild('originSearchComponent') originSearchComponent: SearchComponent;
@@ -137,25 +132,11 @@ export class DirectionsComponent implements OnInit, OnDestroy {
         this.isViewActive = true;
 
         this.subscriptions
-            // Fixed origin observable
-            .add(this.appConfigService.getFixedOrigin()
-                .subscribe((fixedOrigin: Location): void => {
-                    this.fixedOriginSet = true;
-                    this.originLocation = fixedOrigin as BaseLocation;
-                    this.originInputValue = fixedOrigin.properties.name;
-                })
-            )
-            // App mode observable
-            .add(this.appConfigService.getAppMode()
-                .subscribe((mode): void => {
-                    this.isKioskMode = mode === AppMode.Kiosk ? true : false;
-                })
-            )
             // Venue observable
             .add(this.venueService.getVenueObservable()
                 .subscribe((venue: Venue): void => {
                     this.venue = venue;
-                    const near = this.fixedOriginSet ? { lat: this.originLocation.geometry.coordinates[1], lng: this.originLocation.geometry.coordinates[0] } : `venue:${this.venue.id}`;
+                    const near = `venue:${this.venue.id}`;
                     this.populateSearchParams(near);
                 })
             );
@@ -180,10 +161,6 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                 );
             });
         this.mapsIndoorsService.setPageTitle(this.translateService.instant('Direction.Directions'));
-        this.solutionService.getModules()
-            .then((modules: Modules): void => {
-                this.modules = modules;
-            });
 
         const originPromise = this.populateOrigin();
         const destinationPromise = this.populateDestination();

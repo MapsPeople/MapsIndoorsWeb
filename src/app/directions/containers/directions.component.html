@@ -5,7 +5,7 @@
                 <button mat-icon-button (click)="goBack()">
                     <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
                 </button>
-                <div class="travel-mode" *ngIf="!isKioskMode">
+                <div class="travel-mode">
                     <button mat-icon-button [class.active]="travelMode === 'WALKING'" (click)="setNewTravelMode('WALKING')">
                         <mat-icon [style.color]="colors.onPrimary">directions_walk</mat-icon>
                     </button>
@@ -19,7 +19,7 @@
                         <mat-icon [style.color]="colors.onPrimary">drive_eta</mat-icon>
                     </button>
                 </div>
-                <button mat-icon-button (click)="toggleUserRolesPanel()" *ngIf="userRolesList.length > 0 && !isKioskMode">
+                <button mat-icon-button (click)="toggleUserRolesPanel()" *ngIf="userRolesList.length > 0">
                     <mat-icon [style.color]="colors.onPrimary">tune</mat-icon>
                 </button>
             </nav>
@@ -27,7 +27,7 @@
 
         <div class="searchbox-container" [style.background-color]="colors.primary">
             <!-- Dots -->
-            <div class="dots-wrap" *ngIf="!isKioskMode">
+            <div class="dots-wrap">
                 <div>
                     <span class="circle" [style.border-color]="colors.onPrimary"></span>
                 </div>
@@ -41,9 +41,9 @@
                 </div>
             </div>
             <!-- Search -->
-            <div [ngClass]="!isKioskMode ? 'search-wrap' : 'search-wrap-small'">
+            <div [ngClass]="'search-wrap'">
                 <!-- Origin search -->
-                <search-input #originSearchComponent *ngIf="searchParameters && !isKioskMode" (currentInputField)="setCurrentInputField('start')" (blurred)="blurInputField()" [query]="originInputValue" [parameters]="searchParameters" [placeHolder]="'Direction.From'" (loading)="loadingHandler()" (update)="searchResultsChange($event)">
+                <search-input #originSearchComponent *ngIf="searchParameters" (currentInputField)="setCurrentInputField('start')" (blurred)="blurInputField()" [query]="originInputValue" [parameters]="searchParameters" [placeHolder]="'Direction.From'" (loading)="loadingHandler()" (update)="searchResultsChange($event)">
                 </search-input>
 
                 <!-- Destination search -->
@@ -58,7 +58,7 @@
                 </div>
             </div>
             <!-- Switch direction -->
-            <div class="switch-direction" *ngIf="!isKioskMode">
+            <div class="switch-direction">
                 <button mat-icon-button (click)="switchOriginAndDest()">
                     <mat-icon [style.color]="colors.onPrimary" aria-label="Switch values">&#xE8D5;</mat-icon>
                 </button>
@@ -498,12 +498,9 @@
                             <p *ngIf="agency.url">
                                 <span>{{ 'DirectionRoute.Website' | translate }}: </span>
                                 <span>
-                                    <a *ngIf="!isKioskMode" class="text-link" href="{{agency.url}}" target="_blank" rel="noopener">
+                                    <a class="text-link" href="{{agency.url}}" target="_blank" rel="noopener">
                                         {{agency.website.protocol}}//{{agency.website.hostname}}
                                     </a>
-                                    <span *ngIf="isKioskMode">
-                                        {{agency.website.protocol}}//{{agency.website.hostname}}
-                                    </span>
                                 </span>
                             </p>
                         </div>
@@ -511,10 +508,6 @@
                     </section>
                 </div>
             </section>
-            <!-- #endregion -->
-
-            <!-- #region Share route -->
-            <share-route class="content-text flex-h-center" *ngIf="directionService.directionsLegs.length && originLocation.id && destinationLocation.id && modules.sms" [venueId]="venue?.id" [originId]="originLocation?.id" [destination]="destinationLocation" [travelMode]="travelMode" [totalTravelDuration]="totalTravelDuration"></share-route>
             <!-- #endregion -->
 
             <!-- #region Footer -->

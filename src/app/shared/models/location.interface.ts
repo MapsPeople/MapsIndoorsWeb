@@ -33,7 +33,8 @@ interface LocationProperties {
     type: string,
     venue: string,
     venueId: string,
-    geodesicDistance?: number
+    geodesicDistance?: number,
+    capacity?: number
 }
 
 interface Contact {

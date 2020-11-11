@@ -9,6 +9,15 @@
     "Venues": {
         "Title": "Select venue"
     },
+    "Details": {
+        "Level": "Level",
+        "Audiovisual": "AV",
+        "VoiceChat": "VC",
+        "Restricted": "Restricted",
+        "Bookable": "Bookable",
+        "Capacity": "Capacity",
+        "People": "People"
+    },
     "InfoDialog": {
         "Title": "About",
         "AppName": "App Name",

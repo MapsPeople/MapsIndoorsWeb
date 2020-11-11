@@ -8,7 +8,7 @@
                     <button mat-icon-button (click)="goBack()">
                         <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
                     </button>
-                    <button *ngIf="!isKioskMode" mat-icon-button (click)="openShareUrlDialog()">
+                    <button mat-icon-button (click)="openShareUrlDialog()">
                         <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">share</mat-icon>
                     </button>
                 </nav>
@@ -30,55 +30,93 @@
     <section class="content-container">
         <section class="content">
             <!-- Aliases  -->
-            <div class="content-text" *ngIf="displayAliases && location.properties.aliases && location.properties.aliases.length > 0">
-                <mat-icon class="content-icon">stars</mat-icon>
-                <p>{{location.properties.aliases.join(', ')}}</p>
-            </div>
+            <detail-field
+                *ngIf="displayAliases && location.properties.aliases?.length > 0"
+                [value]="location.properties.aliases.join(', ')"
+                iconName="stars">
+            </detail-field>
 
-            <!-- ExternalId and category -->
-            <div class="content-text" *ngIf="location.properties.externalId || location.properties.categories">
-                <mat-icon class="content-icon">info</mat-icon>
-                <p>
-                    <span *ngIf="location.properties.categories">{{location.properties.categories.join(', ')}}</span>
-                    <br *ngIf="location.properties.externalId && location.properties.categories">
-                    <span *ngIf="location.properties.externalId">{{location.properties.externalId}}</span>
-                </p>
-            </div>
+            <!-- External Id -->
+            <detail-field
+                *ngIf="location.properties.externalId"
+                value="{{location.properties.externalId}}"
+                iconName="info">
+            </detail-field>
 
-            <!-- Optional custom fields -->
-            <div *ngIf="location.properties.fields">
-                <!-- Email -->
-                <div class="content-text" *ngIf="location.properties.fields.email">
-                    <mat-icon class="content-icon">email</mat-icon>
-                    <p>{{location.properties.fields.email.value}}</p>
-                </div>
-                <!-- Phone -->
-                <div class="content-text" *ngIf="location.properties.fields.phone">
-                    <mat-icon class="content-icon">phone</mat-icon>
-                    <p>{{location.properties.fields.phone.value}}</p>
-                </div>
-                <!-- Website -->
-                <div class="content-text" *ngIf="location.properties.fields.website">
-                    <mat-icon class="content-icon">open_in_new</mat-icon>
-                    <p>
-                        <a *ngIf="!isKioskMode" class="text-link" href="{{location.properties.fields.website.value}}" target="_blank" rel="noopener">www</a>
-                        <span *ngIf="isKioskMode">{{location.properties.fields.website.value}}</span>
-                    </p>
-                </div>
-                <!-- Opening hours -->
-                <div class="content-text icon-top" *ngIf="location.properties.fields.openinghours">
-                    <mat-icon class="content-icon">access_time</mat-icon>
-                    <p class="text-multiple-lines">{{location.properties.fields.openinghours.value}}</p>
-                </div>
-            </div>
+            <!-- Categories -->
+            <detail-field
+                *ngIf="location.properties.categories?.length > 0"
+                value="{{location.properties.categories.join(', ')}}"
+                iconName="info">
+            </detail-field>
+
+            <!-- Audiovisual and VoiceChat -->
+            <detail-field
+                *ngIf="location.properties.fields?.vc"
+                heading="{{'Details.Audiovisual' | translate}}/{{'Details.VoiceChat' | translate}}"
+                [value]="location.properties.fields.vc.value"
+                iconName="mic">
+            </detail-field>
+
+            <!-- Restricted  -->
+            <detail-field
+                *ngIf="location.properties.fields?.restricted"
+                [heading]="'Details.Restricted' | translate"
+                value="{{location.properties.fields.restricted.value}}"
+                iconName="block">
+            </detail-field>
+
+            <!-- Capacity  -->
+            <detail-field
+                *ngIf="location.properties.capacity"
+                [heading]="'Details.Capacity' | translate"
+                value="{{location.properties.capacity}} {{ 'Details.People' | translate | lowercase}}"
+                iconName="groups">
+            </detail-field>
+
+            <!-- Bookable  -->
+            <detail-field
+                *ngIf="location.properties.fields?.bookable"
+                [heading]="'Details.Bookable' | translate"
+                value="{{location.properties.fields.bookable.value}}"
+                iconName="today">
+            </detail-field>
+
+            <!-- Email -->
+            <detail-field
+                *ngIf="location.properties.fields?.email"
+                [value]="location.properties.fields.email.value"
+                iconName="email">
+            </detail-field>
+
+            <!-- Phone -->
+            <detail-field
+                *ngIf="location.properties.fields?.phone"
+                [value]="location.properties.fields.phone.value"
+                iconName="phone">
+            </detail-field>
+
+            <!-- Website -->
+            <detail-field
+                *ngIf="location.properties.fields?.website"
+                [value]="location.properties.fields.website.value"
+                isUrl="true"
+                iconName="open_in_new">
+            </detail-field>
+
+            <!-- Opening hours -->
+            <detail-field
+                *ngIf="location.properties.fields?.openinghours"
+                [value]="location.properties.fields.openinghours.value"
+                iconName="access_time">
+            </detail-field>
 
             <!-- Description -->
-            <div class="content-text icon-top" *ngIf="location.properties.description">
-                <mat-icon class="content-icon">description</mat-icon>
-                <p *ngIf="!isInternetExplorer">{{location.properties.description}}</p>
-                <!-- isInternetExplorer -->
-                <p *ngIf="isInternetExplorer" style="max-width: 100%; padding-left: 8px;">{{location.properties.description}}</p>
-            </div>
+            <detail-field
+                *ngIf="location.properties.description"
+                [value]="location.properties.description"
+                iconName="description">
+            </detail-field>
 
             <!-- Building and floor -->
             <div class="content-text" *ngIf="location.properties.building || location.properties.floorName">

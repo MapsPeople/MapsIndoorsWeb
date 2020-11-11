@@ -1,0 +1,8 @@
+<section class="detail-field">
+    <mat-icon>{{ iconName }}</mat-icon>
+    <div class="detail-field-text">
+        <h4 *ngIf="heading">{{ heading }}</h4>
+        <p *ngIf="value && !isUrl">{{ value }}</p>
+        <a *ngIf="value && isUrl" class="text-link" [href]="value" target="_blank" rel="noopener">{{ value }}</a>
+    </div>
+</section>

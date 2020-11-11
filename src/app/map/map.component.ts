@@ -1,6 +1,5 @@
 import { Component, NgZone } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog } from '@angular/material';
 import { GoogleMapService } from './../services/google-map.service';
 import { MapsIndoorsService } from './../services/maps-indoors.service';
 import { LocationService } from './../services/location.service';
@@ -16,7 +15,6 @@ import { TrackerService } from '../services/tracker.service';
 
 import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
-import { AppMode } from '../shared/enums';
 import { PrintControl } from '../controls/print.control';
 
 enum ErrorVenueId {
@@ -42,8 +40,6 @@ export class MapComponent {
     pageTitle: string;
     location: any;
     returnBtn: HTMLElement;
-    public isKioskMode: boolean;
-    private fixedOrigin: Location;
     private initVenue: Venue;
     private printControlElement: PrintControl;
 
@@ -51,7 +47,6 @@ export class MapComponent {
         private route: ActivatedRoute,
         private router: Router,
         public _ngZone: NgZone,
-        private dialog: MatDialog,
         private userAgentService: UserAgentService,
         private googleMapService: GoogleMapService,
         private mapsIndoorsService: MapsIndoorsService,
@@ -61,7 +56,6 @@ export class MapComponent {
         private themeService: ThemeService,
         public directionService: DirectionService,
         private venueService: VenueService,
-        private activatedRoute: ActivatedRoute,
         private translateService: TranslateService,
         private notificationService: NotificationService,
         private trackerService: TrackerService
@@ -70,17 +64,7 @@ export class MapComponent {
     async ngOnInit(): Promise<void> {
         this.appConfigService.getAppConfig()
             .subscribe((appConfig) => this.appConfig = appConfig);
-        this.appConfigService.getAppMode()
-            .subscribe((mode): void => {
-                this.isKioskMode = mode === AppMode.Kiosk ? true : false;
-            });
-        this.appConfigService.getFixedOrigin()
-            .subscribe((fixedOrigin: Location): Location => this.fixedOrigin = fixedOrigin);
-        this.appConfigService.getResetView()
-            .subscribe((): void => {
-                this.resetAppToInitialState();
-                this.dialog.closeAll();
-            });
+
         this.appConfigService.getInitVenue()
             .subscribe((venue: Venue): void => {
                 this.initVenue = venue;
@@ -100,12 +84,7 @@ export class MapComponent {
             .subscribe((value: boolean) => this.isHandset = value);
         this.isInternetExplorer = this.userAgentService.IsInternetExplorer();
 
-        if (this.route.snapshot.queryParams.origin || this.route.snapshot.queryParams.timeout) {
-            this.appConfigService.setKioskMode();
-            this.googleMapService.setMapRestrictionsForKiosk();
-        }
-
-        await this.googleMapService.initMap(this.isKioskMode);
+        await this.googleMapService.initMap();
         await this.mapsIndoorsService.initMapsIndoors();
 
         this.getVenueFromUrl()
@@ -113,41 +92,6 @@ export class MapComponent {
                 this.venueService.setVenue(venue, this.appConfig);
                 this.mapsIndoorsService.showFloorSelectorAfterUserInteraction();
                 this.appConfigService.setInitVenue(venue);
-
-                if (this.route.snapshot.queryParams.origin) {
-                    this.locationService.getLocationById(this.route.snapshot.queryParams.origin)
-                        .then((location: Location): void => {
-
-                            // Throw error if location does not exist on venue
-                            if (venue.name.toLowerCase() !== location.properties.venueId.toLowerCase()) {
-                                throw new Error(this.translateService.instant('Error.IncorrectLocation') as string);
-                            }
-
-                            this.appConfigService.setFixedOrigin(location);
-                            this.focusOnLocation(location);
-                            this.mapsIndoorsService.mapsIndoors.setDisplayRule(location.id, {
-                                visible: true,
-                                icon: '/assets/images/icons/you-are-here.svg',
-                                iconVisible: true,
-                                label: this.translateService.instant('Direction.YouAreHere'),
-                                labelVisible: true,
-                                imageSize: new google.maps.Size(40, 40),
-                                labelZoomFrom: '0',
-                                labelZoomTo: '21',
-                                zoomFrom: '0',
-                                zoomTo: '22',
-                                zIndex: 1000
-                            });
-                        })
-                        .catch((err: Error): void => {
-                            this.notificationService.displayNotification(err.message);
-                        });
-                }
-
-                if (this.route.snapshot.queryParams.timeout) {
-                    this.appConfigService.setViewTimeout(this.route.snapshot.queryParams.timeout);
-                    this.appConfigService.addResetListeners();
-                }
             })
             .catch((err): void => {
                 this.router.navigate([`${this.solutionService.getSolutionName()}/venues`]);
@@ -223,26 +167,8 @@ export class MapComponent {
         this.venueService.setVenue(this.initVenue, this.appConfig)
             .then((): void => {
                 this.clearMap();
-
-                if (this.fixedOrigin) {
-                    this.focusOnLocation(this.fixedOrigin);
-                } else {
-                    this.mapsIndoorsService.mapsIndoors.fitVenue();
-                }
+                this.mapsIndoorsService.mapsIndoors.fitVenue();
             });
-    }
-
-    /**
-     * @description Pan and zoom in to location.
-     * @private
-     * @param {Location} location - The location object to focus at.
-     * @param {number} [zoomLevel=19] - Zoom level to set. Defaults to 19.
-     * @memberof MapComponent
-     */
-    private focusOnLocation(location: Location, zoomLevel: number = 19): void {
-        this.mapsIndoorsService.setFloor(location.properties.floor);
-        this.googleMapService.googleMap.setZoom(zoomLevel);
-        this.googleMapService.googleMap.panTo(this.locationService.getAnchorCoordinates(location));
     }
     // #endregion
 

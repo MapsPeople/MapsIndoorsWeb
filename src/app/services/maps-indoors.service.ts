@@ -24,7 +24,6 @@ export class MapsIndoorsService {
     mapsIndoors: any;
     appConfig: any;
     isMapDirty: boolean = false;
-    fixedOriginId: string;
 
     public floorSelectorIsVisible = false;
     private floorSelectorPosition: google.maps.ControlPosition;
@@ -44,10 +43,6 @@ export class MapsIndoorsService {
     ) {
         this.appConfigService.getAppConfig()
             .subscribe((appConfig): void => this.appConfig = appConfig);
-        this.appConfigService.getFixedOrigin()
-            .subscribe((fixedOrigin: Location): void => {
-                this.fixedOriginId = fixedOrigin.id;
-            });
     }
 
     // #region || SET MAPS INDOORS
@@ -261,9 +256,6 @@ export class MapsIndoorsService {
      */
     public setMapFilter(locations: Location[], fitView: boolean = false): void {
         const locationIds = locations.map((location: Location): string => location.id);
-        if (this.fixedOriginId) {
-            locationIds.push(this.fixedOriginId);
-        }
         this.mapsIndoors.filter(locationIds, fitView);
     }
 

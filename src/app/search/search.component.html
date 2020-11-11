@@ -94,9 +94,6 @@
                             <span *ngIf="location.properties.building != location.properties.venue && !venue.onlyVenue">{{location.properties.venue}}</span>
                         </span>
                     </span>
-                    <span class="list-distance" *ngIf="location.properties.geodesicDistance != null && isKioskMode">
-                        {{location.properties.geodesicDistance | distance }}
-                    </span>
                 </a>
             </mat-nav-list>
 

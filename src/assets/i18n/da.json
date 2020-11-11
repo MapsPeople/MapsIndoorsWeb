@@ -9,6 +9,15 @@
     "Venues": {
         "Title": "Vælg sted"
     },
+    "Details": {
+        "Level": "Niveau",
+        "Audiovisual": "AV",
+        "VoiceChat": "VC",
+        "Restricted": "Begrænset",
+        "Bookable": "Kan reserveres",
+        "Capacity": "Kapacitet",
+        "People": "Personer"
+    },
     "InfoDialog": {
         "Title": "App information",
         "AppName": "App navn",

@@ -18,16 +18,12 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { DirectionsComponent } from './containers/directions.component';
 import { SearchComponent } from './components/search/search.component';
 import { UserPositionComponent } from './components/user-position/user-position.component';
-import { ShareRouteComponent } from './components/share-route/share-route.component';
-
-import { ShareRouteModule } from './components/share-route/share-route.module';
 
 @NgModule({
     declarations: [
         DirectionsComponent,
         SearchComponent,
         UserPositionComponent,
-        ShareRouteComponent,
     ],
     imports: [
         CommonModule,
@@ -45,8 +41,7 @@ import { ShareRouteModule } from './components/share-route/share-route.module';
                 useFactory: HttpLoaderFactory,
                 deps: [HttpClient]
             }
-        }),
-        ShareRouteModule
+        })
     ]
 })
 

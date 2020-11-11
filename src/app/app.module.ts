@@ -38,6 +38,7 @@ import { RoutingStateService } from './services/routing-state.service';
 import { DistancePipe } from './pipes/distance.pipe';
 
 import { errorHandlerFactory } from './app.error-handler';
+import { DetailFieldComponent } from './details/detail-field/detail-field.component';
 
 @NgModule({
     declarations: [
@@ -52,7 +53,8 @@ import { errorHandlerFactory } from './app.error-handler';
         SetSolutionComponent,
         MapComponent,
         SetupComponent,
-        DistancePipe
+        DistancePipe,
+        DetailFieldComponent
     ],
     imports: [
         BrowserModule,

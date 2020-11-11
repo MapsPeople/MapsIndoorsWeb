@@ -4,8 +4,6 @@ import { Router } from '@angular/router';
 import { UserAgentService } from './../services/user-agent.service';
 import { environment } from '../../environments/environment';
 
-import { Modules } from '../shared/models/modules.interface';
-
 declare let mapsindoors: any;
 declare let Oidc: any;
 
@@ -197,26 +195,6 @@ export class SolutionService {
                 })
                 .catch((err): void => {
                     reject(err);
-                });
-        });
-    }
-    // #endregion
-
-    // #region || SOLUTION MODULES
-
-    /**
-     * @description Get all modules for solution.
-     * @returns {Promise<Modules>} - Modules object.
-     * @memberof SolutionService
-     */
-    public getModules(): Promise<Modules> {
-        return new Promise((resolve): void => {
-            this.getSolution()
-                .then(({ modules }): void => {
-                    const solutionModules: Modules = {
-                        sms: modules.some((module: string): boolean => module === 'shareviasms')
-                    };
-                    resolve(solutionModules);
                 });
         });
     }

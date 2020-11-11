@@ -108,11 +108,11 @@ export class LocationService {
      * @returns {Promise<void>}
      */
     setLocation(locationId: string): Promise<void> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject): void => {
             this.mapsIndoorsService.isMapDirty = true;
 
             this.formatLocation(locationId)
-                .then((location: Location) => {
+                .then((location: Location): void => {
                     this.selectedLocation.next(location);
 
                     // Draw polygon
@@ -127,6 +127,11 @@ export class LocationService {
                     }
 
                     const anchorPoint = this.getAnchorCoordinates(location);
+
+                    // Fit location inside map view with specified padding
+                    const bounds = new google.maps.LatLngBounds(anchorPoint, anchorPoint);
+                    const padding = 200;
+                    this.googleMapService.googleMap.panToBounds(bounds, padding);
 
                     // Populate and open info window
                     this.googleMapService.updateInfoWindow(location.properties.name, anchorPoint);
