@@ -32,6 +32,9 @@ export class AppComponent {
         const language = {
             english: 'en',
             danish: 'da',
+            french: 'fr',
+            italian: 'it',
+            italianItaly: 'it-it',
             portuguese: 'pt',
             portugueseBrazilian: 'pt-br',
             portuguesePortugal: 'pt-pt'
@@ -47,6 +50,12 @@ export class AppComponent {
             // Set Brazilian and Portugal Portuguese to Portuguese
             if (browserLanguage === language.portugueseBrazilian || browserLanguage === language.portuguesePortugal) {
                 this.translate.use(language.portuguese);
+                return;
+            }
+
+            // Set Italy-Italian ('it-it') to Italian ('it')
+            if (browserLanguage === language.italian || browserLanguage === language.italianItaly) {
+                this.translate.use(language.italian);
                 return;
             }
 

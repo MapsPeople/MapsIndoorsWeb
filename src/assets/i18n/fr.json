@@ -1,0 +1,116 @@
+{
+    "SetSolution": {
+        "Title": "Bienvenue sur MapsIndoors",
+        "Enter": "Entrez la clé API",
+        "Go": "Aller",
+        "InitError": "La clé API demandée n'était pas valide.",
+        "SubmitError": "Oups. Veuillez réessayer."
+    },
+    "Venues": {
+        "Title": "Sélectionnez le lieu"
+    },
+    "Details": {
+        "Level": "Niveau",
+        "Audiovisual": "AV",
+        "VoiceChat": "VC",
+        "Restricted": "Limité",
+        "Bookable": "Réservable",
+        "Capacity": "Capacité",
+        "People": "Personnes"
+    },
+    "InfoDialog": {
+        "Title": "A propos",
+        "AppName": "Nom de l'application",
+        "Supplier": "Fournisseur",
+        "AppVersion": "Version de l'application",
+        "SdkVersion": "Version du SDK"
+    },
+    "ShareDialog": {
+        "Title": "Emplacement partagé",
+        "Text": "Copiez le lien ci-dessous pour partager l'emplacement de",
+        "EnterPhoneNumber": "Entrez le numéro de téléphone",
+        "SendDirections": "Envoyer l'itinéraire",
+        "SendDirectionsToPhone": "Envoyer par SMS",
+        "SmsSuccess": "SMS envoyé avec succès",
+        "SmsError": "Échec de l'envoi du SMS"
+    },
+    "Search": {
+        "SearchPlaces": "Rechercher des lieux",
+        "SearchIn": "Rechercher dans {{category}}"
+    },
+    "SearchHint": {
+        "Hint": "Utilisez la recherche pour rechercher dans",
+        "EmptyCategory": "n'a pas de {{category}}. Utilisez la recherche pour trouver {{category}} dans",
+        "NoResults": "Désolé, nous n'avons trouvé aucun résultat correspondant à \"{{query}} \"",
+        "NoResultsInCategory": "Désolé, nous n'avons trouvé aucun résultat correspondant à \"{{query}}\" dans {{category}}"
+    },
+    "Direction": {
+        "Directions": "Directions",
+        "From": "De",
+        "To": "À",
+        "AvoidStairs": "Évitez les escaliers",
+        "MyPosition": "Ma position",
+        "YouAreHere": "Tu es là",
+        "EnableMyPosition": "Activer le partage de position pour utiliser votre position",
+        "RouteSettings": "Paramètres de l'itinéraire",
+        "ChooseTheAppUserRoles...": "Choisissez les rôles d'utilisateur de l'application dont vous faites partie. Cela n'affecte que les directions que vous obtenez, pas les emplacements que vous voyez sur la carte",
+        "AppUserRoles": "Rôles des utilisateurs de l'application"
+    },
+    "DirectionRoute": {
+        "Start": "Début",
+        "End": "Fin",
+        "Enter": "Entrer",
+        "Exit": "Quitter",
+        "Next": "Suivant",
+        "Previous": "Precedent",
+        "ToDestination": "à destination",
+        "Walk": "Marcher",
+        "Ride": "Aller",
+        "Drive": "Conduire",
+        "Directions": "Directions",
+        "AgencyInfo": "Infos agence",
+        "Phone": "téléphone",
+        "Website": "Site Internet",
+        "Park": "Parc",
+        "Stairs": "Escaliers",
+        "Elevator": "Ascenseur",
+        "Escalator": "Escalier mécanique",
+        "Straight": "Continuez tout droit",
+        "TurnLeft": "Tournez a gauche et continuer",
+        "TurnRight": "Allez à droite et continuez",
+        "TurnSharpLeft": "Allez brusquement à gauche et continuez",
+        "TurnSharpRight": "Allez brusquement à droit et continuez",
+        "TurnSlightLeft": "Allez légèrement à gauche et continuez",
+        "TurnSlightRight": "Allez légèrement à droit et continuez",
+        "TurnAround": "Faite demi-tour et continuer"
+    },
+    "DirectionHint": {
+        "searchHint": "Rechercher des emplacements à l'intérieur ou à l'extérieur",
+        "NoMatchingResults": "Désolé, nous n'avons trouvé aucun résultat correspondant",
+        "FromAndTo": "Veuillez sélectionner un emplacement de début et de fin",
+        "NoRoute": "Désolé, aucun itinéraire n'a été trouvé"
+    },
+    "Buttons": {
+        "ZoomForDetails": "Zoomez pour plus de détails",
+        "ReturnTo": "Retourner à",
+        "ClearMap": "Effacer la carte",
+        "Directions": "Instructions",
+        "ShowOnMap": "Afficher sur la carte",
+        "LoadMore": "Charger plus",
+        "CopyLink": "Copier le lien",
+        "PrintMap": "Print map"
+    },
+    "Notification": {
+        "LinkCopied": "Lien ajouté au presse-papiers",
+        "LinkCopiedError": "Ce navigateur ne prend pas en charge cette fonction",
+        "GeoLocationError": "Activer le partage de position pour utiliser votre position"
+    },
+    "Error": {
+        "IncorrectVenue": "Oups, impossible de trouver ce lieu",
+        "IncorrectBuilding": "Oups, je n'ai pas trouvé ce bâtiment",
+        "IncorrectRoom": "Oups, impossible de trouver cette salle",
+        "IncorrectLocation": "Oups, impossible de trouver cet emplacement",
+        "NoPosition": "Désolé, nous n'avons pas pu trouver votre position",
+        "General": "Oups! Une erreur s'est produite, veuillez réessayer plus tard"
+    }
+}

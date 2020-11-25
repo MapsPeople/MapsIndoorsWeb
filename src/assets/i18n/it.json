@@ -1,0 +1,116 @@
+{
+    "SetSolution": {
+        "Title": "Benvenuto in MapsIndoors",
+        "Enter": "Immettere la chiave API",
+        "Go": "Iniziare",
+        "InitError": "La chiave API richiesta non era valida.",
+        "SubmitError": "Ops. Per favore riprova."
+    },
+    "Venues": {
+        "Title": "Seleziona il luogo"
+    },
+    "Details": { 
+        "Level": "Livello",
+        "Audiovisual": "AV",
+        "VoiceChat": "VC",
+        "Restricted": "Limitato",
+        "Bookable": "Prenotabile",
+        "Capacity": "Capacità",
+        "People": "Persone"
+    },
+    "InfoDialog": {
+        "Title": "Chi Siamo",
+        "AppName": "Nome dell'applicazione",
+        "Supplier": "Fornitore",
+        "AppVersion": "Versione app",
+        "SdkVersion": "Versione SDK"
+    },
+    "ShareDialog": {
+        "Title": "Condividi posizione",
+        "Text": "Copia il link sottostante per condividere la posizione di",
+        "EnterPhoneNumber": "Inserisci il numero di telefono",
+        "SendDirections": "Invia indicazioni",
+        "SendDirectionsToPhone": "Invia come SMS",
+        "SmsSuccess": "SMS inviato con successo",
+        "SmsError": "Impossibile inviare l'SMS"
+    },
+    "Search": {
+        "SearchPlaces": "Cerca luoghi",
+        "SearchIn": "Cerca in {{category}}"
+    },
+    "SearchHint": {
+        "Hint": "Usa la ricerca per cercare in tutto",
+        "EmptyCategory": "non ha {{category}}. Usa la ricerca per trovare {{category}} in tutto",
+        "NoResults": "Spiacenti, non è stato possibile trovare risultati corrispondenti a \"{{query}} \"",
+        "NoResultsInCategory": "Spiacenti, non è stato possibile trovare risultati corrispondenti a \"{{query}}\" in {{categoria}}"
+    },
+    "Direction": {
+        "Directions": "Indicazioni",
+        "From": "A partire da",
+        "To": "A",
+        "AvoidStairs": "Evita le scale",
+        "MyPosition": "La mia posizione",
+        "YouAreHere": "Tu sei qui",
+        "EnableMyPosition": "Abilita la condivisione della localizzazione per utilizzare la tua posizione",
+        "RouteSettings": "Impostazioni del percorso",
+        "ChooseTheAppUserRoles...": "Scegli i ruoli utente dell'app di cui fai parte. Ciò influisce solo sulle indicazioni stradali ottenute, non sulle località visualizzate sulla mappa",
+        "AppUserRoles": "Ruoli utente dell'app"
+    },
+    "DirectionRoute": {
+        "Start": "Inizio",
+        "End": "Fine",
+        "Enter": "Accedere",
+        "Exit": "Uscire",
+        "Next": "Prossimo",
+        "Previous": "Precedente",
+        "ToDestination": "a destinazione",
+        "Walk": "Camminare",
+        "Ride": "andare in bici",
+        "Drive": "Guidare",
+        "Directions": "Indicazioni",
+        "AgencyInfo": "Informazioni agenzia",
+        "Phone": "Telefono",
+        "Website": "Sito web",
+        "Park": "Parco",
+        "Stairs": "Scale",
+        "Elevator": "Ascensore",
+        "Escalator": "Scala mobile",
+        "Straight": "Continua dritto",
+        "TurnLeft": "Gira a sinistra e continua",
+        "TurnRight": "Gira a destra e continua",
+        "TurnSharpLeft": "Vai deciso a sinistra e continua",
+        "TurnSharpRight": "Vai deciso a destra e continua",
+        "TurnSlightLeft": "Gira leggermente a sinistra e continua",
+        "TurnSlightRight": "Gira leggermente a destra e continua",
+        "TurnAround": "Girati e continua"
+    },
+    "DirectionHint": {
+        "searchHint": "Cerca luoghi all'interno o all'esterno",
+        "NoMatchingResults": "Spiacenti, non è stato possibile trovare risultati corrispondenti",
+        "FromAndTo": "Seleziona una posizione di inizio e di fine",
+        "NoRoute": "Spiacenti, non è stato trovato alcun percorso"
+    },
+    "Buttons": {
+        "ZoomForDetails": "Zoom per maggiori dettagli",
+        "ReturnTo": "Ritornare a",
+        "ClearMap": "Cancella mappa",
+        "Directions": "Indicazioni",
+        "ShowOnMap": "Mostra sulla mappa",
+        "LoadMore": "Carica di più",
+        "CopyLink": "Copia link",
+        "PrintMap": "Print map"
+    },
+    "Notification": {
+        "LinkCopied": "Link aggiunto agli appunti",
+        "LinkCopiedError": "Questo browser non supporta questa funzione",
+        "GeoLocationError": "Abilita la condivisione della localizzazione per utilizzare la tua posizione"
+    },
+    "Error": {
+        "IncorrectVenue": "Ops, non sono riuscito a trovare quel luogo",
+        "IncorrectBuilding": "Ops, non sono riuscito a trovare quell'edificio",
+        "IncorrectRoom": "Ops, non sono riuscito a trovare quella stanza",
+        "IncorrectLocation": "Spiacenti, non sono riuscito a trovare quella posizione",
+        "NoPosition": "Spiacenti, non siamo riusciti a trovare la tua posizione",
+        "General": "Ops! Si è verificato un errore, riprova più tardi"
+    }
+}
