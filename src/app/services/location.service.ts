@@ -1,4 +1,4 @@
-import { Observable, BehaviorSubject, ReplaySubject } from 'rxjs';
+import { Observable, ReplaySubject } from 'rxjs';
 import { AppConfigService } from './app-config.service';
 import { GoogleMapService } from './google-map.service';
 import { Injectable } from '@angular/core';
@@ -9,6 +9,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
+import { BaseLocation } from '../shared/models/baseLocation.interface';
 import { Category } from '../shared/models/category.interface';
 
 declare const mapsindoors: any;
@@ -25,9 +26,14 @@ export class LocationService {
     private selectedCategory: Category;
 
     private selectedLocation = new ReplaySubject<Location>(1);
-    polygon: google.maps.Polygon;
-
-    private clusteredLocations = new BehaviorSubject<Location[]>([]);
+    private polygonHighlightOptions = {
+        strokeColor: '#EF6CCE',
+        strokeOpacity: 1,
+        strokeWeight: 1,
+        fillColor: '#EF6CCE',
+        fillOpacity: 0.2
+    };
+    private highlightedLocationId: string;
 
     constructor(
         private translateService: TranslateService,
@@ -104,109 +110,109 @@ export class LocationService {
     // #region || LOCATION SET
     /**
      * @description Set location observable.
-     * @param {string} locationId
+     * @param {Location} location
      * @returns {Promise<void>}
      */
-    setLocation(locationId: string): Promise<void> {
-        return new Promise((resolve, reject): void => {
-            this.mapsIndoorsService.isMapDirty = true;
+    setLocation(location: Location): void {
+        this.mapsIndoorsService.isMapDirty = true;
 
-            this.formatLocation(locationId)
-                .then((location: Location): void => {
-                    this.selectedLocation.next(location);
+        const formatedLocation = this.formatLocation(location);
+        this.selectedLocation.next(formatedLocation);
 
-                    // Draw polygon
-                    if (location.geometry.type.toLowerCase() === 'polygon') {
-                        this.drawRoomPolygon(location);
-                    }
+        // Remove previous highlight
+        this.clearLocationPolygonHighlight();
 
-                    // Don't update "return to *" btn if POI is outside selected venue
-                    if (this.venue && this.venue.name === location.properties.venueId) {
-                        this.mapsIndoorsService.setLocationAsReturnToValue(location, this.getAnchorCoordinates(location));
-                        this.mapsIndoorsService.mapsIndoors.location = location; // Used for a check for the "Return to *" button
-                    }
+        // Highlight polygon
+        if (formatedLocation.geometry.type.toLowerCase() === 'polygon') {
+            this.highlightLocationPolygon(formatedLocation.id);
+        }
 
-                    const anchorPoint = this.getAnchorCoordinates(location);
+        // Don't update "return to *" btn if POI is outside selected venue
+        if (this.venue && this.venue.name === formatedLocation.properties.venueId) {
+            this.mapsIndoorsService.setLocationAsReturnToValue(formatedLocation, this.getAnchorCoordinates(formatedLocation));
+            this.mapsIndoorsService.mapsIndoors.location = formatedLocation; // Used for a check for the "Return to *" button
+        }
 
-                    // Fit location inside map view with specified padding
-                    const bounds = new google.maps.LatLngBounds(anchorPoint, anchorPoint);
-                    const padding = 200;
-                    this.googleMapService.googleMap.panToBounds(bounds, padding);
+        const anchorPoint = this.getAnchorCoordinates(formatedLocation);
 
-                    // Populate and open info window
-                    this.googleMapService.updateInfoWindow(location.properties.name, anchorPoint);
-                    this.googleMapService.openInfoWindow();
+        // Fit location inside map view with specified padding
+        const bounds = new google.maps.LatLngBounds(anchorPoint, anchorPoint);
+        const padding = 200;
+        this.googleMapService.map.panToBounds(bounds, padding);
 
-                    // Set floor
-                    this.mapsIndoorsService.setFloor(location.properties.floor);
-                    this.mapsIndoorsService.showFloorSelector();
+        // Populate and open info window
+        this.googleMapService.updateInfoWindow(formatedLocation.properties.name, anchorPoint);
+        this.googleMapService.openInfoWindow();
 
-                    resolve();
-                })
-                .catch((err: Error) => {
-                    reject(err);
-                });
-        });
+        // Set floor
+        this.mapsIndoorsService.setFloor(formatedLocation.properties.floor);
+        this.mapsIndoorsService.showFloorSelector();
     }
 
-    drawRoomPolygon(location) {
-        const coordinates = [];
-        for (const coords of location.geometry.coordinates[0]) {
-            coordinates.push({ lat: coords[1], lng: coords[0] });
-        }
-        // Update polygon
-        if (this.polygon) {
-            this.polygon.setPath(coordinates);
-            this.polygon.setMap(this.googleMapService.googleMap);
-        } else {
-            this.polygon = new google.maps.Polygon({
-                paths: coordinates,
-                strokeColor: '#43aaa0',
-                strokeOpacity: 1,
-                strokeWeight: 1,
-                fillColor: '#43aaa0',
-                fillOpacity: 0.2
-            });
-            this.polygon.setMap(this.googleMapService.googleMap);
+    /**
+     * Highlight a MapsIndoors Location Polygon. Only one polygon can be highlighted at a time.
+     * @param {string} locationId
+     * @returns {void}
+     * @memberof LocationService
+     */
+    public highlightLocationPolygon(locationId: string): void {
+        this.mapsIndoorsService.mapsIndoors.setDisplayRule(locationId, {
+            visible: true,
+            zoomFrom: '0',
+            zoomTo: '22',
+            zIndex: 1000,
+            fillColor: this.polygonHighlightOptions.fillColor,
+            fillOpacity: this.polygonHighlightOptions.fillOpacity,
+            strokeColor: this.polygonHighlightOptions.strokeColor,
+            strokeOpacity: this.polygonHighlightOptions.strokeOpacity,
+            strokeWeight: this.polygonHighlightOptions.strokeWeight
+        });
+        this.highlightedLocationId = locationId;
+    }
+
+    /**
+     * Clear existing MapsIndoors location polygon highlight.
+     * @memberof LocationService
+     */
+    public clearLocationPolygonHighlight(): void {
+        if (this.highlightedLocationId) {
+            this.mapsIndoorsService.mapsIndoors.setDisplayRule(this.highlightedLocationId, null);
+            this.highlightedLocationId = null;
         }
     }
 
     /**
      * @description Get location formatted and fully populated with missing details.
      * @private
-     * @param {string} locationId
-     * @returns {Promise<Location>}
+     * @param {Location} location
+     * @returns {Location}
      */
-    private formatLocation(locationId: string): Promise<Location> {
-        // Requesting the location to receive a fully populated location object.
-        return this.getLocationById(locationId)
-            .then((location: Location) => {
-                // Check if there are a image else set venue image
-                if (!location.properties.imageURL || location.properties.imageURL.length <= 0) {
-                    const config = this.appConfig;
-                    for (const venueName in config.venueImages) {
-                        if (location.properties.venueId.toLowerCase() === venueName.toLowerCase()) {
-                            location.properties.imageURL = config.venueImages[location.properties.venueId.toLowerCase()];
-                        }
-                    }
+    private formatLocation(location: Location): Location {
+        // Check if the location has an image else set venue image
+        if (!location.properties.imageURL || location.properties.imageURL.length <= 0) {
+            const config = this.appConfig;
+            for (const venueName in config.venueImages) {
+                if (location.properties.venueId.toLowerCase() === venueName.toLowerCase()) {
+                    location.properties.imageURL = config.venueImages[location.properties.venueId.toLowerCase()];
                 }
+            }
+        }
 
-                // Adds http in front of any URL missing it
-                if (location.properties.fields && location.properties.fields.website && location.properties.fields.website.value) {
-                    const pattern = /^https?:\/\//;
-                    if (!pattern.test(location.properties.fields.website.value)) {
-                        location.properties.fields.website.value = 'http://' + location.properties.fields.website.value;
-                    }
-                }
+        // Adds http in front of any URL missing it
+        if (location.properties.fields && location.properties.fields.website && location.properties.fields.website.value) {
+            const pattern = /^https?:\/\//;
+            if (!pattern.test(location.properties.fields.website.value)) {
+                location.properties.fields.website.value = 'http://' + location.properties.fields.website.value;
+            }
+        }
 
-                return location;
-            });
+        return location;
     }
 
     // #endregion
 
     // #region || LOCATION GET
-    getCurrentLocation(): Observable<any> {
+    public getCurrentLocation(): Observable<Location> {
         return this.selectedLocation.asObservable();
     }
 
@@ -217,9 +223,9 @@ export class LocationService {
      * @returns {(Promise<Location>)} Returns the location.
      * @memberof LocationService
      */
-    getLocationById(locationId: string): Promise<Location> {
+    public getLocationById(locationId: string): Promise<Location> {
         return new Promise((resolve, reject): void => {
-            mapsindoors.LocationsService.getLocation(locationId)
+            mapsindoors.services.LocationsService.getLocation(locationId)
                 .then((location: Location): void => {
                     location.properties.categories = Object.values(location.properties.categories);
                     resolve(location);
@@ -237,7 +243,7 @@ export class LocationService {
      * @returns {Promise} - Resolves a location.
      * @memberof LocationService
      */
-    getLocationByExternalId(externalId: string): Promise<Location> {
+    public getLocationByExternalId(externalId: string): Promise<Location> {
         return new Promise((resolve, reject): void => {
             this.searchService.getLocations({ q: externalId, fields: 'externalid' })
                 .then((locations: Location[]): void => {
@@ -255,21 +261,6 @@ export class LocationService {
     }
     // #endregion
 
-    // #region || CLUSTERED LOCATIONS
-    setClusteredLocations(locations: Location[]) {
-        this.searchService.setIcons(locations)
-            .then((updatedLocations: Location[]) => this.clusteredLocations.next(updatedLocations));
-    }
-
-    getClusteredLocations(): Observable<Location[]> {
-        return this.clusteredLocations.asObservable();
-    }
-
-    clearClusteredLocations() {
-        this.clusteredLocations.next([]);
-    }
-    // #endregion
-
     // #region || HELPERS
 
     /**
@@ -278,7 +269,7 @@ export class LocationService {
      * @returns {google.maps.LatLng} - The anchor point.
      * @memberof LocationService
      */
-    public getAnchorCoordinates(location: Location): google.maps.LatLng {
+    public getAnchorCoordinates(location: BaseLocation): google.maps.LatLng {
         return location.geometry.type.toLowerCase() === 'point' ?
             new google.maps.LatLng(location.geometry.coordinates[1], location.geometry.coordinates[0]) :
             new google.maps.LatLng(location.properties.anchor.coordinates[1], location.properties.anchor.coordinates[0]);

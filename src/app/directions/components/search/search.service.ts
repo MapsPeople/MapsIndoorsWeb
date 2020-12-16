@@ -49,7 +49,7 @@ export class SearchService {
      * @memberof SearchService
      */
     getLocations(parameters: SearchParameters): Promise<Location[]> {
-        return mapsindoors.LocationsService.getLocations(parameters)
+        return mapsindoors.services.LocationsService.getLocations(parameters)
             .then((locations: Location[]): Promise<Location[]> => this.setIcons(locations));
     }
 

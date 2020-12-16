@@ -50,15 +50,20 @@
         "To": "À",
         "AvoidStairs": "Évitez les escaliers",
         "MyPosition": "Ma position",
-        "YouAreHere": "Tu es là",
         "EnableMyPosition": "Activer le partage de position pour utiliser votre position",
         "RouteSettings": "Paramètres de l'itinéraire",
         "ChooseTheAppUserRoles...": "Choisissez les rôles d'utilisateur de l'application dont vous faites partie. Cela n'affecte que les directions que vous obtenez, pas les emplacements que vous voyez sur la carte",
-        "AppUserRoles": "Rôles des utilisateurs de l'application"
+        "AppUserRoles": "Rôles des utilisateurs de l'application",
+        "Steps": "étapes"
     },
     "DirectionRoute": {
+        "Days": "j",
+        "Hours": "h",
+        "Minutes": "min",
         "Start": "Début",
         "End": "Fin",
+        "Stops": "arrêt",
+        "Leave": "Quitte",
         "Enter": "Entrer",
         "Exit": "Quitter",
         "Next": "Suivant",
@@ -67,6 +72,7 @@
         "Walk": "Marcher",
         "Ride": "Aller",
         "Drive": "Conduire",
+        "Transit": "Transit",
         "Directions": "Directions",
         "AgencyInfo": "Infos agence",
         "Phone": "téléphone",
@@ -82,7 +88,11 @@
         "TurnSharpRight": "Allez brusquement à droit et continuez",
         "TurnSlightLeft": "Allez légèrement à gauche et continuez",
         "TurnSlightRight": "Allez légèrement à droit et continuez",
-        "TurnAround": "Faite demi-tour et continuer"
+        "TurnAround": "Faite demi-tour et continuer",
+        "at": "à",
+        "andContinue": "et continue",
+        "TakeStaircaseToLevel": "Prenez l'escalier jusqu'au niveau",
+        "TakeElevatorToLevel": "Prenez l'ascenseur jusqu'au niveau"
     },
     "DirectionHint": {
         "searchHint": "Rechercher des emplacements à l'intérieur ou à l'extérieur",

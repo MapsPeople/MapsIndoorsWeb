@@ -45,7 +45,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     };
     locationsArray: Location[] = [];
     filtered: boolean = false;
-    clusteredLocationsSubscription: Subscription;
     searchFocus: boolean = false;
     loading: boolean = false;
 
@@ -102,14 +101,6 @@ export class SearchComponent implements OnInit, OnDestroy {
             .subscribe((value) => {
                 this.getLocationsForQuery(value);
             });
-
-        this.clusteredLocationsSubscription = this.locationService.getClusteredLocations()
-            .subscribe((locations) => {
-                if (locations.length > 0) {
-                    this.locationsArray = locations;
-                    this.filtered = true;
-                }
-            });
     }
 
     ngOnInit(): void {
@@ -130,7 +121,6 @@ export class SearchComponent implements OnInit, OnDestroy {
                 })
             );
 
-        // await this.getClusteredLocations();
         this.SearchHintAppTitle = this.appConfig.appSettings.title;
         this.categoriesMenu = this.appConfig.menuInfo.mainmenu;
         window['angularComponentRef'] = { component: this, zone: this._ngZone };
@@ -143,30 +133,14 @@ export class SearchComponent implements OnInit, OnDestroy {
      * @param {Location} location
      * @memberof SearchComponent
      */
-    setLocation(location: Location): void {
+    public setLocation(location: Location): void {
         this.locationsArray = [];
         this.loading = true;
-        this.locationService.setLocation(location.id)
-            .then((): void => {
-                this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/details/${location.id}`]);
-                this.trackerService.sendEvent('Search', 'Selected Location in search results list', `"${location.properties.name}" – ${location.id} ${this.search.query ? `("${this.search.query}" search query)` : ''}`);
-            })
-            .catch((): void => {
-                this.notificationService.displayNotification(
-                    this.translateService.instant('Error.General')
-                );
-                this.loading = false;
-            });
+        this.locationService.setLocation(location);
+        this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/details/${location.id}`]);
+        this.trackerService.sendEvent('Search', 'Selected Location in search results list',
+            `"${location.properties.name}" – ${location.id} ${this.search.query ? `("${this.search.query}" search query)` : ''}`);
     }
-
-    // getClusteredLocations() {
-    // 	return new Promise((resolve, reject) => {
-    // 		this.locationService.getClusteredLocations().then((locations: any) => {
-    // 			for (let location of locations) this.locationsArray.push(location);
-    // 			resolve();
-    // 		});
-    // 	})
-    // }
 
     /**
      * @description Get the previous category and query filtering.
@@ -405,9 +379,9 @@ export class SearchComponent implements OnInit, OnDestroy {
     // #endregion
 
     // #region || ZOOM FOR MORE DETAILS
-    async zoomForDetails() {
+    async zoomForDetails(): Promise<void> {
         const self = this;
-        const googleMap = this.googleMapService.googleMap;
+        const googleMap = this.googleMapService.map;
         this.zoomBtn = document.getElementById('zoom-for-details');
         const solutionId = await this.solutionService.getSolutionId();
 
@@ -416,23 +390,23 @@ export class SearchComponent implements OnInit, OnDestroy {
         if (hideZoomBtnLocalStorage === 'true') this.hideZoomBtn();
         else showZoomBtn();
 
-        function showZoomBtn() {
+        function showZoomBtn(): void {
             self.zoomBtn.className = self.zoomBtn.className.replace(' hidden', '');
         }
 
         // Hides zoom button when clicked
-        this.zoomBtnListener = google.maps.event.addDomListenerOnce(this.zoomBtn, 'click', () => {
+        this.zoomBtnListener = google.maps.event.addDomListenerOnce(this.zoomBtn, 'click', (): void => {
             googleMap.setZoom(Math.max(18, googleMap.getZoom() + 1));
             self.hideZoomBtn();
         });
         // Hides zoom button when map is dragged
-        google.maps.event.addListenerOnce(googleMap, 'dragend', () => {
+        google.maps.event.addListenerOnce(googleMap, 'dragend', (): void => {
             self.hideZoomBtn();
         });
 
         // Remove zoom button when the user zooms
-        google.maps.event.addListenerOnce(googleMap, 'idle', () => {
-            google.maps.event.addListenerOnce(googleMap, 'zoom_changed', () => {
+        google.maps.event.addListenerOnce(googleMap, 'idle', (): void => {
+            this.mapsIndoorsService.mapsIndoors.addListener('zoom_changed', (): void => {
                 self.hideZoomBtn();
             });
         });
@@ -493,11 +467,9 @@ export class SearchComponent implements OnInit, OnDestroy {
         window['angularComponentRef'] = null;
         if (this.dialogSubscription) this.dialogSubscription.unsubscribe();
         if (this.debounceSearchSubscription) this.debounceSearchSubscription.unsubscribe();
-        this.clusteredLocationsSubscription.unsubscribe();
         this.appConfigSubscription.unsubscribe();
         this.themeServiceSubscription.unsubscribe();
         this.subscriptions.unsubscribe();
-        this.locationService.clearClusteredLocations();
     }
     // #endregion
 

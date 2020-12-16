@@ -14,7 +14,6 @@
 @import "components/buttons";
 @import "components/dialogs";
 @import "components/direction-search";
-@import "components/directions_horizontal";
 @import "components/directions_icons";
 @import "components/directions_ie11";
 @import "components/directions";
@@ -27,6 +26,7 @@
 
 // Controls
 @import "controls/print-control";
+@import "controls/step-switcher-control";
 
 // Layout
 @import "layout/map";

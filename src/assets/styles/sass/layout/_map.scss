@@ -1,14 +1,12 @@
 #gmap {
-	height: calc(100% - 64px);
-	
+    height: calc(100% - 64px);
+
     &.small-map {
         height: calc(100% - 56px);
-	}
-	
-	&.small-map-with-legs {
-        height: calc(100% - 206px);
     }
 }
 
 // Street View minimap
-#mimiMap .gm-svpc { display: none; }
+#mimiMap .gm-svpc {
+    display: none;
+}

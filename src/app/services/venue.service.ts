@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AppConfigService } from './app-config.service';
 import { MapsIndoorsService } from '../services/maps-indoors.service';
+import { GoogleMapService } from '../services/google-map.service';
 import { Observable, ReplaySubject } from 'rxjs';
 import { Venue } from '../shared/models/venue.interface';
 
@@ -11,7 +12,7 @@ declare const mapsindoors: any;
 })
 export class VenueService {
 
-    miVenueService = mapsindoors.VenuesService;
+    miVenueService = mapsindoors.services.VenuesService;
     appConfig: any;
     venue: Venue;
     venuesLength: number;
@@ -24,6 +25,7 @@ export class VenueService {
     constructor(
         private appConfigService: AppConfigService,
         private mapsIndoorsService: MapsIndoorsService,
+        private googleMapService: GoogleMapService,
     ) {
         this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
     }
@@ -90,7 +92,9 @@ export class VenueService {
             this.favouredVenue = true;
             this.mapsIndoorsService.mapsIndoors.setVenue(venue);
             if (fitVenue) {
-                this.mapsIndoorsService.mapsIndoors.fitVenue(venue.id);
+                // TODO: Figure out timing issue here when using fitVenue when starting app. For now manually fit to venue bounds.
+                this.googleMapService.map.fitBounds(new google.maps.LatLngBounds({ lat: venue.geometry.bbox[1], lng: venue.geometry.bbox[0] }, { lat: venue.geometry.bbox[3], lng: venue.geometry.bbox[2] }));
+                // this.mapsIndoorsService.mapsIndoors.fitVenue(venue.id);
             }
 
             Promise.all([

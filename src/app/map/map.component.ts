@@ -4,7 +4,6 @@ import { GoogleMapService } from './../services/google-map.service';
 import { MapsIndoorsService } from './../services/maps-indoors.service';
 import { LocationService } from './../services/location.service';
 import { ThemeService } from './../services/theme.service';
-import { DirectionService } from './../services/direction.service';
 import { VenueService } from './../services/venue.service';
 import { SolutionService } from './../services/solution.service';
 import { AppConfigService } from './../services/app-config.service';
@@ -34,11 +33,10 @@ export class MapComponent {
     statusOk: boolean = false;
     appConfig: any;
     colors: object;
-    loading: boolean = false;
     venue: Venue;
     returnToValues: any;
     pageTitle: string;
-    location: any;
+    private location: Location;
     returnBtn: HTMLElement;
     private initVenue: Venue;
     private printControlElement: PrintControl;
@@ -54,7 +52,6 @@ export class MapComponent {
         private appConfigService: AppConfigService,
         private locationService: LocationService,
         private themeService: ThemeService,
-        public directionService: DirectionService,
         private venueService: VenueService,
         private translateService: TranslateService,
         private notificationService: NotificationService,
@@ -84,7 +81,7 @@ export class MapComponent {
             .subscribe((value: boolean) => this.isHandset = value);
         this.isInternetExplorer = this.userAgentService.IsInternetExplorer();
 
-        await this.googleMapService.initMap();
+        await this.googleMapService.initMapView();
         await this.mapsIndoorsService.initMapsIndoors();
 
         this.getVenueFromUrl()
@@ -143,7 +140,7 @@ export class MapComponent {
      * @private
      */
     private addPrintControl(): void {
-        this.printControlElement = new PrintControl(this.googleMapService.googleMap, this.translateService.instant('Buttons.PrintMap'));
+        this.printControlElement = new PrintControl(this.googleMapService.map, this.translateService.instant('Buttons.PrintMap'));
         this.printControlElement.add(google.maps.ControlPosition.RIGHT_TOP);
     }
 
@@ -170,6 +167,7 @@ export class MapComponent {
                 this.mapsIndoorsService.mapsIndoors.fitVenue();
             });
     }
+
     // #endregion
 
     // #region || LISTENER || RETURN TO VENUE OR POI
@@ -179,7 +177,7 @@ export class MapComponent {
      * @listens event:idle Shows or hides button when panning the map.
      */
     private initReturnToButton(): void {
-        const googleMap = this.googleMapService.googleMap;
+        const googleMap = this.googleMapService.map;
         google.maps.event.addListener(googleMap, 'idle', () => {
             // Always true except for when getting a direction
             if (this.venueService.favouredVenue && this.venueService.returnBtnActive) {
@@ -204,7 +202,7 @@ export class MapComponent {
         if (this.returnToValues.isVenue === true) {
             this.mapsIndoorsService.mapsIndoors.fitVenue();
         } else {
-            this.googleMapService.googleMap.panTo(this.returnToValues.latLng);
+            this.googleMapService.map.panTo(this.returnToValues.latLng);
         }
     }
     //#endregion
@@ -215,35 +213,10 @@ export class MapComponent {
      * @listens event:click
      */
     addLocationListener(): void {
-        google.maps.event.addListener(this.mapsIndoorsService.mapsIndoors, 'click', (location): void => {
-            if (Array.isArray(location)) {
-                this.handleClusterClick(location);
-                this.trackerService.sendEvent('Map', 'Cluster clicked on map', `"${location[0].properties.type}" type`);
-            } else {
-                this.handleSingleLocationClick(location);
-                this.trackerService.sendEvent('Map', 'Location clicked on map', `"${location.properties.name}" – ${location.id}`);
-            }
+        this.mapsIndoorsService.mapsIndoors.addListener('click', (location): void => {
+            this.handleSingleLocationClick(location);
+            this.trackerService.sendEvent('Map', 'Location clicked on map', `"${location.properties.name}" – ${location.id}`);
         });
-    }
-
-    /**
-     * Fitting locations inside view if zoom-level is lower than 21 otherwise navigating to search page and listing locations.
-     * @param locations	The locations from the clicked cluster.
-     */
-    handleClusterClick(locations: Location[]): void {
-        // Zoom if zoom-level is lower than 21
-        if (this.googleMapService.googleMap.getZoom() < 21) {
-            const bounds = new google.maps.LatLngBounds;
-            for (const location of locations) {
-                bounds.extend(this.locationService.getAnchorCoordinates(location));
-            }
-            this.googleMapService.googleMap.fitBounds(bounds);
-        } else {
-            // If max zoom then go to search page and list clustered locations
-            this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/search`]);
-            this.locationService.setClusteredLocations(locations);
-            this.trackerService.sendEvent('Map', 'Cluster click', 'Clustered locations was clicked', true);
-        }
     }
 
     /**
@@ -251,31 +224,26 @@ export class MapComponent {
      * @param location	The clicked location.
      */
     handleSingleLocationClick(location: Location): void {
-        this.loading = true;
-        this.locationService.setLocation(location.id)
-            .then((): Promise<Venue> => {
-                /*
-                 * Make sure venue is set whenever clicking on a location
-                 */
-                if (this.venue) {
-                    return Promise.resolve(this.venue);
-                }
-                return this.venueService.getVenues().then((venues): Venue => {
-                    const locationVenue = venues.find((venue): boolean => venue.name === location.properties.venue);
+        let venue: Venue;
+        this.locationService.setLocation(location);
 
-                    // Set venue and override default floor by setting it explicitly
-                    this.venueService.setVenue(locationVenue, this.appConfig, false);
-                    this.mapsIndoorsService.setFloor(location.properties.floor);
-
-                    return locationVenue;
-                });
-            })
-            .then((venue): void => {
-                this.router.navigate([`${this.solutionService.getSolutionName()}/${venue.id}/details/${location.id}`]);
-            })
-            .catch((err): void => {
-                this.notificationService.displayNotification(err);
+        /** Make sure venue is set whenever clicking on a location */
+        if (this.venue) {
+            venue = this.venue;
+        } else {
+            this.venueService.getVenues().then((venues: Venue[]) => {
+                const locationVenue = venues.find((venue: Venue) => venue.name === location.properties.venue);
+                // Set venue and override default floor by setting it explicitly
+                this.venueService.setVenue(locationVenue, this.appConfig, false);
+                this.mapsIndoorsService.setFloor(location.properties.floor);
+                venue = locationVenue;
             });
+        }
+
+        if (venue) {
+            this.router.navigate([`${this.solutionService.getSolutionName()}/${venue.id}/details/${location.id}`]);
+        }
+
         this.trackerService.sendEvent('Map', 'Location click', `${location.properties.name} was clicked`, true);
     }
     // #endregion
@@ -283,17 +251,17 @@ export class MapComponent {
     // #region || LISTENER || FLOOR CHANGED
     // Closes and opens info-windows when changing floors
     addFloorChangedListener(): void {
-        google.maps.event.addListener(this.mapsIndoorsService.mapsIndoors, 'floor_changed', () => {
+        this.mapsIndoorsService.mapsIndoors.addListener('floor_changed', (): void => {
             if (this.location && this.route.children[0].snapshot.routeConfig.component.name === 'DetailsComponent') {
                 const locationFloor: string = this.location.properties.floor;
                 if (locationFloor !== this.mapsIndoorsService.mapsIndoors.getFloor()) {
                     this.googleMapService.closeInfoWindow();
                     // Remove location polygon
-                    if (this.locationService.polygon) this.locationService.polygon.setMap(null);
+                    this.locationService.clearLocationPolygonHighlight();
                 } else {
                     this.googleMapService.openInfoWindow();
                     // Set location polygon
-                    if (this.locationService.polygon) this.locationService.polygon.setMap(this.googleMapService.googleMap);
+                    this.locationService.highlightLocationPolygon(this.location.id);
                 }
             }
         });

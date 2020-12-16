@@ -1,4 +1,4 @@
-export enum AppMode {
-    Normal,
-    Kiosk
+export enum UnitSystem {
+    Imperial = 'imperial',
+    Metric = 'metric'
 }

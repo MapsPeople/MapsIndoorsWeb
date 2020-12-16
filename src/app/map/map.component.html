@@ -25,11 +25,6 @@
             </button>
         </div>
         <!-- Google map -->
-        <div id="gmap" [ngClass]="{ 'small-map': isHandset, 'small-map-with-legs': (isHandset && directionService.directionsLegs.length > 0 && !isInternetExplorer)
-      }"></div>
-
-        <!-- Horizontal directions for mobile -->
-        <horizontal-directions *ngIf="isHandset && !isInternetExplorer && directionService.directionsLegs.length > 0"></horizontal-directions>
-
+        <div id="gmap" [ngClass]="{ 'small-map': isHandset }"></div>
     </mat-sidenav-content>
 </mat-sidenav-container>

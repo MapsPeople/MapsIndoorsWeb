@@ -34,11 +34,11 @@
                 "output": "/assets/sdk/"
               },
               {
-                "glob": "*-dev.*",
+                "glob": "*",
                 "ignore": [
                   "package.json"
                 ],
-                "input": "./modules/sdk/modules/micommon/js/dev_build",
+                "input": "./modules/sdk/node_modules/@MapsIndoors/micommon/bin/",
                 "output": "/assets/sdk/"
               }
             ],
@@ -82,11 +82,11 @@
                   "output": "/assets/sdk/"
                 },
                 {
-                  "glob": "*-dev.*",
+                  "glob": "*",
                   "ignore": [
                     "package.json"
                   ],
-                  "input": "./modules/sdk/modules/micommon/js/dev_build",
+                  "input": "./modules/sdk/node_modules/@MapsIndoors/micommon/bin/",
                   "output": "/assets/sdk/"
                 }
               ]

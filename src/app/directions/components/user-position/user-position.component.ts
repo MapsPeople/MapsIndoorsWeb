@@ -4,7 +4,10 @@ import { TranslateService } from '@ngx-translate/core';
 
 interface UserPosition {
     name: string,
-    coordinates: any[]
+    geometry: {
+        type: string,
+        coordinates: any[]
+    }
 }
 
 @Component({
@@ -32,7 +35,10 @@ export class UserPositionComponent implements OnInit {
             .then((position: Position): void => {
                 this.userPosition = {
                     name: this.translateService.instant('Direction.MyPosition'),
-                    coordinates: [position.coords.longitude, position.coords.latitude]
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [position.coords.longitude, position.coords.latitude]
+                    }
                 };
                 this.loading = false;
             }).catch((): void => {

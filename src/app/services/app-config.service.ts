@@ -13,14 +13,14 @@ export class AppConfigService {
     private initVenue = new ReplaySubject<Venue>(1);
 
     // #region || APP CONFIG
-    setAppConfig() {
-        return new Promise((resolve, reject) => {
-            mapsindoors.AppConfigService.getConfig().then((appConfig) => {
+    setAppConfig(): Promise<void> {
+        return new Promise((resolve, reject): void => {
+            mapsindoors.services.AppConfigService.getConfig().then((appConfig): void => {
                 appConfig.appSettings.title = appConfig.appSettings.title || 'MapsIndoors';
                 appConfig.appSettings.displayAliases = JSON.parse(appConfig.appSettings.displayAliases || false);
                 this.appConfig.next(appConfig);
                 resolve();
-            }).catch(() => {
+            }).catch((): void => {
                 reject();
             });
         });

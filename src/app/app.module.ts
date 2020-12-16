@@ -23,7 +23,6 @@ import { ShareUrlDialogComponent } from './details/share-url-dialog/share-url-di
 import { SetSolutionComponent } from './set-solution/set-solution.component';
 import { MapComponent } from './map/map.component';
 import { SetupComponent } from './setup/setup.component';
-import { HorizontalDirectionsComponent } from './directives/horizontal-directions/horizontal-directions.component';
 import { LocationImgComponent } from './shared/components/location-img/location-img.component';
 
 // Modules
@@ -48,7 +47,6 @@ import { DetailFieldComponent } from './details/detail-field/detail-field.compon
         DetailsComponent,
         InfoDialogComponent,
         ShareUrlDialogComponent,
-        HorizontalDirectionsComponent,
         LocationImgComponent,
         SetSolutionComponent,
         MapComponent,

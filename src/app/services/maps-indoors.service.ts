@@ -27,12 +27,11 @@ export class MapsIndoorsService {
 
     public floorSelectorIsVisible = false;
     private floorSelectorPosition: google.maps.ControlPosition;
-    private floorSelectorListener: google.maps.MapsEventListener;
+    private floorSelectorListener;
 
     private isHandsetSubscription: Subscription;
     private pageTitle = new BehaviorSubject<string>('');
     private returnToValues = new Subject<ReturnToValues>();
-
 
     constructor(
         private solutionService: SolutionService,
@@ -46,11 +45,11 @@ export class MapsIndoorsService {
     }
 
     // #region || SET MAPS INDOORS
-    initMapsIndoors():Promise<void> {
-        return new Promise(async (resolve):Promise<void> => {
+    initMapsIndoors(): Promise<void> {
+        return new Promise(async (resolve): Promise<void> => {
 
             this.mapsIndoors = await new mapsindoors.MapsIndoors({
-                map: this.googleMapService.googleMap,
+                mapView: this.googleMapService.googleMapView,
                 labelOptions: {
                     style: {
                         color: 'rgba(82,82,82,1)',
@@ -67,7 +66,7 @@ export class MapsIndoorsService {
 
             // Set tittle attribute for map POI's
             this.solutionService.getSolution()
-                .then((solution):void => {
+                .then((solution): void => {
                     for (const type of solution.types) {
                         this.mapsIndoors.setDisplayRule(type.name, { title: '{{name}}' });
                     }
@@ -77,13 +76,13 @@ export class MapsIndoorsService {
             if (this.appConfig.appSettings.positioningDisabled !== '1') {
                 const positionControlElement = document.createElement('div');
                 this.userAgentService.positionControl = new mapsindoors.PositionControl(positionControlElement, { mapsIndoors: this.mapsIndoors, positionOptions: { enableHighAccuracy: false, maximumAge: 300000, timeout: 10000 } });
-                this.googleMapService.googleMap.controls[google.maps.ControlPosition.TOP_RIGHT].push(positionControlElement);
+                this.googleMapService.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(positionControlElement);
 
-                google.maps.event.addListener(this.mapsIndoors, 'position_error', (error):void => {
+                this.userAgentService.positionControl.addListener('position_error', (error): void => {
                     this.userAgentService.positionError(error);
                 });
 
-                google.maps.event.addListener(this.mapsIndoors, 'position_received', (position):void => {
+                this.userAgentService.positionControl.addListener('position_received', (position) => {
                     this.userAgentService.positionReceived(position);
                 });
             }
@@ -92,25 +91,29 @@ export class MapsIndoorsService {
             const buildingOutlineVisibleFrom: number = parseInt(this.appConfig.appSettings.buildingOutlineVisibleFrom);
             const floorSelectorVisibleFrom: number = parseInt(this.appConfig.appSettings.floorSelectorVisibleFrom);
             if (buildingOutlineVisibleFrom && floorSelectorVisibleFrom) {
-                this.googleMapService.googleMap.addListener('zoom_changed', ():void => {
-                    const gmZoomLevel: number = this.googleMapService.googleMap.getZoom();
+                this.mapsIndoors.addListener('zoom_changed', (): void => {
+                    const mapsIndoorsZoomLevel: number = this.mapsIndoors.getZoom();
                     // Building Outline
-                    gmZoomLevel >= buildingOutlineVisibleFrom ? this.showBuildingOutline() : this.mapsIndoors.setBuildingOutlineOptions({ visible: false });
+                    mapsIndoorsZoomLevel >= buildingOutlineVisibleFrom ? this.showBuildingOutline() : this.mapsIndoors.setBuildingOutlineOptions({ visible: false });
                     // Floor Selector
-                    gmZoomLevel >= floorSelectorVisibleFrom ? this.showFloorSelector() : this.hideFloorSelector();
+                    mapsIndoorsZoomLevel >= floorSelectorVisibleFrom ? this.showFloorSelector() : this.hideFloorSelector();
                 });
             } else this.showBuildingOutline();
             resolve();
         });
     }
 
+    /**
+     * Set and show building outline.
+     */
     showBuildingOutline(): void {
         this.mapsIndoors.setBuildingOutlineOptions({
             visible: true,
-            strokeWeight: 3,
-            strokeColor: '#43aaa0',
+            clickable: false,
             fillOpacity: 0,
-            clickable: false
+            strokeColor: '#EF6CCE',
+            strokeOpacity: 1,
+            strokeWeight: 4
         });
     }
     // #endregion
@@ -120,7 +123,7 @@ export class MapsIndoorsService {
         const mapElement = document.getElementById('gmap');
         const eventsToListenFor = ['touchmove', 'click', 'wheel']; // these are events we consider as user interactions with the map
 
-        const userInteracted = () => {
+        const userInteracted = (): void => {
             eventsToListenFor.forEach(event => mapElement.removeEventListener(event, userInteracted));
 
             if (!this.floorSelectorIsVisible) {
@@ -133,9 +136,9 @@ export class MapsIndoorsService {
 
 
     /**
-	 * @description Creates a new floor selector.
-	 * @memberof MapsIndoorsService
-	 */
+     * @description Creates a new floor selector.
+     * @memberof MapsIndoorsService
+     */
     showFloorSelector(): void {
         const floorSelectorDiv = document.createElement('div');
         new mapsindoors.FloorSelector(floorSelectorDiv, this.mapsIndoors);
@@ -143,42 +146,48 @@ export class MapsIndoorsService {
         this.isHandsetSubscription = this.userAgentService.isHandset()
             .subscribe((isHandset: boolean) => {
                 if (this.floorSelectorIsVisible) {
-                    this.googleMapService.googleMap.controls[this.floorSelectorPosition].clear();
+                    this.googleMapService.map.controls[this.floorSelectorPosition].clear();
                 }
 
                 this.floorSelectorPosition = isHandset ?
                     google.maps.ControlPosition.LEFT_CENTER :
                     google.maps.ControlPosition.RIGHT_CENTER;
 
-                this.googleMapService.googleMap.controls[this.floorSelectorPosition].push(floorSelectorDiv);
+                this.googleMapService.map.controls[this.floorSelectorPosition].push(floorSelectorDiv);
                 this.floorSelectorIsVisible = true;
             });
 
-        this.floorSelectorListener = google.maps.event.addListener(this.mapsIndoors, 'floor_changed', () => {
-            this.trackerService.sendEvent('Floor selector', 'Floor was changed', `${this.mapsIndoors.getFloor()}th floor was set`, true);
-        });
+        this.floorSelectorListener = this.trackFloorChange.bind(this);
+        this.mapsIndoors.addListener('floor_changed', this.floorSelectorListener);
     }
 
     /**
-	 * @description Removes the floor selector.
-	 * @memberof MapsIndoorsService
-	 */
+     * @description Register floor change events on tracker service.
+     */
+    trackFloorChange(): void {
+        this.trackerService.sendEvent('Floor selector', 'Floor was changed', `${this.mapsIndoors.getFloor()}th floor was set`, true);
+    }
+
+    /**
+     * @description Removes the floor selector.
+     * @memberof MapsIndoorsService
+     */
     hideFloorSelector(): void {
         if (!this.floorSelectorIsVisible) {
             return;
         }
 
-        this.googleMapService.googleMap.controls[this.floorSelectorPosition].clear();
+        this.googleMapService.map.controls[this.floorSelectorPosition].clear();
         this.floorSelectorIsVisible = false;
-        google.maps.event.removeListener(this.floorSelectorListener);
+        this.mapsIndoors.removeListener('floor_changed', this.floorSelectorListener);
         this.isHandsetSubscription.unsubscribe();
     }
 
     /**
-	 * @description Sets the floor.
-	 * @param {string} floor - The new floor to be set.
-	 * @memberof MapsIndoorsService
-	 */
+     * @description Sets the floor.
+     * @param {string} floor - The new floor to be set.
+     * @memberof MapsIndoorsService
+     */
     setFloor(floor: string): void {
         if (this.mapsIndoors.getFloor() !== floor) {
             this.mapsIndoors.setFloor(floor);
@@ -188,21 +197,21 @@ export class MapsIndoorsService {
 
     // #region || RETURN
     /**
-	 * @description Set the values for return button.
-	 * @param {string} name
-	 * @param {google.maps.LatLng} latLng
-	 * @param {boolean} isVenue
-	 * @memberof MapsIndoorsService
-	 */
+     * @description Set the values for return button.
+     * @param {string} name
+     * @param {google.maps.LatLng} latLng
+     * @param {boolean} isVenue
+     * @memberof MapsIndoorsService
+     */
     private setReturnToValues(values: ReturnToValues): void {
         this.returnToValues.next(values);
     }
 
     /**
-	 * @description Sets the values for return to location button.
-	 * @param {Location} location – The selected location.
-	 * @memberof MapsIndoorsService
-	 */
+     * @description Sets the values for return to location button.
+     * @param {Location} location – The selected location.
+     * @memberof MapsIndoorsService
+     */
     setLocationAsReturnToValue(location: Location, anchorCoordinates: google.maps.LatLng): void {
         const values: ReturnToValues = {
             name: location.properties.name,
@@ -213,10 +222,10 @@ export class MapsIndoorsService {
     }
 
     /**
-	 * @description Sets the values for return to venue button.
-	 * @param {Venue} venue The selected venue.
-	 * @memberof MapsIndoorsService
-	 */
+     * @description Sets the values for return to venue button.
+     * @param {Venue} venue The selected venue.
+     * @memberof MapsIndoorsService
+     */
     setVenueAsReturnToValue(venue: Venue): void {
         const values: ReturnToValues = {
             name: venue.venueInfo.name,
@@ -227,10 +236,10 @@ export class MapsIndoorsService {
     }
 
     /**
-	 * @description Returning the selected item name, lat lng and isVenue boolean.
-	 * @returns The return to values needed for button.
-	 * @memberof MapsIndoorsService
-	 */
+     * @description Returning the selected item name, lat lng and isVenue boolean.
+     * @returns The return to values needed for button.
+     * @memberof MapsIndoorsService
+     */
     getReturnToValues(): Observable<ReturnToValues> {
         return this.returnToValues.asObservable();
     }

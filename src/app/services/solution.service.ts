@@ -25,9 +25,9 @@ export class SolutionService {
 
     // #region || SOLUTION PROVIDER
     initializeApp(solutionId): Promise<void> {
-        return new Promise(async (resolve, reject) => {
-            await this.initializeGoogleMaps();
-            await this.initializeSdk(solutionId);
+        return new Promise(async (resolve, reject): Promise<void> => {
+            await this.insertGoogleMapsAPI();
+            await this.insertMapsIndoorsJavaScriptSDK(solutionId);
 
             mapsindoors.MapsIndoors.onAuthRequired = this.initializeAuthenticationHandler(solutionId);
 
@@ -41,8 +41,12 @@ export class SolutionService {
         });
     }
 
-    initializeGoogleMaps(): Promise<void> {
-        return new Promise((resolve) => {
+    /**
+     * Insert script tag for Google Maps API into the document and resolve when it is loaded.
+     * @returns {Promise<void>} Resolves when script is loaded
+     */
+    insertGoogleMapsAPI(): Promise<void> {
+        return new Promise((resolve): void => {
             if (this.googleMapsApiTag) {
                 resolve();
             } else {
@@ -50,18 +54,23 @@ export class SolutionService {
                 this.googleMapsApiTag.setAttribute('type', 'text/javascript');
                 this.googleMapsApiTag.setAttribute('src', '//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyBNhmxW2OntKAVs7hjxmAjFscioPcfWZSc&libraries=geometry,places');
                 document.body.appendChild(this.googleMapsApiTag);
-                this.googleMapsApiTag.onload = () => resolve();
+                this.googleMapsApiTag.onload = (): void => resolve();
             }
         });
     }
 
-    initializeSdk(solutionId): Promise<void> {
-        return new Promise((resolve) => {
+    /**
+     * Insert script tag for MapsIndoors JavaScript SDK into the document and resolve when it is loaded.
+     * @param solutionId {string} The MapsIndoors API key
+     * @returns {Promise<void>} Resolves when script is loaded
+     */
+    insertMapsIndoorsJavaScriptSDK(solutionId): Promise<void> {
+        return new Promise((resolve): void => {
             this.miSdkApiTag = document.createElement('script');
             this.miSdkApiTag.setAttribute('type', 'text/javascript');
             this.miSdkApiTag.setAttribute('src', `${environment.sdkUrl}?apikey=${solutionId}`);
             document.body.appendChild(this.miSdkApiTag);
-            this.miSdkApiTag.onload = () => resolve();
+            this.miSdkApiTag.onload = (): void => resolve();
         });
     }
 
@@ -177,7 +186,7 @@ export class SolutionService {
      * @memberof SolutionService
      */
     public getSolution(): Promise<any> {
-        return mapsindoors.SolutionsService.getSolution();
+        return mapsindoors.services.SolutionsService.getSolution();
     }
     // #endregion
 
@@ -207,7 +216,7 @@ export class SolutionService {
      * @memberof SolutionService
      */
     getUserRoles(): Promise<Array<any>> {
-        return mapsindoors.SolutionsService.getUserRoles();
+        return mapsindoors.services.SolutionsService.getUserRoles();
     }
     // #endregion
 }

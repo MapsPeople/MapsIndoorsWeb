@@ -9,7 +9,7 @@
     "Venues": {
         "Title": "Seleziona il luogo"
     },
-    "Details": { 
+    "Details": {
         "Level": "Livello",
         "Audiovisual": "AV",
         "VoiceChat": "VC",
@@ -50,15 +50,20 @@
         "To": "A",
         "AvoidStairs": "Evita le scale",
         "MyPosition": "La mia posizione",
-        "YouAreHere": "Tu sei qui",
         "EnableMyPosition": "Abilita la condivisione della localizzazione per utilizzare la tua posizione",
         "RouteSettings": "Impostazioni del percorso",
         "ChooseTheAppUserRoles...": "Scegli i ruoli utente dell'app di cui fai parte. Ciò influisce solo sulle indicazioni stradali ottenute, non sulle località visualizzate sulla mappa",
-        "AppUserRoles": "Ruoli utente dell'app"
+        "AppUserRoles": "Ruoli utente dell'app",
+        "Steps": "passi"
     },
     "DirectionRoute": {
+        "Days": "g",
+        "Hours": "h",
+        "Minutes": "min",
         "Start": "Inizio",
         "End": "Fine",
+        "Stops": "fermate",
+        "Leave": "Parti",
         "Enter": "Accedere",
         "Exit": "Uscire",
         "Next": "Prossimo",
@@ -67,6 +72,7 @@
         "Walk": "Camminare",
         "Ride": "andare in bici",
         "Drive": "Guidare",
+        "Transit": "Transit",
         "Directions": "Indicazioni",
         "AgencyInfo": "Informazioni agenzia",
         "Phone": "Telefono",
@@ -82,7 +88,11 @@
         "TurnSharpRight": "Vai deciso a destra e continua",
         "TurnSlightLeft": "Gira leggermente a sinistra e continua",
         "TurnSlightRight": "Gira leggermente a destra e continua",
-        "TurnAround": "Girati e continua"
+        "TurnAround": "Girati e continua",
+        "at": "at",
+        "andContinue": "e continua",
+        "TakeStaircaseToLevel": "Prendi le scale fino al piano",
+        "TakeElevatorToLevel": "Prendi l’ascensore fino al piano"
     },
     "DirectionHint": {
         "searchHint": "Cerca luoghi all'interno o all'esterno",

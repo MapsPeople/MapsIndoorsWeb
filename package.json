@@ -1,6 +1,6 @@
 {
     "name": "maps-indoors-webapp",
-    "version": "3.12.6",
+    "version": "3.13.0",
     "scripts": {
         "ng": "ng",
         "start": "npm run build:dev --prefix ./modules/sdk && ng serve",
@@ -10,7 +10,7 @@
         "build-prod-minor": "npm version minor && npm run build-prod",
         "build-prod-major": "npm version major && npm run build-prod",
         "postbuild-prod": "git push --follow-tags",
-        "prepare-dev": "git submodule update --init --recursive && cd modules/sdk && npm ci && cd modules/micommon && npm ci"
+        "prepare-dev": "git submodule update --init --recursive && cd modules/sdk && npm ci"
     },
     "private": true,
     "dependencies": {
@@ -44,7 +44,7 @@
         "@angular/cli": "^7.3.9",
         "@angular/compiler-cli": "^7.2.15",
         "@angular/language-service": "^7.2.15",
-        "@mapsindoors/components": "^5.0.2",
+        "@mapsindoors/components": "^7.1.1",
         "@ngneat/spectator": "^4.11.1",
         "@sentry/browser": "^5.12.1",
         "@types/jest": "^24.9.1",

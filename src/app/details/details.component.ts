@@ -11,9 +11,7 @@ import { ShareUrlDialogComponent } from './share-url-dialog/share-url-dialog.com
 import { ThemeService } from '../services/theme.service';
 import { SolutionService } from '../services/solution.service';
 import { UserAgentService } from '../services/user-agent.service';
-import { RoutingStateService } from '../services/routing-state.service';
 import { NotificationService } from '../services/notification.service';
-import { TranslateService } from '@ngx-translate/core';
 import { TrackerService } from '../services/tracker.service';
 
 import { Venue } from '../shared/models/venue.interface';
@@ -47,7 +45,6 @@ export class DetailsComponent implements OnInit, OnDestroy {
         private router: Router,
         public _ngZone: NgZone,
         private sidenav: MatSidenav,
-        private routingStateService: RoutingStateService,
         private userAgentService: UserAgentService,
         private themeService: ThemeService,
         private venueService: VenueService,
@@ -57,7 +54,6 @@ export class DetailsComponent implements OnInit, OnDestroy {
         private solutionService: SolutionService,
         private googleMapService: GoogleMapService,
         private dialog: MatDialog,
-        private translateService: TranslateService,
         private notificationService: NotificationService,
         private trackerService: TrackerService
     ) {
@@ -93,12 +89,14 @@ export class DetailsComponent implements OnInit, OnDestroy {
     /**
 	 * @description Gets and sets the location based on the URL id parameter
 	 * @memberof DetailsComponent
+	 * @private 
 	 */
-    setLocation(): void {
+    private setLocation(): void {
         const id = this.route.snapshot.params.id;
         // Location id
-        if (id.length === 24) {
-            this.locationService.setLocation(id)
+        if (id.length === 24) { // TODO: find a better way to determine whether it is a locationId or an externalId
+            this.locationService.getLocationById(id)
+                .then((location: Location) => this.locationService.setLocation(location))
                 .catch((err: Error): void => {
                     this.notificationService.displayNotification(err.message);
                     this.goBack();
@@ -106,9 +104,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
         } else {
         // Room (external) id
             this.locationService.getLocationByExternalId(id)
-                .then((location: Location) => {
-                    this.locationService.setLocation(location.id);
-                })
+                .then((location: Location) => this.locationService.setLocation(location))
                 .catch((err: Error): void => {
                     this.notificationService.displayNotification(err.message);
                     this.goBack();
@@ -119,7 +115,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
     /**
 	 * @description Closing the sidebar
 	 */
-    showOnMap() {
+    public showOnMap(): void {
         this.sidenav.close();
         this.trackerService.sendEvent('Details page', 'Show on map button', 'Show on map button was clicked', true);
     }
@@ -149,12 +145,12 @@ export class DetailsComponent implements OnInit, OnDestroy {
         this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/search`], { queryParams: { cat: this.locationService.getCategoryFilter().categoryKey.toLowerCase() } });
     }
 
-    ngOnDestroy() {
+    ngOnDestroy(): void {
         this.mapsIndoorsService.mapsIndoors.location = null;
         this.mapsIndoorsService.clearMapFilter();
         window['angularComponentRef'] = null;
         this.googleMapService.closeInfoWindow();
-        if (this.locationService.polygon) this.locationService.polygon.setMap(null);
+        this.locationService.clearLocationPolygonHighlight();
         if (this.dialogSubscription) this.dialogSubscription.unsubscribe();
         this.locationSubscription.unsubscribe();
         this.appConfigSubscription.unsubscribe();

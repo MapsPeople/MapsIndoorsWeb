@@ -1,16 +1,18 @@
 import { Injectable } from '@angular/core';
 
+declare const mapsindoors: any;
+
 @Injectable({
     providedIn: 'root'
 })
 export class GoogleMapService {
 
-    googleMap: google.maps.Map;
     private infoWindow = new google.maps.InfoWindow;
     venue: any;
+    googleMapView: any;
+    map: any;
 
     mapOptions = {
-        // center: new google.maps.LatLng(18.5793, 73.8143),
         zoom: 17,
         maxZoom: 21,
         mapTypeControl: false,
@@ -18,14 +20,21 @@ export class GoogleMapService {
         fullscreenControl: true
     }
 
-    // #region || LOAD GOOGLE MAP
-    initMap():Promise<void> {
-        return new Promise(async (resolve) => {
-            this.googleMap = await new google.maps.Map(document.getElementById('gmap'), this.mapOptions);
+    /**
+     * Creates an instance of mapsindoors.mapView.GoogleMapsView, which
+     * creates a Google map and attaches it to a DOM element.
+     *
+     */
+    initMapView(): Promise<void> {
+        return new Promise((resolve): void => {
+            this.googleMapView = new mapsindoors.mapView.GoogleMapsView({
+                element: document.getElementById('gmap'),
+                ...this.mapOptions
+            });
+            this.map = this.googleMapView.getMap();
             resolve();
         });
     }
-    // #endregion
 
     /**
      * @description Populates the info window with text and a position.
@@ -43,7 +52,7 @@ export class GoogleMapService {
      * @memberof GoogleMapService
      */
     public openInfoWindow(): void {
-        this.infoWindow.open(this.googleMap);
+        this.infoWindow.open(this.map);
     }
 
     /**

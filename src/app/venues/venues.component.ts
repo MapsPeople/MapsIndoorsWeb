@@ -104,7 +104,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-            this.googleMapService.googleMap.fitBounds(bounds);
+            this.googleMapService.map.fitBounds(bounds);
         } else if (this.appConfig.appSettings && this.appConfig.appSettings.defaultVenue && this.appConfig.appSettings.defaultVenue.length === 24) {
             // Zoom in to default venue if any
             const venueId = await this.appConfig.appSettings.defaultVenue;
@@ -112,12 +112,12 @@ export class VenuesComponent implements OnInit, OnDestroy {
             if (venue) {
                 const bbox = venue.geometry.bbox;
                 bounds = new google.maps.LatLngBounds({ lat: bbox[1], lng: bbox[0] }, { lat: bbox[3], lng: bbox[2] });
-                this.googleMapService.googleMap.fitBounds(bounds);
+                this.googleMapService.map.fitBounds(bounds);
             } else {
                 console.log('Default venue ID is not correct'); /* eslint-disable-line no-console */ /* TODO: Improve error handling */
             }
 
-            this.googleMapService.googleMap.fitBounds(bounds);
+            this.googleMapService.map.fitBounds(bounds);
 
             // If there is a position, and it is inside the venue bounds, pan to the position
             this.userAgentService.panToPositionIfWithinBounds(bounds);

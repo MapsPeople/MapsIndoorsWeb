@@ -23,43 +23,30 @@ export class AppComponent {
     }
 
     /**
-     * @description Set language for app based on browser settings.
+     * Set language based on the user agents language if supported.
+     * Language variants is mapped to the main key which is the same as the one used for the translations-filename.
      * @private
-     * @returns {void}
      */
     private setLanguage(): void {
-        const browserLanguage = window.navigator.language.toLowerCase();
-        const language = {
-            english: 'en',
-            danish: 'da',
-            french: 'fr',
-            italian: 'it',
-            italianItaly: 'it-it',
-            portuguese: 'pt',
-            portugueseBrazilian: 'pt-br',
-            portuguesePortugal: 'pt-pt'
+        const userAgentLanguage = window.navigator.language;
+        const supportedLanguages = {
+            danish: ['da', 'da-DK'],
+            french: ['fr', 'fr-FR', 'fr-CA'],
+            italian: ['it', 'it-IT'],
+            portuguese: ['pt', 'pt-BR', 'pt-PT'],
         };
-        const supportedLanguage = Object.values(language).find((language: string): boolean => language === browserLanguage) ? true : false;
+        // Get key in SupportedLanguages object which includes the userAgentLanguage
+        const languageKey: string = Object.keys(supportedLanguages).find((value: string) => supportedLanguages[value].includes(userAgentLanguage));
 
-        if (supportedLanguage) {
-            // English if already set in the constructor as a default language
-            if (browserLanguage === language.english) {
-                return;
-            }
-
-            // Set Brazilian and Portugal Portuguese to Portuguese
-            if (browserLanguage === language.portugueseBrazilian || browserLanguage === language.portuguesePortugal) {
-                this.translate.use(language.portuguese);
-                return;
-            }
-
-            // Set Italy-Italian ('it-it') to Italian ('it')
-            if (browserLanguage === language.italian || browserLanguage === language.italianItaly) {
-                this.translate.use(language.italian);
-                return;
-            }
-
-            this.translate.use(browserLanguage);
+        if (languageKey) {
+            // Danish
+            if (languageKey === 'danish') this.translate.use('da');
+            // French
+            if (languageKey === 'french') this.translate.use('fr');
+            // Italian
+            if (languageKey === 'italian') this.translate.use('it');
+            // Portuguese
+            if (languageKey === 'portuguese') this.translate.use('pt');
         }
     }
 }
