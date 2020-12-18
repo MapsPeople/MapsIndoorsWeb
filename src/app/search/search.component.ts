@@ -22,6 +22,7 @@ import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
 import { Category } from '../shared/models/category.interface';
 import { SearchParameters } from '../shared/models/searchParameters.interface';
+import { CategoryService } from '../services/category.service';
 
 @Component({
     selector: 'app-search',
@@ -81,6 +82,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         public _ngZone: NgZone,
         private solutionService: SolutionService,
         private appConfigService: AppConfigService,
+        private categoryService: CategoryService,
         private venueService: VenueService,
         private googleMapService: GoogleMapService,
         private locationService: LocationService,
@@ -119,10 +121,14 @@ export class SearchComponent implements OnInit, OnDestroy {
                     this.getPreviousFiltering();
                     this.panIfWithinBounds();
                 })
+            )
+            .add(this.categoryService.getMainMenuCategoriesObservable()
+                .subscribe((categories: Category[]): void => {
+                    this.categoriesMenu = categories;
+                })
             );
 
         this.SearchHintAppTitle = this.appConfig.appSettings.title;
-        this.categoriesMenu = this.appConfig.menuInfo.mainmenu;
         window['angularComponentRef'] = { component: this, zone: this._ngZone };
     }
 
@@ -261,7 +267,7 @@ export class SearchComponent implements OnInit, OnDestroy {
             take: 50,
             skip: this.locationsArray.length,
             venue: this.venue.name,
-            categories: categoryKey,
+            categories: [categoryKey],
             orderBy: 'relevance',
         };
         parameters.near = `venue:${this.venue.id}`;
@@ -329,7 +335,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         };
         parameters.near = `venue:${this.venue.id}`;
         if (this.category) {
-            parameters.categories = this.category.categoryKey;
+            parameters.categories = [this.category.categoryKey];
         }
 
         return this.searchService.getLocations(parameters);

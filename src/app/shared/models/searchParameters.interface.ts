@@ -7,7 +7,7 @@ export interface SearchParameters {
     orderBy?: string,
     near?: string | Object,
     venue?: string,
-    categories?: string,
+    categories?: string[],
     getGoogleResults?: boolean,
     countryCodeRestrictions?: string
 }

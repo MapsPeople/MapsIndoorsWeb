@@ -8,17 +8,9 @@ declare const mapsindoors: any;
 export class GoogleMapService {
 
     private infoWindow = new google.maps.InfoWindow;
-    venue: any;
-    googleMapView: any;
-    map: any;
 
-    mapOptions = {
-        zoom: 17,
-        maxZoom: 21,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: true
-    }
+    public googleMapView: any;
+    public map: google.maps.Map;
 
     /**
      * Creates an instance of mapsindoors.mapView.GoogleMapsView, which
@@ -29,7 +21,10 @@ export class GoogleMapService {
         return new Promise((resolve): void => {
             this.googleMapView = new mapsindoors.mapView.GoogleMapsView({
                 element: document.getElementById('gmap'),
-                ...this.mapOptions
+                zoom: 17,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: true
             });
             this.map = this.googleMapView.getMap();
             resolve();

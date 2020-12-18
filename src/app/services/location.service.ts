@@ -156,6 +156,7 @@ export class LocationService {
      * @memberof LocationService
      */
     public highlightLocationPolygon(locationId: string): void {
+        // DISCLAIMER: The fillColor, fillOpacity, strokeColor, strokeOpacity, and strokeWeight properties are not an official part of the Display Rules interface and may be subject to change without further notice
         this.mapsIndoorsService.mapsIndoors.setDisplayRule(locationId, {
             visible: true,
             zoomFrom: '0',

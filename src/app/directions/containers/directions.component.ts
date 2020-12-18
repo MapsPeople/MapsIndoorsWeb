@@ -156,9 +156,9 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                 this.isHandset = value;
 
                 // Add Step Switcher Control element to map if route is presented and device is handset
-                if (this.isHandset && this.directionsResponse && this.directionsResponse.legs.length > 0) {
+                if (this.isHandset && this.directionsResponse) {
                     this.addStepSwitcherMapControl(this.directionsResponse.legs);
-                } else if (this.stepSwitcherMapControl) { // Remove Step Switcher Control element from map if device is no longer is handset
+                } else if (this.stepSwitcherMapControl) { // Remove Step Switcher Control element from map if device no longer is handset
                     this.removeStepSwitcherMapControl();
                 }
             });
@@ -599,7 +599,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                         this._ngZone.run((): void => {
                             this.transitAgencies = this.getAgencyInfo(directionsResponse.legs);
 
-                            // Add Step Switcher Control element to map if device is handset
+                            // Add Step Switcher Control element to map if the device is handset
                             if (this.isHandset) {
                                 this.addStepSwitcherMapControl(directionsResponse.legs);
                             }
@@ -646,6 +646,10 @@ export class DirectionsComponent implements OnInit, OnDestroy {
      * @param {any[]} legs
      */
     private addStepSwitcherMapControl(legs: any[]): void {
+        if (legs && legs.length < 2) {
+            return;
+        }
+
         this.stepSwitcherMapControl = new StepSwitcherControl(this.googleMapService.map, this.translateService.instant('Direction.Steps'));
         this.stepSwitcherMapControl.add(google.maps.ControlPosition.BOTTOM_CENTER, legs);
 

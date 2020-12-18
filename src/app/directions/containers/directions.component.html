@@ -169,12 +169,15 @@
                     <button mat-raised-button *ngIf="isHandset && directionsResponse && directionsResponse.legs.length > 0" (click)="showOnMap()">
                         {{ 'Buttons.ShowOnMap' | translate }}
                     </button>
-                    <button mat-raised-button [disabled]="currentLegIndex === 0" *ngIf="!isHandset && directionsResponse" (click)="prevSegment()">
-                        {{'DirectionRoute.Previous' | translate }}
-                    </button>
-                    <button mat-raised-button [disabled]="currentLegIndex === (directionsResponse.legs.length - 1)" *ngIf="!isHandset && directionsResponse" (click)="nextSegment()" [style.background-color]="colors.accent" [style.color]="colors.onAccent">
-                        {{ 'DirectionRoute.Next' | translate }}
-                    </button>
+
+                    <ng-container *ngIf="!isHandset && directionsResponse && directionsResponse.legs.length > 1">
+                        <button mat-raised-button [disabled]="currentLegIndex === 0" (click)="prevSegment()">
+                            {{'DirectionRoute.Previous' | translate }}
+                        </button>
+                        <button mat-raised-button [disabled]="currentLegIndex === (directionsResponse.legs.length - 1)" (click)="nextSegment()" [style.background-color]="colors.accent" [style.color]="colors.onAccent">
+                            {{ 'DirectionRoute.Next' | translate }}
+                        </button>
+                    </ng-container>
                 </div>
             </footer>
             <!-- #endregion -->
