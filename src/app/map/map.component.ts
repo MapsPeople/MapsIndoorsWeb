@@ -2,6 +2,7 @@ import { Component, NgZone } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GoogleMapService } from './../services/google-map.service';
 import { MapsIndoorsService } from './../services/maps-indoors.service';
+import { MiLiveDataService } from './../services/mi-live-data.service';
 import { LocationService } from './../services/location.service';
 import { ThemeService } from './../services/theme.service';
 import { VenueService } from './../services/venue.service';
@@ -48,6 +49,7 @@ export class MapComponent {
         private userAgentService: UserAgentService,
         private googleMapService: GoogleMapService,
         private mapsIndoorsService: MapsIndoorsService,
+        private miLiveDataService: MiLiveDataService,
         private solutionService: SolutionService,
         private appConfigService: AppConfigService,
         private locationService: LocationService,
@@ -83,6 +85,7 @@ export class MapComponent {
 
         await this.googleMapService.initMapView();
         await this.mapsIndoorsService.initMapsIndoors();
+        this.miLiveDataService.enableAll(this.mapsIndoorsService.mapsIndoors);
 
         this.getVenueFromUrl()
             .then((venue: Venue): void => {
