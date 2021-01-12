@@ -246,7 +246,7 @@ export class LocationService {
      */
     public getLocationByExternalId(externalId: string): Promise<Location> {
         return new Promise((resolve, reject): void => {
-            this.searchService.getLocations({ q: externalId, fields: 'externalid' })
+            this.searchService.getLocations({ q: externalId, fields: 'externalId' })
                 .then((locations: Location[]): void => {
                     const location = locations.find((location: Location): boolean =>
                         location.properties.externalId === externalId

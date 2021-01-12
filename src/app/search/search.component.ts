@@ -328,7 +328,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     private queryRequest(query: string): Promise<Location[]> {
         const parameters: SearchParameters = {
             q: query,
-            fields: 'name,description,aliases,categories,externalid',
+            fields: 'name,description,aliases,categories,externalId',
             take: 50,
             skip: this.locationsArray.length,
             orderBy: 'relevance',

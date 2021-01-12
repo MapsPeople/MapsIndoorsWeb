@@ -21,6 +21,8 @@ import { Location } from '../../shared/models/location.interface';
 import { BaseLocation } from '../../shared/models/baseLocation.interface';
 import { SearchData } from '../components/search/searchData.interface';
 import { SearchParameters } from '../../shared/models/searchParameters.interface';
+import { Step } from '@mapsindoors/components/dist/types/types/step.interface';
+import { Leg } from '@mapsindoors/components/dist/types/types/leg.interface';
 import { StepSwitcherControl } from 'src/app/controls/step-switcher.control';
 
 declare const mapsindoors: any;
@@ -83,8 +85,9 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     totalTravelDuration: number;
     totalTravelDistance: number;
 
-    startLegLabel: string = '';
-    currentLegIndex: number = 0;
+    public stepIndex: number = 0;
+    public flattenedStepsArray: Step[] = [];
+
     private stepSwitcherMapControl: StepSwitcherControl;
     private handleStepIndexChanged: EventListenerOrEventListenerObject;
 
@@ -157,7 +160,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
                 // Add Step Switcher Control element to map if route is presented and device is handset
                 if (this.isHandset && this.directionsResponse) {
-                    this.addStepSwitcherMapControl(this.directionsResponse.legs);
+                    this.addStepSwitcherMapControl(this.flattenedStepsArray);
                 } else if (this.stepSwitcherMapControl) { // Remove Step Switcher Control element from map if device no longer is handset
                     this.removeStepSwitcherMapControl();
                 }
@@ -190,16 +193,16 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
     /*
      * Listen for clicks on the <mi-route-instructions> component and
-     * set the leg accordingly.
+     * set the leg and step accordingly.
      */
     @HostListener('clicked', ['$event'])
     private onInstructionsClicked(event): void {
         if (typeof event.detail.legIndex === 'number') {
-            this.setLegIndex(event.detail.legIndex);
+            this.setActiveStep(event.detail.stepIndex, event.detail.legIndex);
 
             // Update stepIndex at <mi-step-switcher> component
             if (this.stepSwitcherMapControl) {
-                this.stepSwitcherMapControl.miStepSwitcherElement.stepIndex = event.detail.legIndex;
+                this.stepSwitcherMapControl.miStepSwitcherElement.stepIndex = this.stepIndex;
             }
         }
     }
@@ -597,25 +600,24 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                     if (this.isViewActive) {
                         this.mapsIndoorsService.hideFloorSelector();
                         this._ngZone.run((): void => {
+                            if (!this.hasOriginAndDestination()) {
+                                return;
+                            }
+
+                            this.directionsRendererInstance.setRoute(directionsResponse);
+                            this.directionsResponse = directionsResponse;
                             this.transitAgencies = this.getAgencyInfo(directionsResponse.legs);
+
+                            // Skip overview and display first step
+                            this.directionsRendererInstance.setStepIndex(0, 0);
+
+                            // Flattened array of all steps in route
+                            this.flattenedStepsArray = directionsResponse.legs.map((leg: Leg): Step[] => leg.steps).flat();
 
                             // Add Step Switcher Control element to map if the device is handset
                             if (this.isHandset) {
-                                this.addStepSwitcherMapControl(directionsResponse.legs);
+                                this.addStepSwitcherMapControl(this.flattenedStepsArray);
                             }
-
-                            if (this.hasOriginAndDestination()) {
-                                this.directionsResponse = directionsResponse;
-                                this.directionsRendererInstance.setRoute(directionsResponse);
-                            }
-
-                            const myPositionTranslation: string = this.translateService.instant('Direction.MyPosition');
-                            const externalLocation = this.originInputValue === myPositionTranslation || this.destinationInputValue === myPositionTranslation ? '"User location"' : 'external location';
-                            const origin = `${this.originLocation.id ? `"${this.originLocation.properties.name}" – ${this.originLocation.id}` : externalLocation}`;
-                            const destination = `${this.destinationLocation.id ? `"${this.destinationLocation.properties.name}" – ${this.destinationLocation.id}` : externalLocation}`;
-                            this.trackerService.sendEvent('Directions', 'Got directions', `From ${origin} to ${destination}`);
-
-                            this.directionsResponse = directionsResponse;
 
                             this.totalTravelDuration = directionsResponse.legs.reduce((sum, leg): number => {
                                 return sum + leg.duration.value;
@@ -626,6 +628,12 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                             }, 0);
 
                             this.loading = false;
+
+                            const myPositionTranslation: string = this.translateService.instant('Direction.MyPosition');
+                            const externalLocation = this.originInputValue === myPositionTranslation || this.destinationInputValue === myPositionTranslation ? '"User location"' : 'external location';
+                            const origin = `${this.originLocation.id ? `"${this.originLocation.properties.name}" – ${this.originLocation.id}` : externalLocation}`;
+                            const destination = `${this.destinationLocation.id ? `"${this.destinationLocation.properties.name}" – ${this.destinationLocation.id}` : externalLocation}`;
+                            this.trackerService.sendEvent('Directions', 'Got directions', `From ${origin} to ${destination}`);
                         });
                     }
                 })
@@ -643,18 +651,26 @@ export class DirectionsComponent implements OnInit, OnDestroy {
      * Add step switcher control element to map.
      *
      * @private
-     * @param {any[]} legs
+     * @param {Step[]} steps
+     * @returns {void}
      */
-    private addStepSwitcherMapControl(legs: any[]): void {
-        if (legs && legs.length < 2) {
+    private addStepSwitcherMapControl(steps: Step[]): void {
+        if (steps && steps.length < 2) {
             return;
         }
 
         this.stepSwitcherMapControl = new StepSwitcherControl(this.googleMapService.map, this.translateService.instant('Direction.Steps'));
-        this.stepSwitcherMapControl.add(google.maps.ControlPosition.BOTTOM_CENTER, legs);
+        this.stepSwitcherMapControl.add(google.maps.ControlPosition.BOTTOM_CENTER, steps);
+        this.stepSwitcherMapControl.miStepSwitcherElement.stepIndex = this.stepIndex;
 
         // Listen for stepIndexChanged event from <mi-step-switcher> component and set the leg index accordingly.
-        this.handleStepIndexChanged = (event: CustomEvent): void => this.setLegIndex(event.detail);
+        this.handleStepIndexChanged = (event: CustomEvent): void => {
+            if (event.detail < this.stepIndex) {
+                this.showPreviousStep();
+            } else if (event.detail > this.stepIndex) {
+                this.showNextStep();
+            }
+        };
         document.addEventListener('stepIndexChanged', this.handleStepIndexChanged);
     }
 
@@ -716,31 +732,38 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     }
 
     // #region - INTERACTION WITH SEGMENTS
-    prevSegment(): void {
-        if (this.currentLegIndex > 0) {
-            this.currentLegIndex--;
+    /**
+     * Show previous step.
+     */
+    showPreviousStep(): void {
+        if (this.stepIndex === 0) {
+            return;
         }
-        this.directionsRendererInstance.setLegIndex(this.currentLegIndex);
-    }
-
-    nextSegment(): void {
-        if (this.currentLegIndex + 1 < this.directionsResponse.legs.length) {
-            this.currentLegIndex++;
-        }
-        this.directionsRendererInstance.setLegIndex(this.currentLegIndex);
+        this.stepIndex--;
+        this.directionsRendererInstance.previousStep();
     }
 
     /**
-     * Set active leg index.
+     * Show next step.
+     */
+    showNextStep(): void {
+        if ((this.stepIndex + 1) === this.flattenedStepsArray.length) {
+            return;
+        }
+        this.stepIndex++;
+        this.directionsRendererInstance.nextStep();
+    }
+
+    /**
+     * Set current step and leg.
      *
+     * @param {number} stepIndex
      * @param {number} legIndex
      */
-    setLegIndex(legIndex: number): void {
-        // If not already active
-        if (legIndex !== this.currentLegIndex) {
-            this.currentLegIndex = legIndex;
-            this.directionsRendererInstance.setLegIndex(this.currentLegIndex);
-        }
+    setActiveStep(stepIndex: number, legIndex: number): void {
+        const currentStep = this.directionsResponse.legs[legIndex].steps[stepIndex];
+        this.stepIndex = this.flattenedStepsArray.indexOf(currentStep);
+        this.directionsRendererInstance.setStepIndex(stepIndex, legIndex);
     }
     // #endregion
 
@@ -761,7 +784,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
         this.removeStepSwitcherMapControl();
         this.venueService.returnBtnActive = true;
         this.transitAgencies = [];
-        this.currentLegIndex = 0;
+        this.stepIndex = 0;
+        this.flattenedStepsArray = [];
         this.loading = false;
         this.isPoweredByGoogle = false;
         this.error = null;

@@ -30,7 +30,7 @@ export class SearchService {
         const args: SearchParameters = {
             q: term,
             take: parameters.take,
-            fields: 'name,description,aliases,categories,externalid',
+            fields: 'name,description,aliases,categories,externalId',
             orderBy: 'relevance',
             near: parameters.near,
         };

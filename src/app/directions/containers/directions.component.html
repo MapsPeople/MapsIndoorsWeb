@@ -166,15 +166,15 @@
 
                 <!-- Show on map, Previous and next button -->
                 <div class="flex-h-center direction-btn-wrap">
-                    <button mat-raised-button *ngIf="isHandset && directionsResponse && directionsResponse.legs.length > 0" (click)="showOnMap()">
+                    <button mat-raised-button *ngIf="isHandset && flattenedStepsArray?.length > 0" (click)="showOnMap()">
                         {{ 'Buttons.ShowOnMap' | translate }}
                     </button>
 
-                    <ng-container *ngIf="!isHandset && directionsResponse && directionsResponse.legs.length > 1">
-                        <button mat-raised-button [disabled]="currentLegIndex === 0" (click)="prevSegment()">
+                    <ng-container *ngIf="!isHandset && flattenedStepsArray?.length > 1">
+                        <button mat-raised-button [disabled]="stepIndex <= 0" (click)="showPreviousStep()">
                             {{'DirectionRoute.Previous' | translate }}
                         </button>
-                        <button mat-raised-button [disabled]="currentLegIndex === (directionsResponse.legs.length - 1)" (click)="nextSegment()" [style.background-color]="colors.accent" [style.color]="colors.onAccent">
+                        <button mat-raised-button [disabled]="stepIndex === (flattenedStepsArray.length -1)" (click)="showNextStep()" [style.background-color]="colors.accent" [style.color]="colors.onAccent">
                             {{ 'DirectionRoute.Next' | translate }}
                         </button>
                     </ng-container>
@@ -193,7 +193,8 @@
                 </button>
                 <h1>{{ 'Direction.RouteSettings' | translate }}</h1>
                 <span>
-                    <!-- placeholder --></span>
+                    <!-- placeholder -->
+                </span>
             </nav>
 
         </mat-toolbar>
