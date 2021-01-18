@@ -92,7 +92,9 @@
         "at": "at",
         "andContinue": "e continua",
         "TakeStaircaseToLevel": "Prendi le scale fino al piano",
-        "TakeElevatorToLevel": "Prendi l’ascensore fino al piano"
+        "TakeElevatorToLevel": "Prendi l’ascensore fino al piano",
+        "Building": "Edificio",
+        "Venue": "Luogo"
     },
     "DirectionHint": {
         "searchHint": "Cerca luoghi all'interno o all'esterno",

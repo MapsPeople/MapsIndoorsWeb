@@ -92,7 +92,9 @@
         "at": "no",
         "andContinue": "e continue",
         "TakeStaircaseToLevel": "suba as escadas para o nível",
-        "TakeElevatorToLevel": "pegue o elevador até o nível"
+        "TakeElevatorToLevel": "pegue o elevador até o nível",
+        "Building": "Construção",
+        "Venue": "Local"
     },
     "DirectionHint": {
         "searchHint": "Pesquisa localizações interiores e exteriores",

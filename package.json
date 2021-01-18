@@ -1,6 +1,6 @@
 {
     "name": "maps-indoors-webapp",
-    "version": "4.3.0",
+    "version": "4.3.3",
     "scripts": {
         "ng": "ng",
         "start": "npm run build:dev --prefix ./modules/sdk && ng serve",
@@ -44,7 +44,7 @@
         "@angular/cli": "^7.3.9",
         "@angular/compiler-cli": "^7.2.15",
         "@angular/language-service": "^7.2.15",
-        "@mapsindoors/components": "^7.1.1",
+        "@mapsindoors/components": "^7.2.1",
         "@ngneat/spectator": "^4.11.1",
         "@sentry/browser": "^5.12.1",
         "@types/jest": "^24.9.1",

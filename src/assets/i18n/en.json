@@ -92,7 +92,9 @@
         "at": "at",
         "andContinue": "and continue",
         "TakeStaircaseToLevel": "Take staircase to level",
-        "TakeElevatorToLevel": "Take elevator to level"
+        "TakeElevatorToLevel": "Take elevator to level",
+        "Building": "Building",
+        "Venue": "Venue"
     },
     "DirectionHint": {
         "searchHint": "Search for locations indoors or outdoors",

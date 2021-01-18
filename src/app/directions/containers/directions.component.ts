@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, NgZone, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, ViewChild, HostListener, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSidenav } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
@@ -85,7 +85,9 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     totalTravelDuration: number;
     totalTravelDistance: number;
 
-    public stepIndex: number = 0;
+    @ViewChild('routeInstructions') routeInstructionsComponent: ElementRef<HTMLMiRouteInstructionsElement>;
+
+    public flattenedStepsArrayIndex: number = 0;
     public flattenedStepsArray: Step[] = [];
 
     private stepSwitcherMapControl: StepSwitcherControl;
@@ -115,6 +117,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
         from: this.translateService.instant('Direction.From'),
         park: this.translateService.instant('DirectionRoute.Park'),
         at: this.translateService.instant('DirectionRoute.at'),
+        building: this.translateService.instant('DirectionRoute.Building'),
+        venue: this.translateService.instant('DirectionRoute.Venue'),
         takeStaircaseToLevel: this.translateService.instant('DirectionRoute.TakeStaircaseToLevel'),
         takeElevatorToLevel: this.translateService.instant('DirectionRoute.TakeElevatorToLevel'),
         exit: this.translateService.instant('DirectionRoute.Exit'),
@@ -199,11 +203,6 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     private onInstructionsClicked(event): void {
         if (typeof event.detail.legIndex === 'number') {
             this.setActiveStep(event.detail.stepIndex, event.detail.legIndex);
-
-            // Update stepIndex at <mi-step-switcher> component
-            if (this.stepSwitcherMapControl) {
-                this.stepSwitcherMapControl.miStepSwitcherElement.stepIndex = this.stepIndex;
-            }
         }
     }
 
@@ -661,13 +660,13 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
         this.stepSwitcherMapControl = new StepSwitcherControl(this.googleMapService.map, this.translateService.instant('Direction.Steps'));
         this.stepSwitcherMapControl.add(google.maps.ControlPosition.BOTTOM_CENTER, steps);
-        this.stepSwitcherMapControl.miStepSwitcherElement.stepIndex = this.stepIndex;
+        this.stepSwitcherMapControl.miStepSwitcherElement.stepIndex = this.flattenedStepsArrayIndex;
 
         // Listen for stepIndexChanged event from <mi-step-switcher> component and set the leg index accordingly.
         this.handleStepIndexChanged = (event: CustomEvent): void => {
-            if (event.detail < this.stepIndex) {
+            if (event.detail < this.flattenedStepsArrayIndex) {
                 this.showPreviousStep();
-            } else if (event.detail > this.stepIndex) {
+            } else if (event.detail > this.flattenedStepsArrayIndex) {
                 this.showNextStep();
             }
         };
@@ -736,22 +735,34 @@ export class DirectionsComponent implements OnInit, OnDestroy {
      * Show previous step.
      */
     showPreviousStep(): void {
-        if (this.stepIndex === 0) {
+        if (this.flattenedStepsArrayIndex === 0) {
             return;
         }
-        this.stepIndex--;
+        this.flattenedStepsArrayIndex--;
         this.directionsRendererInstance.previousStep();
+        this.updateHighlightedStep();
     }
 
     /**
      * Show next step.
      */
     showNextStep(): void {
-        if ((this.stepIndex + 1) === this.flattenedStepsArray.length) {
+        if ((this.flattenedStepsArrayIndex + 1) === this.flattenedStepsArray.length) {
             return;
         }
-        this.stepIndex++;
+        this.flattenedStepsArrayIndex++;
         this.directionsRendererInstance.nextStep();
+        this.updateHighlightedStep();
+    }
+
+    /**
+     * Update activeStep attribute on <mi-route-instructions> component.
+     */
+    updateHighlightedStep(): void {
+        this.routeInstructionsComponent.nativeElement.activeStep = {
+            legIndex: this.directionsRendererInstance.getLegIndex(),
+            stepIndex: this.directionsRendererInstance.getStepIndex()
+        };
     }
 
     /**
@@ -761,9 +772,16 @@ export class DirectionsComponent implements OnInit, OnDestroy {
      * @param {number} legIndex
      */
     setActiveStep(stepIndex: number, legIndex: number): void {
-        const currentStep = this.directionsResponse.legs[legIndex].steps[stepIndex];
-        this.stepIndex = this.flattenedStepsArray.indexOf(currentStep);
+        // Show step on map
         this.directionsRendererInstance.setStepIndex(stepIndex, legIndex);
+
+        const currentStep = this.directionsResponse.legs[legIndex].steps[stepIndex];
+        this.flattenedStepsArrayIndex = this.flattenedStepsArray.indexOf(currentStep);
+
+        // Update stepIndex at <mi-step-switcher> component
+        if (this.stepSwitcherMapControl) {
+            this.stepSwitcherMapControl.miStepSwitcherElement.stepIndex = this.flattenedStepsArrayIndex;
+        }
     }
     // #endregion
 
@@ -784,7 +802,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
         this.removeStepSwitcherMapControl();
         this.venueService.returnBtnActive = true;
         this.transitAgencies = [];
-        this.stepIndex = 0;
+        this.flattenedStepsArrayIndex = 0;
         this.flattenedStepsArray = [];
         this.loading = false;
         this.isPoweredByGoogle = false;

@@ -92,7 +92,9 @@
         "at": "ved",
         "andContinue": "og fortsæt",
         "TakeStaircaseToLevel": "Tag trappen til etage",
-        "TakeElevatorToLevel": "Tag elevatoren til etage"
+        "TakeElevatorToLevel": "Tag elevatoren til etage",
+        "Building": "Bygning",
+        "Venue": "Venue"
     },
     "DirectionHint": {
         "searchHint": "Søg efter indendørs og udendørs lokationer",
