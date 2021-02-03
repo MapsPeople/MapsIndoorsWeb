@@ -29,7 +29,7 @@ export class LocationService {
     private polygonHighlightOptions = {
         strokeColor: '#EF6CCE',
         strokeOpacity: 1,
-        strokeWeight: 1,
+        strokeWeight: 2,
         fillColor: '#EF6CCE',
         fillOpacity: 0.2
     };

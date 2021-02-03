@@ -86,34 +86,7 @@ export class MapsIndoorsService {
                     this.userAgentService.positionReceived(position);
                 });
             }
-
-            // Hide Building Outline and FloorSelector if there are any 2.5D tiles available
-            const buildingOutlineVisibleFrom: number = parseInt(this.appConfig.appSettings.buildingOutlineVisibleFrom);
-            const floorSelectorVisibleFrom: number = parseInt(this.appConfig.appSettings.floorSelectorVisibleFrom);
-            if (buildingOutlineVisibleFrom && floorSelectorVisibleFrom) {
-                this.mapsIndoors.addListener('zoom_changed', (): void => {
-                    const mapsIndoorsZoomLevel: number = this.mapsIndoors.getZoom();
-                    // Building Outline
-                    mapsIndoorsZoomLevel >= buildingOutlineVisibleFrom ? this.showBuildingOutline() : this.mapsIndoors.setBuildingOutlineOptions({ visible: false });
-                    // Floor Selector
-                    mapsIndoorsZoomLevel >= floorSelectorVisibleFrom ? this.showFloorSelector() : this.hideFloorSelector();
-                });
-            } else this.showBuildingOutline();
             resolve();
-        });
-    }
-
-    /**
-     * Set and show building outline.
-     */
-    showBuildingOutline(): void {
-        this.mapsIndoors.setBuildingOutlineOptions({
-            visible: true,
-            clickable: false,
-            fillOpacity: 0,
-            strokeColor: '#EF6CCE',
-            strokeOpacity: 1,
-            strokeWeight: 4
         });
     }
     // #endregion
