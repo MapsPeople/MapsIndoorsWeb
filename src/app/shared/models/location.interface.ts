@@ -1,5 +1,11 @@
 import { Anchor } from './anchor.interface';
 
+export interface Field {
+    text: string;
+    type: string;
+    value: string;
+}
+
 export interface Location {
     id: string,
     type: string,
@@ -19,7 +25,9 @@ interface LocationProperties {
     contact: Contact,
     description: string
     displayRule: any
-    fields: { [key: string]: { value: string } }
+    fields: {
+        [key: string]: Field
+    }
     floor: string,
     floorName: string,
     imageURL?: any,

@@ -13,8 +13,6 @@ export class AppComponent {
         private translate: TranslateService,
         private routingState: RoutingStateService
     ) {
-        // Set default language
-        translate.setDefaultLang('en');
         routingState.loadRouting();
     }
 
@@ -23,30 +21,18 @@ export class AppComponent {
     }
 
     /**
-     * Set language based on the user agents language if supported.
-     * Language variants is mapped to the main key which is the same as the one used for the translations-filename.
+     * Set language based on the user's language code.
+     * Language variations, e.g. "en-US" and "en-UK", will default to "en".
      * @private
      */
     private setLanguage(): void {
-        const userAgentLanguage = window.navigator.language;
-        const supportedLanguages = {
-            danish: ['da', 'da-DK'],
-            french: ['fr', 'fr-FR', 'fr-CA'],
-            italian: ['it', 'it-IT'],
-            portuguese: ['pt', 'pt-BR', 'pt-PT'],
-        };
-        // Get key in SupportedLanguages object which includes the userAgentLanguage
-        const languageKey: string = Object.keys(supportedLanguages).find((value: string) => supportedLanguages[value].includes(userAgentLanguage));
+        // Slice off language variations since we do not support them, e.g.
+        // "en-US" or "en-UK" will default to "en".
+        const langCode = window.navigator.language.slice(0, 2);
+        const supportedLanguages = ['da', 'fr', 'it', 'pt', 'es'];
 
-        if (languageKey) {
-            // Danish
-            if (languageKey === 'danish') this.translate.use('da');
-            // French
-            if (languageKey === 'french') this.translate.use('fr');
-            // Italian
-            if (languageKey === 'italian') this.translate.use('it');
-            // Portuguese
-            if (languageKey === 'portuguese') this.translate.use('pt');
-        }
+        const isLanguageSupported = supportedLanguages.includes(langCode);
+
+        isLanguageSupported ? this.translate.use(langCode) : this.translate.use('en');
     }
 }

@@ -13,9 +13,11 @@ import { SolutionService } from '../services/solution.service';
 import { UserAgentService } from '../services/user-agent.service';
 import { NotificationService } from '../services/notification.service';
 import { TrackerService } from '../services/tracker.service';
-
+import { parse as parseDuration } from 'iso8601-duration';
+import { add as addToDate, lightFormat } from 'date-fns';
 import { Venue } from '../shared/models/venue.interface';
 import { Location } from '../shared/models/location.interface';
+import { TimeInterval } from '../shared/models/timeInterval.interface';
 
 @Component({
     selector: 'app-details',
@@ -28,6 +30,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
     venue: Venue;
     location: Location;
     displayAliases: boolean = false;
+    locationPeakTime: TimeInterval;
 
     loading: boolean = false;
     appConfig: any;
@@ -64,9 +67,11 @@ export class DetailsComponent implements OnInit, OnDestroy {
                 if (!Array.isArray(location.properties.categories)) {
                     location.properties.categories = Object.values(location.properties.categories);
                 }
+
                 this.location = location;
                 this.googleMapService.openInfoWindow();
                 this.mapsIndoorsService.setPageTitle(location.properties.name);
+                this.setPeakTimeDetails(location);
             });
         this.isHandsetSubscription = this.userAgentService.isHandset()
             .subscribe((value: boolean) => this.isHandset = value);
@@ -89,7 +94,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
     /**
 	 * @description Gets and sets the location based on the URL id parameter
 	 * @memberof DetailsComponent
-	 * @private 
+	 * @private
 	 */
     private setLocation(): void {
         const id = this.route.snapshot.params.id;
@@ -109,6 +114,24 @@ export class DetailsComponent implements OnInit, OnDestroy {
                     this.notificationService.displayNotification(err.message);
                     this.goBack();
                 });
+        }
+    }
+
+    /**
+     * Set location peak time details, if any.
+     * @param location: Location
+     */
+    private setPeakTimeDetails(location: Location): void {
+        const peakTimeFieldsKey = 'miPeakTime' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat',][new Date().getDay()];
+        if (location.properties.fields && location.properties.fields[peakTimeFieldsKey] && location.properties.fields[peakTimeFieldsKey].value) {
+            const dateString = lightFormat(new Date(), 'yyyy-MM-dd');
+            const peakTimeFullString = `${dateString}T${location.properties.fields[peakTimeFieldsKey].value}`;
+            const startTime = new Date(peakTimeFullString.split('/')[0]);
+            const duration = parseDuration(location.properties.fields[peakTimeFieldsKey].value);
+            const endTime = addToDate(startTime, duration);
+            this.locationPeakTime = { start: startTime, end: endTime };
+        } else {
+            this.locationPeakTime = undefined;
         }
     }
 

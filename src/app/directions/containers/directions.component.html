@@ -80,7 +80,7 @@
             <!-- List -->
             <user-position *ngIf="useBrowserPositioning && currentPositionVisible && currentInputField === 'start'" (eventTriggered)="handleMyPositionClick($event)" (error)="handleMyPositionError()"></user-position>
             <div class="content-text" *ngIf="!loading && searchResults.length === 0 && searchInputFieldHasFocus">
-                <p class="hint">{{ 'DirectionHint.searchHint' | translate }}</p>
+                <p class="hint">{{ 'DirectionHint.SearchHint' | translate }}</p>
             </div>
 
             <mat-nav-list *ngIf="searchResults && !loading">
@@ -204,7 +204,7 @@
         <section class="content">
             <h1>{{ 'Direction.AppUserRoles' | translate }}</h1>
             <p class="content-text">
-                {{ 'Direction.ChooseTheAppUserRoles...' | translate }}
+                {{ 'Direction.ChooseTheAppUserRoles' | translate }}
             </p>
             <mat-selection-list #userRoles [(ngModel)]="selectedUserRoles" (selectionChange)="onUserRolesChange($event)">
                 <mat-list-option *ngFor="let role of userRolesList" [value]="role.id">{{role.name}}</mat-list-option>

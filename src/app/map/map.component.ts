@@ -252,10 +252,14 @@ export class MapComponent {
     // #endregion
 
     // #region || LISTENER || FLOOR CHANGED
-    // Closes and opens info-windows when changing floors
+    /**
+     * Add "floor_changed" listener and handle highlight of selected location on change.
+     */
     addFloorChangedListener(): void {
         this.mapsIndoorsService.mapsIndoors.addListener('floor_changed', (): void => {
-            if (this.location && this.route.children[0].snapshot.routeConfig.component.name === 'DetailsComponent') {
+            const routeSnapshot = this.route.children[0].snapshot;
+
+            if (this.location && routeSnapshot && routeSnapshot.routeConfig.component.name === 'DetailsComponent') {
                 const locationFloor: string = this.location.properties.floor;
                 if (locationFloor !== this.mapsIndoorsService.mapsIndoors.getFloor()) {
                     this.googleMapService.closeInfoWindow();
@@ -270,6 +274,5 @@ export class MapComponent {
         });
     }
     // #endregion
-
 }
 

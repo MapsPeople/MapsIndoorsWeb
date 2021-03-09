@@ -82,6 +82,14 @@
                 iconName="today">
             </detail-field>
 
+            <!-- Peak time -->
+            <detail-field
+                *ngIf="locationPeakTime"
+                [heading]="'Details.PeakTime' | translate"
+                [value]="locationPeakTime.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase() + ' - ' + locationPeakTime.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()"
+                iconName="access_time">
+            </detail-field>
+
             <!-- Email -->
             <detail-field
                 *ngIf="location.properties.fields?.email"
@@ -122,7 +130,7 @@
             <div class="content-text" *ngIf="location.properties.building || location.properties.floorName">
                 <mat-icon class="content-icon">location_city</mat-icon>
                 <p class="line-break">
-                    <span *ngIf="location.properties.floorName">Level {{location.properties.floorName}}</span>
+                    <span *ngIf="location.properties.floorName">{{ 'Details.Level' | translate }} {{location.properties.floorName}}</span>
                     <span *ngIf="location.properties.building">{{location.properties.building}}</span>
                     <!-- Hiding venue name if it's the same as building name -->
                     <span *ngIf="location.properties.venue && location.properties.building != location.properties.venue">{{location.properties.venue}}</span>
