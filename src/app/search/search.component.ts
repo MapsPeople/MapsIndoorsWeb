@@ -24,6 +24,7 @@ import { Category } from '../shared/models/category.interface';
 import { SearchParameters } from '../shared/models/searchParameters.interface';
 import { CategoryService } from '../services/category.service';
 
+
 @Component({
     selector: 'app-search',
     templateUrl: './search.component.html',
@@ -54,6 +55,9 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     zoomBtn: HTMLElement;
     zoomBtnListener: google.maps.MapsEventListener;
+
+    isUserRolesSelectionVisible = false;
+    userRolesList = [];
 
     debounceSearch: Subject<string> = new Subject<string>();
     debounceSearchSubscription: Subscription;
@@ -130,6 +134,14 @@ export class SearchComponent implements OnInit, OnDestroy {
 
         this.SearchHintAppTitle = this.appConfig.appSettings.title;
         window['angularComponentRef'] = { component: this, zone: this._ngZone };
+
+        this.solutionService.getUserRoles()
+            .then((roles): any => this.userRolesList = roles)
+            .catch((): void => {
+                this.notificationService.displayNotification(
+                    this.translateService.instant('Error.General')
+                );
+            });
     }
 
     // #region || SEARCH AND RESULTS
@@ -276,6 +288,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     searchValueChanged(value: string): void {
         this.debounceSearch.next(value);
+        this.error = null;
     }
 
     async getLocationsForQuery(query): Promise<void> {
@@ -499,5 +512,6 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.trackerService.sendEvent('Search page', 'About dialog', 'Open button was clicked for About dialog', true);
     }
     // #endregion
+
 
 }

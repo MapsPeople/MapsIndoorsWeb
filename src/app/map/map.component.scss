@@ -1,7 +1,12 @@
-.mat-toolbar {
-	overflow-x: hidden;
-}
-
 .mat-sidenav-content {
     height: 100%;
+}
+
+.mat-toolbar {
+	overflow-x: hidden;
+    width: 100%;
+}
+
+.map-header-container {
+    width: 100%;
 }

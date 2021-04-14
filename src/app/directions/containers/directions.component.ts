@@ -101,11 +101,6 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     appConfigSubscription: Subscription;
     themeServiceSubscription: Subscription;
 
-    userRolesPanel = false;
-    userRolesList = [];
-    selectedUserRoles = [];
-    private solutionId: string;
-
     public directionsResponse;
 
     public instructionsTranslations = {
@@ -221,24 +216,6 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             );
 
         this.useBrowserPositioning = this.appConfig.appSettings.positioningDisabled !== '1';
-        this.solutionService.getSolutionId()
-            .then((id: string): void => {
-                this.solutionId = id;
-                this.selectedUserRoles = JSON.parse(this.userAgentService.localStorage.getItem(`MI:${this.solutionId}:APPUSERROLES`) || '[]');
-            })
-            .catch((): void => {
-                this.notificationService.displayNotification(
-                    this.translateService.instant('SetSolution.InitError')
-                );
-            });
-
-        this.solutionService.getUserRoles()
-            .then((roles): any => this.userRolesList = roles)
-            .catch((): void => {
-                this.notificationService.displayNotification(
-                    this.translateService.instant('Error.General')
-                );
-            });
         this.mapsIndoorsService.setPageTitle(this.translateService.instant('Direction.Directions'));
 
         const originPromise = this.populateOrigin();
@@ -442,26 +419,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     }
     // #endregion
 
-    // #region - TOGGLE USER ROLES PANEL
-    /**
-     * toggles the visiblity of the user roles panel.
-     * @memberof DirectionsComponent
-     */
-    toggleUserRolesPanel() {
-        this.userRolesPanel = !this.userRolesPanel;
-    }
-    // #endregion
 
-    // #region - onUserRolesChange EventHandler
-    /**
-     * onUserRolesChange EventHandler
-     * Puts the selected User Roles into localStorage.
-     */
-    onUserRolesChange() {
-        this.userAgentService.localStorage.setItem('MI:' + this.solutionId + ':APPUSERROLES', JSON.stringify(this.selectedUserRoles));
-        this.getRoute();
-    }
-    // #endregion
 
     // #region - AGENCY INFO
     toggleAgencyInfo() {
@@ -586,10 +544,6 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                 userRoles: null
             };
 
-            if (this.selectedUserRoles.length > 0) {
-                args.userRoles = this.selectedUserRoles;
-            }
-
             this.directionService.getRoute(args)
                 .then((directionsResponse): void => {
                     if (!this.hasOriginAndDestination()) {
@@ -654,7 +608,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
      * @returns {void}
      */
     private addStepSwitcherMapControl(steps: Step[]): void {
-        if (steps && steps.length < 2) {
+        if (steps && steps.length < 2 || this.stepSwitcherMapControl) {
             return;
         }
 
@@ -670,6 +624,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                 this.showNextStep();
             }
         };
+
         document.addEventListener('stepIndexChanged', this.handleStepIndexChanged);
     }
 

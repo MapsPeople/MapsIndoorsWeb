@@ -5,14 +5,14 @@
         <header>
             <div class="hero" [style.background-color]="colors.primary">
                 <nav class="hero-nav">
-                    <button mat-icon-button (click)="goBack()">
+                    <button class="venue-back-btn" mat-icon-button (click)="goBack()">
                         <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
                     </button>
                     <button mat-icon-button (click)="openShareUrlDialog()">
                         <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">share</mat-icon>
                     </button>
                 </nav>
-                <h1 [style.color]="colors.onPrimary">
+                <h1 class="truncate" [style.color]="colors.onPrimary">
                     {{location.properties.name}}
                 </h1>
                 <div class="hero-img">

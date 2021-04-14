@@ -37,7 +37,6 @@
 "Direction.AvoidStairs": "Avoid stairs", 
 "Direction.MyPosition": "My Position", 
 "Direction.EnableMyPosition": "Enable location sharing to use your position", 
-"Direction.RouteSettings": "Route Settings", 
 "Direction.ChooseTheAppUserRoles": "Choose the App User Roles you are part of. This only affacts the directions you get, not the locations you see on the map", 
 "Direction.AppUserRoles": "App User Roles", 
 "Direction.Steps": "Step", 
@@ -99,5 +98,6 @@
 "Error.IncorrectRoom": "Oops, couldn’t find that Room", 
 "Error.IncorrectLocation": "Oops, couldn’t find that Location", 
 "Error.NoPosition": "Sorry, we couldn’t find your position", 
-"Error.General": "Oops! An error occurred, please try again later"
+"Error.General": "Oops! An error occurred, please try again later", 
+"Generic.Settings": "Settings"
 }

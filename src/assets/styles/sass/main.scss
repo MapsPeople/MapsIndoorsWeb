@@ -1,33 +1,6 @@
-@import "base/reset";
-
-// Helpers
-@import "helpers/variables";
-@import "helpers/helpers";
-
-// Themes
-@import "themes/theme";
-
-// Base
-@import "base/typography";
-
-// Components
-@import "components/buttons";
-@import "components/dialogs";
-@import "components/direction-search";
-@import "components/directions_icons";
-@import "components/directions_ie11";
-@import "components/directions";
-@import "components/floor-selector";
-@import "components/forms";
-@import "components/info-window";
-@import "components/scrollbar";
-@import "components/searchfield";
-@import "components/spinner";
-
-// Controls
-@import "controls/print-control";
-@import "controls/step-switcher-control";
-
-// Layout
-@import "layout/map";
-@import "layout/sidebar";
+@import "helpers/index";
+@import "themes/index";
+@import "base/index";
+@import "components/index.scss";
+@import "controls/index";
+@import "layout/index";

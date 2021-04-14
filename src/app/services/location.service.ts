@@ -156,17 +156,17 @@ export class LocationService {
      * @memberof LocationService
      */
     public highlightLocationPolygon(locationId: string): void {
-        // DISCLAIMER: The fillColor, fillOpacity, strokeColor, strokeOpacity, and strokeWeight properties are not an official part of the Display Rules interface and may be subject to change without further notice
         this.mapsIndoorsService.mapsIndoors.setDisplayRule(locationId, {
             visible: true,
             zoomFrom: '0',
             zoomTo: '22',
             zIndex: 1000,
-            fillColor: this.polygonHighlightOptions.fillColor,
-            fillOpacity: this.polygonHighlightOptions.fillOpacity,
-            strokeColor: this.polygonHighlightOptions.strokeColor,
-            strokeOpacity: this.polygonHighlightOptions.strokeOpacity,
-            strokeWeight: this.polygonHighlightOptions.strokeWeight
+            polygonFillColor: this.polygonHighlightOptions.fillColor,
+            polygonFillOpacity: this.polygonHighlightOptions.fillOpacity,
+            polygonStrokeColor: this.polygonHighlightOptions.strokeColor,
+            polygonStrokeOpacity: this.polygonHighlightOptions.strokeOpacity,
+            polygonStrokeWeight: this.polygonHighlightOptions.strokeWeight,
+            polygonVisible: true
         });
         this.highlightedLocationId = locationId;
     }

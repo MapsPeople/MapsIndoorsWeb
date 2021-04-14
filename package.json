@@ -1,6 +1,6 @@
 {
     "name": "maps-indoors-webapp",
-    "version": "5.2.0",
+    "version": "5.6.0",
     "scripts": {
         "ng": "ng",
         "start": "ng serve",
@@ -31,8 +31,8 @@
         "ajv": "~6.10.0",
         "classlist.js": "~1.1.20150312",
         "core-js": "~2.6.8",
-        "node-sass": "~4.12.0",
         "rxjs": "~6.5.2",
+        "node-sass": "~4.12.0",
         "simple-keyboard": "~2.27.27",
         "zone.js": "~0.8.29"
     },

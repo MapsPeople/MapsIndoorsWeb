@@ -1,15 +1,45 @@
+@import "../../../assets/styles/sass/helpers/variables";
+
 .instruction-title p {
-  margin-right: 8px;
-  font-weight: 600;
-  font-size: 13px;
+    margin-right: 8px;
+    font-weight: 600;
+    font-size: 13px;
 }
 
 .search-wrap {
-  width: 100%;
-  display: block;
-
-  &-small {
     width: 100%;
-    padding: 0 14px 0 0;
-  }
+    display: block;
+
+    &-small {
+        width: 100%;
+        padding: 0 14px 0 0;
+    }
+}
+
+.elevation-z2 {
+    mat-toolbar {
+        padding: 0 8px;
+    }
+}
+
+.nav-travel-mode {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    color: $color-white;
+    width: 100%;
+
+    .travel-mode {
+        margin-right: 32px;
+    }
+
+    .travel-mode .mat-icon-button {
+        opacity: .6;
+        margin-right: 8px;
+
+        &.active {
+          opacity: 1;
+        }
+    }
 }

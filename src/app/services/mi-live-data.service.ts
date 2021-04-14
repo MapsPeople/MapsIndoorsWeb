@@ -36,18 +36,26 @@ export class MiLiveDataService {
         }
 
         this.liveDataManager.enableLiveData(mapsindoors.LiveDataManager.LiveDataDomainTypes.POSITION);
-        this.liveDataManager.enableLiveData(mapsindoors.LiveDataManager.LiveDataDomainTypes.OCCUPANCY, this.customOccupancyCallback.bind(this));
-        this.liveDataManager.enableLiveData(mapsindoors.LiveDataManager.LiveDataDomainTypes.AVAILABILITY);
+        this.liveDataManager.enableLiveData(mapsindoors.LiveDataManager.LiveDataDomainTypes.OCCUPANCY, this.customLiveUpdateCallback.bind(this));
+        this.liveDataManager.enableLiveData(mapsindoors.LiveDataManager.LiveDataDomainTypes.AVAILABILITY, this.customLiveUpdateCallback.bind(this));
     }
 
-    private customOccupancyCallback(liveUpdateEvent): void {
-        liveUpdateEvent.data.forEach(async (locations, domain) => { // For some reason, this Angular app will not accept a for..of loop like we do in the kiosk project.
-            if (domain !== mapsindoors.LiveDataManager.LiveDataDomainTypes.OCCUPANCY) {
+    /**
+     * Custom callback for handling badge rendering. Overrides the default callback in the SDK with one that can render the occupancy badge with
+     * a percentage value of utilization instead of number of occupants.
+     *
+     * @param liveUpdateEvent {object}
+     */
+    private customLiveUpdateCallback(liveUpdateEvent): void {
+        liveUpdateEvent.data.forEach(async (locations, domain): Promise<void> => {  // For some reason, this Angular app will not accept a for..of loop like we do in the kiosk project.
+            if (![mapsindoors.LiveDataManager.LiveDataDomainTypes.OCCUPANCY, mapsindoors.LiveDataManager.LiveDataDomainTypes.AVAILABILITY].includes(domain)) {
                 return;
             }
 
             for (const location of locations) {
-                const update = location.liveUpdates.get(domain);
+                const availabilityUpdate = location.liveUpdates.get(mapsindoors.LiveDataManager.LiveDataDomainTypes.AVAILABILITY);
+                const occupancyUpdate = location.liveUpdates.get(mapsindoors.LiveDataManager.LiveDataDomainTypes.OCCUPANCY);
+
                 const displayRule = this.mapsIndoorsInstance.getDisplayRule(location, true);
                 const icon = await displayRule.getIcon();
 
@@ -57,16 +65,47 @@ export class MiLiveDataService {
 
                 let badgedIcon;
 
-                if (location.properties.fields.livedataRenderOccupancyAs && location.properties.fields.livedataRenderOccupancyAs.value && location.properties.fields.livedataRenderOccupancyAs.value.toLowerCase() === '% utilization') {
-                    // Show badge with percentage of utilization (capacity) or "-" if invalid data
-                    const badgeText = update.properties.capacity > 0 ? `${Math.round(update.properties.nrOfPeople / update.properties.capacity * 100)}%` : '-';
+                if (occupancyUpdate && location.properties.fields.livedataRenderOccupancyAs && location.properties.fields.livedataRenderOccupancyAs.value && location.properties.fields.livedataRenderOccupancyAs.value.toLowerCase() === '% utilization') {
+                    // Badge with percentage based on custom property
+                    const badgeText = occupancyUpdate.properties.capacity > 0 ? `${Math.round(occupancyUpdate.properties.nrOfPeople / occupancyUpdate.properties.capacity * 100)}%` : '-';
                     badgedIcon = await mapsindoors.BadgeRenderer.TextBadge.overlay(icon, {
                         text: badgeText
                     });
-                } else {
-                    // Show badge with nrOfPeople as text
+                } else if (availabilityUpdate && occupancyUpdate) {
+                    // Badge with combination of availability and occupancy
+                    if (occupancyUpdate.properties.nrOfPeople > 0 && availabilityUpdate.properties.available === false) {
+                        // Occupied + not available = Red bagde with x
+                        badgedIcon = await mapsindoors.BadgeRenderer.UnavailableBadge.overlay(icon);
+                    } else if (occupancyUpdate.properties.nrOfPeople > 0 && availabilityUpdate.properties.available === true) {
+                        // Occupied + available: Orange badge with occupant count (1-n)
+                        badgedIcon = await new mapsindoors.BadgeRenderer({
+                            text: occupancyUpdate.properties.nrOfPeople.toString(),
+                            backgroundColor: '#ad5f00' // MIDT $color-bronze-60
+                            // TODO: Import midt and use variable from that
+                        }).overlay(icon);
+                    } else if (occupancyUpdate.properties.nrOfPeople === 0 && availabilityUpdate.properties.available === false) {
+                        // Unoccupied + not available: Orange badge with "-"
+                        badgedIcon = await new mapsindoors.BadgeRenderer({
+                            text: '-',
+                            backgroundColor: '#ad5f00' // MIDT $color-bronze-60
+                        }).overlay(icon);
+                    } else if (occupancyUpdate.properties.nrOfPeople === 0 && availabilityUpdate.properties.available === true) {
+                        // Unoccupied + available: Green badge with ✓
+                        badgedIcon = await mapsindoors.BadgeRenderer.AvailableBadge.overlay(icon);
+                    }
+
+                } else if (domain === mapsindoors.LiveDataManager.LiveDataDomainTypes.AVAILABILITY) {
+                    // Badge with availability indicator (x, ✓)
+                    if (availabilityUpdate.properties.available === true) {
+                        badgedIcon = await mapsindoors.BadgeRenderer.AvailableBadge.overlay(icon);
+                    } else if (availabilityUpdate.properties.available === false) {
+                        badgedIcon = await mapsindoors.BadgeRenderer.UnavailableBadge.overlay(icon);
+                    }
+
+                } else if (domain === mapsindoors.LiveDataManager.LiveDataDomainTypes.OCCUPANCY) {
+                    // Badge with nrOfPeople as text
                     badgedIcon = await mapsindoors.BadgeRenderer.TextBadge.overlay(icon, {
-                        text: update.properties.nrOfPeople.toString(),
+                        text: occupancyUpdate.properties.nrOfPeople.toString(),
                     });
                 }
 
@@ -77,6 +116,5 @@ export class MiLiveDataService {
                 }
             }
         });
-
     }
 }

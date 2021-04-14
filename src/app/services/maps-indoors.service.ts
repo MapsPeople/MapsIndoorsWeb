@@ -63,6 +63,7 @@ export class MapsIndoorsService {
             });
 
             this.mapsIndoors.setDisplayRule(['MI_BUILDING', 'MI_VENUE'], { visible: false });
+            this.setSelectedUserRolesFromLocalStorage();
 
             // Set tittle attribute for map POI's
             this.solutionService.getSolution()
@@ -86,9 +87,27 @@ export class MapsIndoorsService {
                     this.userAgentService.positionReceived(position);
                 });
             }
+
             resolve();
         });
     }
+
+    /**
+     * Get user roles from local storage and set them on the MapsIndoors object.
+     * @private
+     */
+    private setSelectedUserRolesFromLocalStorage() {
+        this.solutionService.getSolutionId().then(solutionId => {
+            const savedUserRolesInLocalStorage = JSON.parse(this.userAgentService.localStorage
+                .getItem(`MI:${solutionId}:APPUSERROLES`) || '[]');
+
+            mapsindoors.services.SolutionsService.getUserRoles().then(userRoles => {
+                const localStorageAndSdkUserRolesMatch = userRoles.filter(userRole => savedUserRolesInLocalStorage.includes(userRole.id));
+                mapsindoors.MapsIndoors.setUserRoles(localStorageAndSdkUserRolesMatch);
+            });
+        });
+    }
+
     // #endregion
 
     // #region || FLOOR SELECTOR

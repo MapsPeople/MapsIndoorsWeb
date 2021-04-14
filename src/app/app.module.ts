@@ -24,6 +24,9 @@ import { SetSolutionComponent } from './set-solution/set-solution.component';
 import { MapComponent } from './map/map.component';
 import { SetupComponent } from './setup/setup.component';
 import { LocationImgComponent } from './shared/components/location-img/location-img.component';
+import { DetailFieldComponent } from './details/detail-field/detail-field.component';
+import { AppImageComponent } from './shared/components/app-image/app-image.component';
+import { UserRolesComponent } from './search/user-roles/user-roles.component';
 
 // Modules
 import { DirectionsModule } from './directions/directions.module';
@@ -35,9 +38,7 @@ import { RoutingStateService } from './services/routing-state.service';
 
 // Pipes
 import { DistancePipe } from './pipes/distance.pipe';
-
 import { errorHandlerFactory } from './app.error-handler';
-import { DetailFieldComponent } from './details/detail-field/detail-field.component';
 
 @NgModule({
     declarations: [
@@ -52,7 +53,9 @@ import { DetailFieldComponent } from './details/detail-field/detail-field.compon
         MapComponent,
         SetupComponent,
         DistancePipe,
-        DetailFieldComponent
+        DetailFieldComponent,
+        AppImageComponent,
+        UserRolesComponent
     ],
     imports: [
         BrowserModule,

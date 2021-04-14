@@ -1,0 +1,23 @@
+<div class="elevation-z2 user-roles" [style.background-color]="colors.primary">
+    <button mat-icon-button
+            (click)="onClose.emit()">
+
+        <mat-icon [style.color]="colors.onPrimary" aria-label="Back">arrow_back</mat-icon>
+    </button>
+
+    <h1>{{ 'Generic.Settings' | translate }}</h1>
+</div>
+
+<section class="content">
+    <div class="content-description">
+        <h1>{{ 'Direction.AppUserRoles' | translate }}</h1>
+
+        <p class="content-text">
+            {{ 'Direction.ChooseTheAppUserRoles' | translate }}
+        </p>
+    </div>
+
+    <mat-selection-list #userRoles [(ngModel)]="selectedUserRoleIds" (selectionChange)="setSelectedUserRoles()">
+        <mat-list-option *ngFor="let role of userRolesList" [value]="role.id">{{ role.name }}</mat-list-option>
+    </mat-selection-list>
+</section>

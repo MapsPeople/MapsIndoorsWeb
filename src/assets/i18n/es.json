@@ -37,7 +37,6 @@
 "Direction.AvoidStairs": "Evitar escaleras", 
 "Direction.MyPosition": "Mi posición", 
 "Direction.EnableMyPosition": "Habilitar compartir ubicación para usar su posición", 
-"Direction.RouteSettings": "Ajustes de ruta", 
 "Direction.ChooseTheAppUserRoles": "Elija sus roles de usuario de la app. Solo influirá en las indicaciones obtenidas, no en las ubicaciones mostradas en el mapa", 
 "Direction.AppUserRoles": "Roles de usuario de la app", 
 "Direction.Steps": "Pasos", 
@@ -99,5 +98,6 @@
 "Error.IncorrectRoom": "¡Vaya! No hemos podido encontrar esa sala", 
 "Error.IncorrectLocation": "¡Vaya! No hemos podido encontrar esa ubicación", 
 "Error.NoPosition": "Lo sentimos, no hemos podido encontrar su posición", 
-"Error.General": "¡Vaya! Se ha producido un error; inténtelo de nuevo más adelante"
+"Error.General": "¡Vaya! Se ha producido un error; inténtelo de nuevo más adelante", 
+"Generic.Settings": "Ajustes"
 }

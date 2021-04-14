@@ -1,6 +1,6 @@
 <aside id="sidebar" *ngIf="venue">
-    <section class="elevation-z2" *ngIf="!userRolesPanel">
-        <mat-toolbar [style.background-color]="colors.primary" style="padding: 0px 6px;" [ngStyle]="{'padding-right':userRolesList.length === 0 ? '40px' : '0' }">
+    <section class="elevation-z2">
+        <mat-toolbar [style.background-color]="colors.primary">
             <nav class="nav-travel-mode">
                 <button mat-icon-button (click)="goBack()">
                     <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
@@ -19,9 +19,6 @@
                         <mat-icon [style.color]="colors.onPrimary">drive_eta</mat-icon>
                     </button>
                 </div>
-                <button mat-icon-button (click)="toggleUserRolesPanel()" *ngIf="userRolesList.length > 0">
-                    <mat-icon [style.color]="colors.onPrimary">tune</mat-icon>
-                </button>
             </nav>
         </mat-toolbar>
 
@@ -67,7 +64,7 @@
     </section>
 
     <!-- Content -->
-    <section class="content-container" *ngIf="!userRolesPanel">
+    <section class="content-container">
         <section class="content">
             <!-- Loading -->
             <div class="content-text" *ngIf="loading">
@@ -182,33 +179,6 @@
                 </div>
             </footer>
             <!-- #endregion -->
-        </section>
-
-    </section>
-
-    <section *ngIf="userRolesPanel" class="elevation-z2">
-        <mat-toolbar [style.background-color]="colors.primary" style="padding: 0px 40px 0 6px;">
-            <nav class="nav-travel-mode">
-                <button mat-icon-button (click)="toggleUserRolesPanel()">
-                    <mat-icon [style.color]="colors.onPrimary" aria-label="Close dialog">arrow_back</mat-icon>
-                </button>
-                <h1>{{ 'Direction.RouteSettings' | translate }}</h1>
-                <span>
-                    <!-- placeholder -->
-                </span>
-            </nav>
-
-        </mat-toolbar>
-    </section>
-    <section class="content-container" *ngIf="userRolesPanel">
-        <section class="content">
-            <h1>{{ 'Direction.AppUserRoles' | translate }}</h1>
-            <p class="content-text">
-                {{ 'Direction.ChooseTheAppUserRoles' | translate }}
-            </p>
-            <mat-selection-list #userRoles [(ngModel)]="selectedUserRoles" (selectionChange)="onUserRolesChange($event)">
-                <mat-list-option *ngFor="let role of userRolesList" [value]="role.id">{{role.name}}</mat-list-option>
-            </mat-selection-list>
         </section>
     </section>
 </aside>

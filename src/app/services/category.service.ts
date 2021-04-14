@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 import { AppConfigService } from './app-config.service';
 import { VenueService } from './venue.service';
 import { SearchService } from '../directions/components/search/search.service';
@@ -9,12 +10,15 @@ import { Category } from '../shared/models/category.interface';
 import { Location } from '../shared/models/location.interface';
 import { SearchParameters } from '../shared/models/searchParameters.interface';
 
+declare const mapsindoors: any;
+
 @Injectable({
     providedIn: 'root'
 })
 export class CategoryService {
     private solutionMainMenu: Category[] = [];
-    private venueCategories = new BehaviorSubject<Category[]>([])
+    private venueCategories = new BehaviorSubject<Category[]>([]);
+    private venueId: string;
 
     constructor(
         private appConfigService: AppConfigService,
@@ -23,34 +27,39 @@ export class CategoryService {
     ) {
         // App Config subscription
         this.appConfigService.getAppConfig()
-            .subscribe((appConfig): void => {
-                this.solutionMainMenu = appConfig.menuInfo && appConfig.menuInfo.mainmenu ?
-                    appConfig.menuInfo.mainmenu :
-                    null;
+            .pipe(
+                filter((appConfig): boolean => appConfig.menuInfo && appConfig.menuInfo.mainmenu && appConfig.menuInfo.mainmenu.length > 0),
+                map((appConfig): Category[] => appConfig.menuInfo.mainmenu as Category[]),
+            ).subscribe((mainMenu: Category[]): void => {
+                this.solutionMainMenu = mainMenu;
             });
         // Venue subscription
         this.venueService.getVenueObservable()
             .subscribe((venue: Venue): void => {
-                this.updateCategoriesForVenue(venue.id);
+                this.venueId = venue.id;
+                this.updateCategoriesForVenue();
             });
+
+        // Category list is updated whenever user roles is set.
+        mapsindoors.services.LocationsService.addListener('update_completed', () => {
+            this.updateCategoriesForVenue();
+        });
     }
 
     /**
      * Get mainMenu categories which have locations tied to them within the same venue as a observable.
-     *
      * @returns {Observable<Category[]>}
      */
     public getMainMenuCategoriesObservable(): Observable<Category[]> {
-        return this.venueCategories.asObservable();
+        return this.venueCategories
+            .asObservable()
+            .pipe(filter((categories) => !!categories));
     }
 
     /**
      * Populate categories observable with mainMenu categories which have locations tied to them within the same venue.
-     *
-     * @private
-     * @param {string} venueId
      */
-    private updateCategoriesForVenue(venueId: string): void {
+    public updateCategoriesForVenue(): void {
         if (this.solutionMainMenu) {
             const filteredCategories: Category[] = [];
 
@@ -58,7 +67,7 @@ export class CategoryService {
                 const searchParameters: SearchParameters = {
                     categories: [category.categoryKey],
                     take: 1,
-                    venue: venueId
+                    venue: this.venueId
                 };
                 this.searchService.getLocations(searchParameters)
                     .then((locations: Location[]): void => {
@@ -70,6 +79,7 @@ export class CategoryService {
                         }
                     });
             }
+
             this.venueCategories.next(filteredCategories);
         }
     }
