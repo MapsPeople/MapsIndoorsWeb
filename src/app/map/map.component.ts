@@ -31,7 +31,7 @@ enum ErrorVenueId {
 export class MapComponent {
     isInternetExplorer: boolean;
     isHandset: boolean;
-    statusOk: boolean = false;
+    statusOk = false;
     appConfig: any;
     colors: object;
     venue: Venue;
@@ -101,7 +101,7 @@ export class MapComponent {
                     );
                 }
             });
-        await this.themeService.setColors();
+        this.themeService.setColors();
         this.mapsIndoorsService.getReturnToValues()
             .subscribe((values) => {
                 this.returnToValues = values;
@@ -185,7 +185,8 @@ export class MapComponent {
             // Always true except for when getting a direction
             if (this.venueService.favouredVenue && this.venueService.returnBtnActive) {
                 // Hides the button if the selected venue is inside the current googleMap bounds
-                if (googleMap.getBounds().intersects(this.venue.boundingBox)) {
+                const bounds = googleMap.getBounds();
+                if (bounds && bounds.intersects(this.venue.boundingBox)) {
                     if (this.returnBtn.className.includes('hidden') === false) {
                         this.returnBtn.className += ' hidden';
                     }

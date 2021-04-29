@@ -37,7 +37,7 @@
 "Direction.AvoidStairs": "Évitez les escaliers", 
 "Direction.MyPosition": "Ma position", 
 "Direction.EnableMyPosition": "Activer le partage de position pour utiliser votre position", 
-"Direction.ChooseTheAppUserRoles": "Choisissez les rôles d'utilisateur de l'application dont vous faites partie. Cela n'affecte que les directions que vous obtenez, pas les emplacements que vous voyez sur la carte", 
+"Direction.ChooseTheAppUserRoles": "Choisissez les rôles utilisateur dont vous faites partie. Cela affecte les indications de trajets que vous obtenez et les emplacements que vous voyez sur la carte.", 
 "Direction.AppUserRoles": "Rôles des utilisateurs de l'application", 
 "Direction.Steps": "étapes", 
 "DirectionRoute.Days": "j", 

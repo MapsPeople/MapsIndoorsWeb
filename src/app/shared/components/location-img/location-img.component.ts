@@ -38,7 +38,7 @@ export class LocationImgComponent implements OnChanges {
      */
     ngOnChanges(): void {
         if (this.streetViewConfig) {
-            const parameters: string = `size=456x300&pano=${this.streetViewConfig.panoramaId}&heading=${this.streetViewConfig.povHeading}&pitch=${this.streetViewConfig.povPitch}&key=${this.apiKey}`;
+            const parameters = `size=456x300&pano=${this.streetViewConfig.panoramaId}&heading=${this.streetViewConfig.povHeading}&pitch=${this.streetViewConfig.povPitch}&key=${this.apiKey}`;
             this.checkAvailability(parameters)
                 .subscribe((complete: any): void => {
                     if (complete.status === 'OK') {
@@ -99,7 +99,7 @@ export class LocationImgComponent implements OnChanges {
         // Load minimap when panorama is ready
         this.panorama.addListener('position_changed', async (): Promise<void> => {
             const position: google.maps.LatLng = await this.panorama.getPosition();
-            const breakpoint: string = '(min-width: 600px)';
+            const breakpoint = '(min-width: 600px)';
             if (!document.getElementById('mimiMap') && window.matchMedia(breakpoint).matches) {
                 this.initMinimap(position, this.locationFloorIndex);
             }

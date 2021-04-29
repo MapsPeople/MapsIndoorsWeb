@@ -14,9 +14,6 @@ import { UserAgentService } from '../services/user-agent.service';
 
 import { Venue } from '../shared/models/venue.interface';
 
-declare const ga: Function;
-declare const mapsindoors: any;
-
 @Component({
     selector: 'venue-list',
     templateUrl: './venues.component.html',

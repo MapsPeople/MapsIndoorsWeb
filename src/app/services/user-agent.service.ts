@@ -1,4 +1,3 @@
-/* global google */
 import { Injectable } from '@angular/core';
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { BehaviorSubject, ReplaySubject, Observable } from 'rxjs';
@@ -15,11 +14,11 @@ export class UserAgentService {
 
     private isIe: boolean;
     private isDeviceHandset = new BehaviorSubject<boolean>(false);
-    private currentPosition = new ReplaySubject<Object>(1);
+    private currentPosition = new ReplaySubject<any>(1);
     private positionErrorSubject = new ReplaySubject<Object>(1);
     public positionControl;
-    public localStorage;
-    public sessionStorage;
+    public localStorage: Storage;
+    public sessionStorage: Storage;
     private positionErrorShown = false;
     private positionAutoPanned = false;
 
@@ -89,7 +88,7 @@ export class UserAgentService {
      * @returns {Promise} Gets and return the current position of the device.
      * @memberof UserAgentService
      */
-    public getCurrentPosition(): Promise<{}> {
+    public getCurrentPosition(): Promise<any> {
         return new Promise((resolve, reject): void => {
             if (this.positionControl.currentPosition) {
                 resolve(this.positionControl.currentPosition);

@@ -23,7 +23,7 @@ interface ReturnToValues {
 export class MapsIndoorsService {
     mapsIndoors: any;
     appConfig: any;
-    isMapDirty: boolean = false;
+    isMapDirty = false;
 
     public floorSelectorIsVisible = false;
     private floorSelectorPosition: google.maps.ControlPosition;
@@ -46,18 +46,17 @@ export class MapsIndoorsService {
 
     // #region || SET MAPS INDOORS
     initMapsIndoors(): Promise<void> {
-        return new Promise(async (resolve): Promise<void> => {
-
-            this.mapsIndoors = await new mapsindoors.MapsIndoors({
+        return new Promise((resolve) => {
+            this.mapsIndoors = new mapsindoors.MapsIndoors({
                 mapView: this.googleMapService.googleMapView,
                 labelOptions: {
                     style: {
-                        color: 'rgba(82,82,82,1)',
-                        fontFamily: 'Open Sans',
+                        fontFamily: 'Open Sans, Helvetica, sans-serif',
                         fontSize: '12px',
-                        fontWeight: 300,
-                        shadowBlur: 3,
-                        shadowColor: 'white'
+                        fontWeight: 700,
+                        color: '#343941', // MIDT: $color-gray-100
+                        strokeWeight: '0px',
+                        shadowBlur: '0px',
                     }
                 }
             });
@@ -96,7 +95,7 @@ export class MapsIndoorsService {
      * Get user roles from local storage and set them on the MapsIndoors object.
      * @private
      */
-    private setSelectedUserRolesFromLocalStorage() {
+    private setSelectedUserRolesFromLocalStorage(): void {
         this.solutionService.getSolutionId().then(solutionId => {
             const savedUserRolesInLocalStorage = JSON.parse(this.userAgentService.localStorage
                 .getItem(`MI:${solutionId}:APPUSERROLES`) || '[]');
@@ -255,7 +254,7 @@ export class MapsIndoorsService {
      * @param {boolean} [fitView=false] - Fit all visible locations into view.
      * @memberof MapsIndoorsService
      */
-    public setMapFilter(locations: Location[], fitView: boolean = false): void {
+    public setMapFilter(locations: Location[], fitView = false): void {
         const locationIds = locations.map((location: Location): string => location.id);
         this.mapsIndoors.filter(locationIds, fitView);
     }
@@ -265,7 +264,7 @@ export class MapsIndoorsService {
      * @param {boolean} [fitView=false] - Fit all visible locations into view.
      * @memberof MapsIndoorsService
      */
-    public clearMapFilter(fitView: boolean = false): void {
+    public clearMapFilter(fitView = false): void {
         this.mapsIndoors.filter(null, fitView);
     }
 }

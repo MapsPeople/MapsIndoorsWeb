@@ -9,8 +9,6 @@ if (environment.production) {
     enableProdMode();
 }
 
-defineCustomElements(window);
-
 applyPolyfills().then(() => {
     defineCustomElements(window);
 });

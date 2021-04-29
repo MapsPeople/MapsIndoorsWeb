@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { MatSidenav, MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatSidenav } from '@angular/material/sidenav';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AppConfigService } from '../services/app-config.service';
 import { LocationService } from '../services/location.service';
@@ -29,10 +30,10 @@ export class DetailsComponent implements OnInit, OnDestroy {
     colors: {};
     venue: Venue;
     location: Location;
-    displayAliases: boolean = false;
+    displayAliases = false;
     locationPeakTime: TimeInterval;
 
-    loading: boolean = false;
+    loading = false;
     appConfig: any;
 
     dialogRef: MatDialogRef<ShareUrlDialogComponent>;

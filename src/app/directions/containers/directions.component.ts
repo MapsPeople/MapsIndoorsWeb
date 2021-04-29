@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, NgZone, ViewChild, HostListener, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatSidenav } from '@angular/material';
+import { MatSidenav } from '@angular/material/sidenav';
 import { TranslateService } from '@ngx-translate/core';
 import { AppConfigService } from '../../services/app-config.service';
 import { UserAgentService } from '../../services/user-agent.service';
@@ -49,7 +49,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     currentPosition: any;
 
     travelMode: string = sessionStorage.getItem('TRAVEL_MODE') || 'WALKING';
-    avoidStairs: boolean = false;
+    avoidStairs = false;
 
     currentInputField: string;
 
@@ -87,11 +87,11 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
     @ViewChild('routeInstructions') routeInstructionsComponent: ElementRef<HTMLMiRouteInstructionsElement>;
 
-    public flattenedStepsArrayIndex: number = 0;
+    public flattenedStepsArrayIndex = 0;
     public flattenedStepsArray: Step[] = [];
 
     private stepSwitcherMapControl: StepSwitcherControl;
-    private handleStepIndexChanged: EventListenerOrEventListenerObject;
+    private handleStepIndexChanged: (event: CustomEvent<any>) => void;
 
     subscriptions = new Subscription();
 
@@ -232,7 +232,12 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     }
     // #region || ROUTE
 
-    searchResultsChange({ query, results }: SearchData) {
+    /**
+     * Update search results list.
+     *
+     * @param {SearchData} { query, results }
+     */
+    public searchResultsChange({ query, results }: SearchData): void {
         this.searchResults = [];
         this.clearRoute();
 
@@ -252,8 +257,10 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             }
         }
     }
-
-    loadingHandler() {
+    /**
+     * Remove errors and set loading to true.
+     */
+    public loadingHandler(): void {
         this.error = null;
         this.currentPositionVisible = false;
         this.loading = true;
@@ -275,8 +282,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
         this.searchInputFieldHasFocus = false;
     }
 
-    private anyGoogleResults(results) {
-        return results.some((result) => result.properties.type === 'google_places');
+    private anyGoogleResults(results): boolean {
+        return results.some(result => result.properties.type === 'google_places');
     }
 
     /**
@@ -295,10 +302,10 @@ export class DirectionsComponent implements OnInit, OnDestroy {
      * @returns {Promise}
      */
     private populateOrigin(): Promise<void> {
-        return new Promise(async (resolve, reject): Promise<void> => {
+        return new Promise((resolve, reject) => {
             if (this.originLocation) resolve();
             else if (this.route.snapshot.params.from) {
-                await this.locationService.getLocationById(this.route.snapshot.params.from)
+                this.locationService.getLocationById(this.route.snapshot.params.from)
                     .then((location: Location): void => {
                         this.originLocation = location as BaseLocation;
                         this.originInputValue = location.properties.name;
@@ -312,7 +319,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                 this.originInputValue = this.translateService.instant('Direction.MyPosition');
                 this.currentPositionVisible = false;
                 this.userAgentService.getCurrentPosition()
-                    .then((position: Position): void => {
+                    .then((position): void => {
                         if (this.originInputValue !== this.translateService.instant('Direction.MyPosition')) {
                             return; // Only populate if input hasn't changed.
                         }
@@ -386,7 +393,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     // #endregion
 
     // #region - SWITCH ORIGIN AND DESTINATION
-    switchOriginAndDest() {
+    switchOriginAndDest(): void {
         [this.originLocation, this.destinationLocation] = [this.destinationLocation, this.originLocation];
         [this.originInputValue, this.destinationInputValue] = [this.destinationInputValue, this.originInputValue];
         this.clearRoute();
@@ -398,7 +405,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     // #endregion
 
     // #region - TRAVEL MODE
-    setNewTravelMode(travelMode) {
+    setNewTravelMode(travelMode): void {
         this.clearRoute();
         this.travelMode = travelMode;
         sessionStorage.setItem('TRAVEL_MODE', travelMode);
@@ -410,7 +417,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     // #endregion
 
     // #region - AVOID STAIRS
-    changeAvoidStairs() {
+    changeAvoidStairs(): void {
         this.avoidStairs = !this.avoidStairs;
         if (this.hasOriginAndDestination()) {
             this.getRoute();
@@ -420,15 +427,14 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     // #endregion
 
 
-
     // #region - AGENCY INFO
-    toggleAgencyInfo() {
+    toggleAgencyInfo(): void {
         this.showAgencyInfo = !this.showAgencyInfo;
     }
     // #endregion
 
     // Format selected location and set
-    selectLocation(location) {
+    selectLocation(location): void {
         const self = this;
         this.searchResults = [];
 
@@ -540,8 +546,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                 origin: start,
                 destination: dest,
                 travelMode: this.travelMode.toUpperCase(),
-                avoidStairs: this.avoidStairs,
-                userRoles: null
+                avoidStairs: this.avoidStairs
             };
 
             this.directionService.getRoute(args)

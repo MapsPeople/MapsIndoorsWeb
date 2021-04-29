@@ -10,9 +10,9 @@ import { environment } from 'src/environments/environment';
 })
 export class SetSolutionComponent {
     public isInternetExplorer: boolean;
-    public solutionId: string = '';
-    public submitError: boolean = false;
-    public initError: boolean = false;
+    public solutionId = '';
+    public submitError = false;
+    public initError = false;
 
     constructor(
         public router: Router,

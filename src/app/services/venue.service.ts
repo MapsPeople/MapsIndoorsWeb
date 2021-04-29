@@ -17,8 +17,8 @@ export class VenueService {
     venue: Venue;
     venuesLength: number;
     favouredVenue: boolean;
-    fitVenues: boolean = true;
-    returnBtnActive: boolean = true;
+    fitVenues = true;
+    returnBtnActive = true;
 
     private venueObservable = new ReplaySubject<Venue>(1);
 
@@ -30,13 +30,12 @@ export class VenueService {
         this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
     }
 
-    // #region || GET ALL VENUES
     /**
-     * @description - Get all venues.
+     * Get all venues.
+     *
      * @returns {Promise<Venue[]>} Returns an array of venue objects.
-     * @memberof VenueService
      */
-    getVenues(): Promise<Venue[]> {
+    public getVenues(): Promise<Venue[]> {
         return new Promise((resolve, reject): void => {
             this.miVenueService.getVenues()
                 .then((venues: Venue[]): void => {
@@ -52,30 +51,24 @@ export class VenueService {
 
 
     }
-    // #endregion
 
     getVenueObservable(): Observable<any> {
         return this.venueObservable.asObservable();
     }
-    // #region || GET VENUE BY ID
     /**
-     * @description Get a venue by it's id.
+     * Get a venue by it's id.
      * @param {string} venueId
      * @returns {Promise} Promise resolves a Venue.
-     * @memberof VenueService
      */
     getVenueById(venueId: string): Promise<Venue> {
         return this.miVenueService.getVenue(venueId);
     }
-    // #endregion
 
-    // #region || SET VENUE
     /**
-     * @description Set venue and populate it with an image.
+     * Set venue and populate it with an image.
      * @param {Venue} venue The venue object.
      * @param appConfig The configurations for current solution.
      * @returns {Promise<void>}
-     * @memberof VenueService
      */
     setVenue(venue, appConfig, fitVenue = true): Promise<void> {
         return new Promise((resolve): void => {
@@ -112,11 +105,13 @@ export class VenueService {
     }
 
     /**
+     * Get bounding box of venue.
+     *
+     * @private
      * @param {Venue} venue The current venue.
-     * @returns {Promise} Bounding box for venue.
-     * @memberof VenueService
+     * @returns {Promise<{ [key: string]: number }>} The venue bounding box.
      */
-    private getVenueBoundingBox(venue: Venue) {
+    private getVenueBoundingBox(venue: Venue): Promise<{ [key: string]: number }> {
         return new Promise((resolve) => {
             const bounds = {
                 east: -180,
@@ -137,14 +132,18 @@ export class VenueService {
             resolve(bounds);
         });
     }
-    // #endregion
 
-    // #region || GET BUILDING BY ID
-    async getBuildingById(buildingId) {
+
+    /**
+     * Get a building by its id.
+     *
+     * @param {string} buildingId
+     * @returns {Promise<any>}
+     */
+    async getBuildingById(buildingId: string): Promise<any> {
         const buildingRequest = this.miVenueService.getBuilding(buildingId);
         const building = await buildingRequest;
         return building;
     }
-    // #endregion
 }
 

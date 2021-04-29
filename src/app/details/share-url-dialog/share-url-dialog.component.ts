@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { NotificationService } from 'src/app/services/notification.service';
 
@@ -22,7 +22,7 @@ export class ShareUrlDialogComponent {
         this.dialogData = this.data;
     }
 
-    copyUrl() {
+    copyUrl(): void {
         try {
             const link = <HTMLInputElement>document.getElementById('shareUrl');
             link.focus();
@@ -35,24 +35,9 @@ export class ShareUrlDialogComponent {
             // Browser doesn't support this function
             this.notificationService.displayNotification('Notification.LinkCopiedError');
         }
-
-        // // Code below is not supported by Safari yet
-        // let url = window.location.href;
-        // var event = (e: ClipboardEvent) => {
-        //     e.clipboardData.setData('text/plain', url);
-        //     e.preventDefault();
-        //     document.removeEventListener('copy', event);
-        // }
-        // document.addEventListener('copy', event);
-        // document.execCommand('copy');
-        // if (document.execCommand('copy')) {
-        // 	console.log('Copied to Clipboard');
-        // }
-        // else {
-        // 	console.log('Something went wrong');
-        // }
     }
-    onClose() {
+
+    onClose(): void {
         this.dialogRef.close();
     }
 }

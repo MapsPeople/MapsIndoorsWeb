@@ -12,7 +12,6 @@ export class AppConfigService {
     private appConfig = new BehaviorSubject<any>({});
     private initVenue = new ReplaySubject<Venue>(1);
 
-    // #region || APP CONFIG
     setAppConfig(): Promise<void> {
         return new Promise((resolve, reject): void => {
             mapsindoors.services.AppConfigService.getConfig().then((appConfig): void => {
@@ -26,12 +25,15 @@ export class AppConfigService {
         });
     }
 
+    /**
+     * Get appConfig object as observable.
+     *
+     * @returns {Observable<any>}
+     */
     getAppConfig(): Observable<any> {
         return this.appConfig.asObservable();
     }
-    // #endregion
 
-    // #region || INIT VENUE
     /**
      * @description Set initial venue of app.
      * @param {Venue} venue - Venue object.
@@ -49,6 +51,4 @@ export class AppConfigService {
     getInitVenue(): Observable<Venue> {
         return this.initVenue.asObservable();
     }
-    // #endregion
-
 }

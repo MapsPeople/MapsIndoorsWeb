@@ -23,39 +23,21 @@ export class SolutionService {
         this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
     }
 
-    // #region || SOLUTION PROVIDER
-    initializeApp(solutionId): Promise<void> {
-        return new Promise(async (resolve, reject): Promise<void> => {
-            await this.insertGoogleMapsAPI();
-            await this.insertMapsIndoorsJavaScriptSDK(solutionId);
-
-            mapsindoors.MapsIndoors.onAuthRequired = this.initializeAuthenticationHandler(solutionId);
-
-            try {
-                await this.appConfigService.setAppConfig();
-                await this.setSolution();
-                resolve();
-            } catch (e) {
-                reject();
-            }
-        });
-    }
-
     /**
      * Insert script tag for Google Maps API into the document and resolve when it is loaded.
      * @returns {Promise<void>} Resolves when script is loaded
      */
     insertGoogleMapsAPI(): Promise<void> {
-        return new Promise((resolve): void => {
+        return new Promise<void>((resolve): void => {
             if (this.googleMapsApiTag) {
-                resolve();
-            } else {
-                this.googleMapsApiTag = document.createElement('script');
-                this.googleMapsApiTag.setAttribute('type', 'text/javascript');
-                this.googleMapsApiTag.setAttribute('src', '//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyBNhmxW2OntKAVs7hjxmAjFscioPcfWZSc&libraries=geometry,places');
-                document.body.appendChild(this.googleMapsApiTag);
-                this.googleMapsApiTag.onload = (): void => resolve();
+                return resolve();
             }
+
+            this.googleMapsApiTag = document.createElement('script');
+            this.googleMapsApiTag.setAttribute('type', 'text/javascript');
+            this.googleMapsApiTag.setAttribute('src', '//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyBNhmxW2OntKAVs7hjxmAjFscioPcfWZSc&libraries=geometry,places');
+            document.body.appendChild(this.googleMapsApiTag);
+            this.googleMapsApiTag.onload = (): void => resolve();
         });
     }
 
@@ -64,8 +46,12 @@ export class SolutionService {
      * @param solutionId {string} The MapsIndoors API key
      * @returns {Promise<void>} Resolves when script is loaded
      */
-    insertMapsIndoorsJavaScriptSDK(solutionId): Promise<void> {
-        return new Promise((resolve): void => {
+    insertMapsIndoorsJavaScriptSDK(solutionId: string): Promise<void> {
+        return new Promise<void>((resolve): void => {
+            if (this.miSdkApiTag) {
+                mapsindoors.MapsIndoors.setMapsIndoorsApiKey(solutionId);
+                return resolve();
+            }
             this.miSdkApiTag = document.createElement('script');
             this.miSdkApiTag.setAttribute('type', 'text/javascript');
             this.miSdkApiTag.setAttribute('src', `${environment.sdkUrl}?apikey=${solutionId}`);
@@ -74,7 +60,7 @@ export class SolutionService {
         });
     }
 
-    initializeAuthenticationHandler(solutionId): Function {
+    initializeAuthenticationHandler(solutionId: string): Function {
         return ({ authClients = [], authIssuer = '' }) => {
             const oidcScript = document.createElement('script');
             oidcScript.setAttribute('type', 'text/javascript');
@@ -171,52 +157,36 @@ export class SolutionService {
             resolve();
         });
     }
-    //#endregion
 
-    // #region || SOLUTION NAME
-    getSolutionName(): String {
+    getSolutionName(): string {
         return location.pathname.split('/')[1];
     }
-    // #endregion
 
-    // #region || GET SOLUTION
     /**
-     * @description Get solution object.
+     * Get solution object.
+     *
      * @returns {Promise<any>} - Solution object.
-     * @memberof SolutionService
      */
     public getSolution(): Promise<any> {
         return mapsindoors.services.SolutionsService.getSolution();
     }
-    // #endregion
 
-    // #region || GET SOLUTION ID
     /**
-     * @description Get solution id.
+     * Get solution id.
+     *
      * @returns {Promise<string>} - Solution Id.
-     * @memberof SolutionService
      */
-    public getSolutionId(): Promise<string> {
-        return new Promise((resolve, reject): void => {
-            this.getSolution()
-                .then(({ id }): void => {
-                    resolve(id);
-                })
-                .catch((err): void => {
-                    reject(err);
-                });
-        });
+    public async getSolutionId(): Promise<string> {
+        const { id } = await this.getSolution();
+        return id;
     }
-    // #endregion
 
-    // #region || GET USER ROLES
     /**
      * Gets a list of User Roles
+     *
      * @returns Array<AppUserRole>
-     * @memberof SolutionService
      */
     getUserRoles(): Promise<Array<any>> {
         return mapsindoors.services.SolutionsService.getUserRoles();
     }
-    // #endregion
 }

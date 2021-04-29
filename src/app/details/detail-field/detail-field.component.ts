@@ -8,6 +8,6 @@ import { Component, Input } from '@angular/core';
 export class DetailFieldComponent {
     @Input() heading: string;
     @Input() value: string;
-    @Input() isUrl: boolean = false;
+    @Input() isUrl = false;
     @Input() iconName: string;
 }

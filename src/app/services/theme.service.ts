@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
 import { AppConfigService } from './app-config.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+
+interface ThemeColors {
+    primary: string;
+    onPrimary: string;
+    accent: string;
+    onAccent: string;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -15,48 +22,40 @@ export class ThemeService {
         this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
     }
 
-    // #region || SET THEME COLORS
-    setColors() {
-        return new Promise(async (resolve) => {
-            const colors = {
-                primary: await this.getColorAsHex(this.appConfig.appSettings.primaryColor) || '#2196F3',
-                onPrimary: await this.getColorAsHex(this.appConfig.appSettings.primaryText) || '#ffffff',
-                accent: await this.getColorAsHex(this.appConfig.appSettings.accentColor) || '#F44336',
-                onAccent: await this.getColorAsHex(this.appConfig.appSettings.accentText) || '#ffffff'
-            };
-            this.appConfigColors.next(colors);
-            resolve();
-        });
+    /**
+     * Set solution colors.
+     *
+     */
+    setColors(): void {
+        const colors: ThemeColors = {
+            primary: this.getColorAsHex(this.appConfig.appSettings.primaryColor) || '#2196F3',
+            onPrimary: this.getColorAsHex(this.appConfig.appSettings.primaryText) || '#ffffff',
+            accent: this.getColorAsHex(this.appConfig.appSettings.accentColor) || '#F44336',
+            onAccent: this.getColorAsHex(this.appConfig.appSettings.accentText) || '#ffffff'
+        };
+        this.appConfigColors.next(colors);
     }
 
-    // NOTE: Save for later use
-    // hexToRGB(hex, alpha?) {
-    // 	let r = parseInt(hex.slice(1, 3), 16);
-    // 	let g = parseInt(hex.slice(3, 5), 16);
-    // 	let b = parseInt(hex.slice(5, 7), 16);
-    // 	if (alpha) {
-    // 		return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
-    // 	} else {
-    // 		return "rgb(" + r + ", " + g + ", " + b + ")";
-    // 	}
-    // }
-
     /**
+     * Get color as HEX color value.
      *
-     * @param {any} color The color that should be returned as a hex value.
-     * @returns {any} Returns the given color as hex.
+     * @private
+     * @param {string} color The color that should be returned as a hex value.
+     * @returns {string} Returns the given color as hex.
      */
-    getColorAsHex(color) {
+    private getColorAsHex(color: string): string {
         if (!color) return;
         const hex = !color.includes('#') ? '#' + color : color;
         if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(hex)) return hex.toLowerCase();
         else return color;
     }
-    // #endregion
 
-    // #region || GET THEME COLORS
-    getThemeColors() {
+    /**
+     * Get specified theme colors for solution.
+     *
+     * @returns {Observable<ThemeColors>}
+     */
+    public getThemeColors(): Observable<ThemeColors> {
         return this.appConfigColors.asObservable();
     }
-    // #endregion
 }

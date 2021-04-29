@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, NgZone, HostListener } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { SolutionService } from '../services/solution.service';
 import { AppConfigService } from '../services/app-config.service';
 import { VenueService } from '../services/venue.service';
@@ -36,9 +36,9 @@ export class SearchComponent implements OnInit, OnDestroy {
     categoriesMenu: any;
 
     venue: Venue;
-    SearchHintAppTitle: string = '';
+    SearchHintAppTitle = '';
 
-    previousQuery: string = ''
+    previousQuery = ''
     category: any;
     error: string;
     search: any = {
@@ -46,12 +46,12 @@ export class SearchComponent implements OnInit, OnDestroy {
         category: null
     };
     locationsArray: Location[] = [];
-    filtered: boolean = false;
-    searchFocus: boolean = false;
-    loading: boolean = false;
+    filtered = false;
+    searchFocus = false;
+    loading = false;
 
-    loadingLocations: boolean = false;
-    endOfArray: boolean = false;
+    loadingLocations = false;
+    endOfArray = false;
 
     zoomBtn: HTMLElement;
     zoomBtnListener: google.maps.MapsEventListener;
@@ -431,7 +431,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         });
     }
 
-    async hideZoomBtn() {
+    async hideZoomBtn(): Promise<void> {
         const solutionId = await this.solutionService.getSolutionId();
         if (this.zoomBtn.className.indexOf(' hidden') < 0) {
             this.zoomBtn.className += ' hidden';
@@ -442,14 +442,14 @@ export class SearchComponent implements OnInit, OnDestroy {
     // #endregion
 
     // #region || DESTROY
-    async goBack() {
+    async goBack(): Promise<void> {
+        const solutionName = this.solutionService.getSolutionName();
+
         // If query or selected category
         if (this.locationsArray.length > 0 || this.filtered) {
             this.clearAll();
             this.mapsIndoorsService.setPageTitle();
             this.mapsIndoorsService.isMapDirty = false;
-
-            const solutionName = await this.solutionService.getSolutionName();
             this.router.navigate([`${solutionName}/${this.venue.id}/search`]);
         } else {
             // Go back to venues page
@@ -459,7 +459,6 @@ export class SearchComponent implements OnInit, OnDestroy {
             this.clearAll();
             this.venueService.favouredVenue = false;
             this.venueService.fitVenues = false;
-            const solutionName = await this.solutionService.getSolutionName();
             this.router.navigate([`${solutionName}/venues`]);
             this.mapsIndoorsService.isMapDirty = false;
         }

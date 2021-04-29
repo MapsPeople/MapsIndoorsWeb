@@ -9,23 +9,20 @@ export class AppImageComponent implements OnInit {
     @Input() src: string;
     @Input() alt: string;
 
-    constructor() { }
-
-    ngOnInit() {
+    ngOnInit(): void {
         this.appendScaleParamToSrc();
     }
 
     /**
-     * @description Event that sets image source to a 1x1 transparent pixel image in case the original source cannot be rendered.
-     * @public
+     * Event that sets image source to a 1x1 transparent pixel image in case the original source cannot be rendered.
      */
-    public onError() {
+    public onError(): void {
         const defaultSrcOnError = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
         this.src = defaultSrcOnError;
     }
 
     /**
-     * @description Check if src is a valid URL.
+     * Check if src is a valid URL.
      * @private
      * @param {string} src
      * @returns {boolean}
@@ -41,12 +38,11 @@ export class AppImageComponent implements OnInit {
     }
 
     /**
-     * @description Add a scale parameter to icon URLs.
+     * Add a scale parameter to icon URLs.
      * @private
      */
     private appendScaleParamToSrc(): void  {
         if (this.isUrlValid() === false) {
-
             return;
         }
 

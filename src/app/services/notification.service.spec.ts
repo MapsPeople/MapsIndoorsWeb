@@ -1,12 +1,10 @@
-import { createServiceFactory, SpectatorService, SpyObject } from '@ngneat/spectator/jest';
+import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { NotificationService } from './notification.service';
 
 describe('NotificationService', () => {
-    let snackBar: SpyObject<MatSnackBar>;
-
     let spectator: SpectatorService<NotificationService>;
     const createService = createServiceFactory({
         service: NotificationService,
@@ -18,7 +16,6 @@ describe('NotificationService', () => {
 
     beforeEach(() => {
         spectator = createService();
-        snackBar = spectator.get(MatSnackBar);
     });
 
     it('exists', () => {
@@ -27,7 +24,7 @@ describe('NotificationService', () => {
 
     it('tries to open a snackbar notification', () => {
         spectator.service.displayNotification('some notification text');
-        expect(snackBar.open).toHaveBeenCalledWith('some notification text', '', {
+        expect(spectator.service.snackBar.open).toHaveBeenCalledWith('some notification text', '', {
             duration: 4000
         });
     });

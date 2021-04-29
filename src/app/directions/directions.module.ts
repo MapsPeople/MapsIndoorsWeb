@@ -1,14 +1,12 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-    MatButtonModule,
-    MatIconModule,
-    MatToolbarModule,
-    MatCheckboxModule,
-    MatProgressSpinnerModule,
-    MatListModule
-} from '@angular/material';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 
 import { HttpClientModule, HttpClient } from '@angular/common/http';
@@ -23,7 +21,7 @@ import { UserPositionComponent } from './components/user-position/user-position.
     declarations: [
         DirectionsComponent,
         SearchComponent,
-        UserPositionComponent,
+        UserPositionComponent
     ],
     imports: [
         CommonModule,
@@ -48,6 +46,6 @@ import { UserPositionComponent } from './components/user-position/user-position.
 
 export class DirectionsModule { }
 
-export function HttpLoaderFactory(http: HttpClient) {
+export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
     return new TranslateHttpLoader(http);
 }

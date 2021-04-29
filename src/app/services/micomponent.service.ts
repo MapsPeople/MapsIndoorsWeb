@@ -7,8 +7,6 @@ export class MIComponentService {
 
     private components = {};
 
-    constructor() { }
-
     /**
      * Register a component for easy reference.
      * @param {string} handle - A reference name for the component

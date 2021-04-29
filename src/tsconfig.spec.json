@@ -5,8 +5,8 @@
     "module": "commonjs",
     "types": [
       "jest",
-	  "node",
-	  "googlemaps"
+      "node",
+      "googlemaps"
     ]
   },
   "files": [

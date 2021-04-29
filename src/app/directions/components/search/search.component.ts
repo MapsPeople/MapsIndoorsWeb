@@ -4,6 +4,7 @@ import { debounceTime, filter, switchMap, distinctUntilChanged, tap, map } from 
 import { SearchService } from './search.service';
 import { SearchData } from './searchData.interface';
 import { SearchParameters } from '../../../shared/models/searchParameters.interface';
+import { Location } from '../../../shared/models/location.interface';
 
 
 @Component({
@@ -14,7 +15,7 @@ import { SearchParameters } from '../../../shared/models/searchParameters.interf
 })
 export class SearchComponent implements OnInit, OnDestroy {
     searchTerm = new Subject<string>();
-    @ViewChild('searchInput') searchElement: ElementRef;
+    @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
 
     @Input() query: string;
     @Input() parameters: SearchParameters;
@@ -32,29 +33,28 @@ export class SearchComponent implements OnInit, OnDestroy {
         private searchService: SearchService
     ) { }
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.searchTermSubscription = this.searchTerm
             .pipe(
                 debounceTime(400),
-                map((term) => term.trim()),
+                map((term): string => term.trim()),
                 distinctUntilChanged(),
-                tap((query) => {
+                tap((query): void => {
                     if (query.length < 2) this.clearResults();
                 }),
-                filter((query) => query.length > 1),
-                tap(() => this.loading.emit()),
-                switchMap((term) => this.searchService.searchEntries(term, this.parameters))
+                filter((query): boolean => query.length > 1),
+                tap((): void => this.loading.emit()),
+                switchMap((term): Promise<Location[]> => this.searchService.searchEntries(term, this.parameters))
             )
-            .subscribe((results) => {
+            .subscribe((results): void => {
                 this.searchResults.emit({ query: this.query, results: results });
             });
     }
 
     /**
-     * @description Clearing searchInput, all results and focuses afterwards.
-     * @memberof SearchComponent
+     * Clearing searchInput, all results and focuses afterwards.
      */
-    clearInput() {
+    public clearInput(): void {
         this.currentInputField.emit();
         this.query = '';
         this.clearResults();
@@ -62,14 +62,14 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * @description Clearing all results.
-     * @memberof SearchComponent
+     * Clearing all results.
+     * @private
      */
-    clearResults() {
+    private clearResults(): void {
         this.searchResults.emit({ query: '', results: [] });
     }
 
-    ngOnDestroy() {
+    ngOnDestroy(): void {
         this.searchTermSubscription.unsubscribe();
     }
 }

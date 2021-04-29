@@ -37,7 +37,7 @@
 "Direction.AvoidStairs": "Evitar escadas", 
 "Direction.MyPosition": "Minha posição", 
 "Direction.EnableMyPosition": "Ative partilha de localização e use a sua posição", 
-"Direction.ChooseTheAppUserRoles": "Escolha o Perfil de utilizador a que pertence na APP. Apenas afeta as direções obtidas, não as localizações vistas no mapa", 
+"Direction.ChooseTheAppUserRoles": "Escolha o Perfil de Utilizador a que pertence na APP. Isto afeta as direções obtidas e as localizações vistas no mapa.", 
 "Direction.AppUserRoles": "Perfis na App", 
 "Direction.Steps": "Passos", 
 "DirectionRoute.Days": "d", 

@@ -158,8 +158,8 @@ export class LocationService {
     public highlightLocationPolygon(locationId: string): void {
         this.mapsIndoorsService.mapsIndoors.setDisplayRule(locationId, {
             visible: true,
-            zoomFrom: '0',
-            zoomTo: '22',
+            zoomFrom: 0,
+            zoomTo: 22,
             zIndex: 1000,
             polygonFillColor: this.polygonHighlightOptions.fillColor,
             polygonFillOpacity: this.polygonHighlightOptions.fillOpacity,

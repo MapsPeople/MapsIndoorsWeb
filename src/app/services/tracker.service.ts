@@ -28,7 +28,7 @@ export class TrackerService {
      * @param {boolean} [internally=false] - "True" if the event only shall be used internally.
      * @memberof TrackerService
      */
-    public sendEvent(category: string, action: string, label: string, internally: boolean = false): void {
+    public sendEvent(category: string, action: string, label: string, internally = false): void {
         ga('send', {
             hitType: 'event',
             eventCategory: category,
