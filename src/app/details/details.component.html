@@ -127,13 +127,13 @@
             </detail-field>
 
             <!-- Building and floor -->
-            <div class="content-text" *ngIf="location.properties.building || location.properties.floorName">
+            <div class="content-text">
                 <mat-icon class="content-icon">location_city</mat-icon>
                 <p class="line-break">
-                    <span *ngIf="location.properties.floorName">{{ 'Details.Level' | translate }} {{location.properties.floorName}}</span>
-                    <span *ngIf="location.properties.building">{{location.properties.building}}</span>
+                    <span *ngIf="location.properties.floorName">{{ 'Details.Level' | translate }} {{ location.properties.floorName }}</span>
+                    <span *ngIf="location.properties.building">{{ location.properties.building }}</span>
                     <!-- Hiding venue name if it's the same as building name -->
-                    <span *ngIf="location.properties.venue && location.properties.building != location.properties.venue">{{location.properties.venue}}</span>
+                    <span *ngIf="location.properties.venue && location.properties.building != location.properties.venue">{{ location.properties.venue }}</span>
                 </p>
             </div>
 

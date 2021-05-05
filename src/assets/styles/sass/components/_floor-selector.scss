@@ -1,16 +1,16 @@
 .mapsindoors.floor-selector {
-	width: 48px !important;
-	max-height: 292px;
+	width: 40px !important;
+	max-height: 400px;
 	background-color: rgb(255, 255, 255);
 	user-select: none;
 	scrollbar-width: thin;
 	overflow-x: hidden;
 	-ms-overflow-style: -ms-autohiding-scrollbar;
-	
+
 	a {
-		width: 48px;
-		height: 42px;
-		line-height: 42px;
+		width: 40px;
+		height: 40px;
+		line-height: 40px;
 		display: block;
 		color: #666666;
 		font-size: 15px;
@@ -19,11 +19,13 @@
 		cursor: pointer;
 		z-index: 0;
 		transition: all .3s ease;
+
 		&:hover {
 			background: #ccc;
 			// border-color: #999;
 			z-index: 2;
 		}
+
 		&.active {
 			// color: black;
 			color: #43aaa0;
@@ -33,6 +35,7 @@
 			z-index: 2;
 		}
 	}
+
 	&:before {
         width: inherit;
         font-family: 'Material Icons';
@@ -46,7 +49,6 @@
 	}
 }
 
-
 .zoom-indicator {
 	background-color: rgba(255, 255, 255, .8);
 	border-radius: 2px;
@@ -57,7 +59,17 @@
 	transform: translate(-50%, 0px);
 }
 
+@media screen and (min-width: 600px) {
+    .mapsindoors.floor-selector {
+        max-height: 170px;
+    }
+}
 
+@media screen and (min-width: 600px) and (min-height: 820px) {
+    .mapsindoors.floor-selector {
+        max-height: 400px;
+    }
+}
 
 
 
