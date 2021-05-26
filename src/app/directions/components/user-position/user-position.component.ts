@@ -2,12 +2,12 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { UserAgentService } from 'src/app/services/user-agent.service';
 import { TranslateService } from '@ngx-translate/core';
 
-interface UserPosition {
-    name: string,
-    geometry: {
-        type: string,
-        coordinates: any[]
-    }
+export interface UserPosition {
+    geometry: GeolocationPosition,
+    properties: {
+        name: string,
+        floor: string
+    };
 }
 
 @Component({
@@ -29,15 +29,15 @@ export class UserPositionComponent implements OnInit {
         private translateService: TranslateService
     ) { }
 
-    ngOnInit():void {
+    ngOnInit(): void {
         this.loading = true;
         this.userAgentService.getCurrentPosition()
-            .then((position: Position): void => {
+            .then((position: GeolocationPosition): void => {
                 this.userPosition = {
-                    name: this.translateService.instant('Direction.MyPosition'),
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [position.coords.longitude, position.coords.latitude]
+                    geometry: position,
+                    properties: {
+                        name: this.translateService.instant('Direction.MyPosition'),
+                        floor: '0'
                     }
                 };
                 this.loading = false;
@@ -48,7 +48,7 @@ export class UserPositionComponent implements OnInit {
             });
     }
 
-    handleClick():void {
+    handleClick(): void {
         if (!this.loading) this.originPosition.emit(this.userPosition);
     }
 }

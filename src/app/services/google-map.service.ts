@@ -6,7 +6,6 @@ declare const mapsindoors: any;
     providedIn: 'root'
 })
 export class GoogleMapService {
-
     private infoWindow = new google.maps.InfoWindow;
 
     public googleMapView: any;
@@ -16,6 +15,7 @@ export class GoogleMapService {
      * Creates an instance of mapsindoors.mapView.GoogleMapsView, which
      * creates a Google map and attaches it to a DOM element.
      *
+     * @returns {Promise<void>}
      */
     initMapView(): Promise<void> {
         return new Promise((resolve): void => {
@@ -32,30 +32,27 @@ export class GoogleMapService {
     }
 
     /**
-     * @description Populates the info window with text and a position.
+     * Populates the info window with text and a position.
+     *
      * @param {string} locationName - The location name.
-     * @param {google.maps.LatLng} anchor - The location coordinate.
-     * @memberof GoogleMapService
+     * @param {google.maps.LatLng} anchorPoint - The location coordinate.
      */
-    public updateInfoWindow(locationName: string, anchor: google.maps.LatLng): void {
+    public updateInfoWindow(locationName: string, anchorPoint: google.maps.LatLng): void {
         this.infoWindow.setContent(`<div class="infowindow text-link">${locationName}</div>`);
-        this.infoWindow.setPosition(anchor);
+        this.infoWindow.setPosition(anchorPoint);
     }
 
     /**
-     * @description Opens the info window.
-     * @memberof GoogleMapService
+     * Open info window.
      */
     public openInfoWindow(): void {
         this.infoWindow.open(this.map);
     }
 
     /**
-     * @description Closes the info window.
-     * @memberof GoogleMapService
+     * Closes info window.
      */
     public closeInfoWindow(): void {
         this.infoWindow.close();
     }
-
 }

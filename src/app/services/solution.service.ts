@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserAgentService } from './../services/user-agent.service';
 import { environment } from '../../environments/environment';
+import { Solution } from '@mapsindoors/typescript-interfaces';
 
 declare let mapsindoors: any;
 declare let Oidc: any;
@@ -165,9 +166,9 @@ export class SolutionService {
     /**
      * Get solution object.
      *
-     * @returns {Promise<any>} - Solution object.
+     * @returns {Promise<Solution>}
      */
-    public getSolution(): Promise<any> {
+    public getSolution(): Promise<Solution> {
         return mapsindoors.services.SolutionsService.getSolution();
     }
 

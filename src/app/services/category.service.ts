@@ -5,10 +5,7 @@ import { AppConfigService } from './app-config.service';
 import { VenueService } from './venue.service';
 import { SearchService } from '../directions/components/search/search.service';
 
-import { Venue } from '../shared/models/venue.interface';
-import { Category } from '../shared/models/category.interface';
-import { Location } from '../shared/models/location.interface';
-import { SearchParameters } from '../shared/models/searchParameters.interface';
+import { Category, Location, SearchParameters, Venue } from '@mapsindoors/typescript-interfaces';
 
 declare const mapsindoors: any;
 

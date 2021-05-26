@@ -5,7 +5,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AppConfigService } from '../services/app-config.service';
 import { LocationService } from '../services/location.service';
-import { MapsIndoorsService } from '../services/maps-indoors.service';
+import { MapsIndoorsService, FitSelectionInfo } from '../services/maps-indoors.service';
 import { GoogleMapService } from '../services/google-map.service';
 import { VenueService } from '../services/venue.service';
 import { ShareUrlDialogComponent } from './share-url-dialog/share-url-dialog.component';
@@ -16,8 +16,7 @@ import { NotificationService } from '../services/notification.service';
 import { TrackerService } from '../services/tracker.service';
 import { parse as parseDuration } from 'iso8601-duration';
 import { add as addToDate, lightFormat } from 'date-fns';
-import { Venue } from '../shared/models/venue.interface';
-import { Location } from '../shared/models/location.interface';
+import { Location, Venue } from '@mapsindoors/typescript-interfaces';
 import { TimeInterval } from '../shared/models/timeInterval.interface';
 
 @Component({
@@ -161,7 +160,14 @@ export class DetailsComponent implements OnInit, OnDestroy {
     goBack(): void {
         this.mapsIndoorsService.isMapDirty = false;
         this.mapsIndoorsService.setPageTitle();
-        this.mapsIndoorsService.setVenueAsReturnToValue(this.venue);
+
+        const currentSelectionInfo: FitSelectionInfo = {
+            name: this.venue.venueInfo.name,
+            coordinates: new google.maps.LatLng(this.venue.anchor.coordinates[1], this.venue.anchor.coordinates[0]),
+            isVenue: true
+        };
+        this.mapsIndoorsService.setFitSelectionInfo(currentSelectionInfo);
+
         if (!this.locationService.getCategoryFilter()) {
             this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/search`]);
             return;

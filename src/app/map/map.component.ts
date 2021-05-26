@@ -1,7 +1,7 @@
 import { Component, NgZone } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GoogleMapService } from './../services/google-map.service';
-import { MapsIndoorsService } from './../services/maps-indoors.service';
+import { MapsIndoorsService, FitSelectionInfo } from './../services/maps-indoors.service';
 import { MiLiveDataService } from './../services/mi-live-data.service';
 import { LocationService } from './../services/location.service';
 import { ThemeService } from './../services/theme.service';
@@ -13,8 +13,7 @@ import { NotificationService } from '../services/notification.service';
 import { TranslateService } from '@ngx-translate/core';
 import { TrackerService } from '../services/tracker.service';
 
-import { Venue } from '../shared/models/venue.interface';
-import { Location } from '../shared/models/location.interface';
+import { Location, Venue } from '@mapsindoors/typescript-interfaces';
 import { PrintControl } from '../controls/print.control';
 
 enum ErrorVenueId {
@@ -35,10 +34,8 @@ export class MapComponent {
     appConfig: any;
     colors: object;
     venue: Venue;
-    returnToValues: any;
     pageTitle: string;
     private location: Location;
-    returnBtn: HTMLElement;
     private initVenue: Venue;
     private printControlElement: PrintControl;
 
@@ -73,7 +70,16 @@ export class MapComponent {
         this.venueService.getVenueObservable()
             .subscribe((venue: Venue): void => {
                 this.venue = venue;
-                this.initReturnToButton();
+
+                const venueBounds = this.venueService.getVenueBoundingBox(venue);
+                this.mapsIndoorsService.initFitSelectionControl(venueBounds);
+
+                const currentSelectionInfo: FitSelectionInfo = {
+                    name: venue.venueInfo.name,
+                    coordinates: new google.maps.LatLng(venue.anchor.coordinates[1], venue.anchor.coordinates[0]),
+                    isVenue: true
+                };
+                this.mapsIndoorsService.setFitSelectionInfo(currentSelectionInfo);
             });
         this.locationService.getCurrentLocation()
             .subscribe((location: Location) => this.location = location);
@@ -102,14 +108,9 @@ export class MapComponent {
                 }
             });
         this.themeService.setColors();
-        this.mapsIndoorsService.getReturnToValues()
-            .subscribe((values) => {
-                this.returnToValues = values;
-            });
         this.addLocationListener();
         this.addFloorChangedListener();
 
-        this.returnBtn = document.getElementById('return-to-venue');
         this.addPrintControl();
         this.statusOk = true;
     }
@@ -154,7 +155,14 @@ export class MapComponent {
         this.locationService.clearCategoryFilter();
         this.mapsIndoorsService.setPageTitle();
         this.router.navigate([`${this.solutionService.getSolutionName()}/${this.venue.id}/search`]);
-        this.mapsIndoorsService.setVenueAsReturnToValue(this.venue);
+
+        const currentSelectionInfo: FitSelectionInfo = {
+            name: this.venue.venueInfo.name,
+            coordinates: new google.maps.LatLng(this.venue.anchor.coordinates[1], this.venue.anchor.coordinates[0]),
+            isVenue: true
+        };
+        this.mapsIndoorsService.setFitSelectionInfo(currentSelectionInfo);
+
         this.mapsIndoorsService.isMapDirty = false;
         this.trackerService.sendEvent('Map', 'Clear map button click', 'Clear map button was clicked', true);
     }
@@ -172,44 +180,6 @@ export class MapComponent {
     }
 
     // #endregion
-
-    // #region || LISTENER || RETURN TO VENUE OR POI
-    /**
-     * @description Adds a Google Maps Idle and Return To button click listener.
-     * @listens event:click Returns to previous selected venue or location when clicked.
-     * @listens event:idle Shows or hides button when panning the map.
-     */
-    private initReturnToButton(): void {
-        const googleMap = this.googleMapService.map;
-        google.maps.event.addListener(googleMap, 'idle', () => {
-            // Always true except for when getting a direction
-            if (this.venueService.favouredVenue && this.venueService.returnBtnActive) {
-                // Hides the button if the selected venue is inside the current googleMap bounds
-                const bounds = googleMap.getBounds();
-                if (bounds && bounds.intersects(this.venue.boundingBox)) {
-                    if (this.returnBtn.className.includes('hidden') === false) {
-                        this.returnBtn.className += ' hidden';
-                    }
-                } else {
-                    // Shows the button when panned away from selected venue or location.
-                    this.returnBtn.className = this.returnBtn.className.replace(' hidden', '');
-                }
-            }
-        });
-    }
-
-    /**
-     * @description Fits the venue if a locations isn't selected.
-     * @memberof MapComponent
-     */
-    returnToButtonClickHandler(): void {
-        if (this.returnToValues.isVenue === true) {
-            this.mapsIndoorsService.mapsIndoors.fitVenue();
-        } else {
-            this.googleMapService.map.panTo(this.returnToValues.latLng);
-        }
-    }
-    //#endregion
 
     // #region || LISTENER || LOCATION CLICK
     /**

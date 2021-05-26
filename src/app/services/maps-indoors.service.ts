@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
 import { GoogleMapService } from './google-map.service';
 import { AppConfigService } from './app-config.service';
-import { Observable, BehaviorSubject, Subscription, Subject } from 'rxjs';
+import { Observable, BehaviorSubject, Subscription } from 'rxjs';
 import { SolutionService } from './solution.service';
 import { UserAgentService } from './user-agent.service';
 import { TrackerService } from './tracker.service';
-
-import { Venue } from '../shared/models/venue.interface';
-import { Location } from '../shared/models/location.interface';
+import { Location } from '@mapsindoors/typescript-interfaces';
+import { FitSelectionControl } from '../controls/fit-selection.control';
+import { TranslateService } from '@ngx-translate/core';
 
 declare const mapsindoors: any;
 
-interface ReturnToValues {
+export interface FitSelectionInfo {
     name: string,
-    latLng: google.maps.LatLng,
+    coordinates: google.maps.LatLng,
     isVenue: boolean
 }
 
@@ -31,14 +31,16 @@ export class MapsIndoorsService {
 
     private isHandsetSubscription: Subscription;
     private pageTitle = new BehaviorSubject<string>('');
-    private returnToValues = new Subject<ReturnToValues>();
+
+    private fitSelectionControlElement: FitSelectionControl;
 
     constructor(
         private solutionService: SolutionService,
         private googleMapService: GoogleMapService,
         private appConfigService: AppConfigService,
         private userAgentService: UserAgentService,
-        private trackerService: TrackerService
+        private trackerService: TrackerService,
+        private translateService: TranslateService,
     ) {
         this.appConfigService.getAppConfig()
             .subscribe((appConfig): void => this.appConfig = appConfig);
@@ -186,55 +188,26 @@ export class MapsIndoorsService {
     }
     // #endregion
 
-    // #region || RETURN
     /**
-     * @description Set the values for return button.
-     * @param {string} name
-     * @param {google.maps.LatLng} latLng
-     * @param {boolean} isVenue
-     * @memberof MapsIndoorsService
+     * Set selection info for Fit Selection Control or use null for disabling it.
      */
-    private setReturnToValues(values: ReturnToValues): void {
-        this.returnToValues.next(values);
+    public setFitSelectionInfo(selectionInfo: FitSelectionInfo): void {
+        // Update info
+        if (selectionInfo) {
+            selectionInfo.name = `${this.translateService.instant('Buttons.ReturnTo')} ${selectionInfo.name}`;
+        }
+
+        this.fitSelectionControlElement?.updateInfo(selectionInfo);
     }
 
     /**
-     * @description Sets the values for return to location button.
-     * @param {Location} location – The selected location.
-     * @memberof MapsIndoorsService
+     * Initialize Fit Selection Control.
+     *
+     * @param {google.maps.LatLngBounds} venueBoundingBox
      */
-    setLocationAsReturnToValue(location: Location, anchorCoordinates: google.maps.LatLng): void {
-        const values: ReturnToValues = {
-            name: location.properties.name,
-            latLng: anchorCoordinates,
-            isVenue: false
-        };
-        this.setReturnToValues(values);
+    public initFitSelectionControl(venueBoundingBox: google.maps.LatLngBounds): void {
+        this.fitSelectionControlElement = new FitSelectionControl(this.googleMapService.map, this.mapsIndoors, venueBoundingBox);
     }
-
-    /**
-     * @description Sets the values for return to venue button.
-     * @param {Venue} venue The selected venue.
-     * @memberof MapsIndoorsService
-     */
-    setVenueAsReturnToValue(venue: Venue): void {
-        const values: ReturnToValues = {
-            name: venue.venueInfo.name,
-            latLng: new google.maps.LatLng(venue.anchor.coordinates[0], venue.anchor.coordinates[1]),
-            isVenue: true
-        };
-        this.setReturnToValues(values);
-    }
-
-    /**
-     * @description Returning the selected item name, lat lng and isVenue boolean.
-     * @returns The return to values needed for button.
-     * @memberof MapsIndoorsService
-     */
-    getReturnToValues(): Observable<ReturnToValues> {
-        return this.returnToValues.asObservable();
-    }
-    // #endregion
 
     // #region || PAGE TITLE
     // Don't belong in here

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
+import { Venue } from '@mapsindoors/typescript-interfaces';
 import { Observable, BehaviorSubject, ReplaySubject } from 'rxjs';
-
-import { Venue } from '../shared/models/venue.interface';
 
 declare const mapsindoors: any;
 

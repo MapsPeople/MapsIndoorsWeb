@@ -5,7 +5,7 @@
                 <header>
                     <div class="hero" [style.background-color]="colors.primary">
                         <nav class="hero-nav">
-                            <button mat-icon-button class="venue-icon" *ngIf="!filtered && !venue.onlyVenue" (click)="goBack()">
+                            <button mat-icon-button class="venue-icon" *ngIf="!filtered && venuesLength > 1" (click)="goBack()">
                                 <mat-icon [style.color]="colors.onPrimary" aria-label="Venues">location_city</mat-icon>
                             </button>
                             <button mat-icon-button class="venue-back-btn" *ngIf="locationsArray.length > 0 || filtered" (click)="goBack()">
@@ -88,15 +88,15 @@
                     <mat-nav-list>
                         <a mat-list-item *ngFor="let location of locationsArray" (click)="setLocation(location)">
                             <span class="list-icon">
-                                <app-image [src]="location.properties.iconUrl"></app-image>
+                                <app-image [src]="getIconUrl(location)"></app-image>
                             </span>
                             <span class="list-text">
                                 <span class="list-title">{{ location.properties.name }}</span>
                                 <span class="list-title-sub">
                                     <span *ngIf="location.properties.externalId"> {{ location.properties.externalId }}</span>
                                     <span *ngIf="location.properties.floorName">Level {{ location.properties.floorName }}</span>
-                                    <span *ngIf="location.properties.building && !venue.onlyVenue">{{ location.properties.building }}</span>
-                                    <span *ngIf="location.properties.building != location.properties.venue && !venue.onlyVenue">{{ location.properties.venue }}</span>
+                                    <span *ngIf="location.properties.building && venuesLength > 1">{{ location.properties.building }}</span>
+                                    <span *ngIf="location.properties.building != location.properties.venue && venuesLength > 1">{{ location.properties.venue }}</span>
                                 </span>
                             </span>
                         </a>

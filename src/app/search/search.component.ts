@@ -18,10 +18,7 @@ import { SearchService } from '../directions/components/search/search.service';
 import { TrackerService } from '../services/tracker.service';
 import { UserAgentService } from '../services/user-agent.service';
 
-import { Venue } from '../shared/models/venue.interface';
-import { Location } from '../shared/models/location.interface';
-import { Category } from '../shared/models/category.interface';
-import { SearchParameters } from '../shared/models/searchParameters.interface';
+import { Category, Location, SearchParameters, Solution, Venue } from '@mapsindoors/typescript-interfaces';
 import { CategoryService } from '../services/category.service';
 
 
@@ -35,7 +32,9 @@ export class SearchComponent implements OnInit, OnDestroy {
     colors: object;
     categoriesMenu: any;
 
+    private solution: Solution;
     venue: Venue;
+    public venuesLength: number;
     SearchHintAppTitle = '';
 
     previousQuery = ''
@@ -52,9 +51,6 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     loadingLocations = false;
     endOfArray = false;
-
-    zoomBtn: HTMLElement;
-    zoomBtnListener: google.maps.MapsEventListener;
 
     isUserRolesSelectionVisible = false;
     userRolesList = [];
@@ -121,7 +117,6 @@ export class SearchComponent implements OnInit, OnDestroy {
             .add(this.venueService.getVenueObservable()
                 .subscribe((venue: Venue): void => {
                     this.venue = venue;
-                    this.zoomForDetails();
                     this.getPreviousFiltering();
                     this.panIfWithinBounds();
                 })
@@ -135,6 +130,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.SearchHintAppTitle = this.appConfig.appSettings.title;
         window['angularComponentRef'] = { component: this, zone: this._ngZone };
 
+        this.solutionService.getSolution().then((solution) => this.solution = solution);
         this.solutionService.getUserRoles()
             .then((roles): any => this.userRolesList = roles)
             .catch((): void => {
@@ -142,6 +138,10 @@ export class SearchComponent implements OnInit, OnDestroy {
                     this.translateService.instant('Error.General')
                 );
             });
+
+        this.venueService.getVenues().then(venues => {
+            this.venuesLength = venues.length;
+        });
     }
 
     // #region || SEARCH AND RESULTS
@@ -355,6 +355,16 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Get location icon URL.
+     *
+     * @param {Location} location
+     * @returns {string}
+     */
+    getIconUrl(location: Location): string {
+        return this.locationService.getLocationIconUrl(location, this.solution.types);
+    }
+
+    /**
      * @description Get more locations for entered query and or selected category.
      * @returns {Promise<void>}
      * @memberof SearchComponent
@@ -397,50 +407,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
     // #endregion
 
-    // #region || ZOOM FOR MORE DETAILS
-    async zoomForDetails(): Promise<void> {
-        const self = this;
-        const googleMap = this.googleMapService.map;
-        this.zoomBtn = document.getElementById('zoom-for-details');
-        const solutionId = await this.solutionService.getSolutionId();
-
-        // Hide the zoom button if the user has visited the app before else show it
-        const hideZoomBtnLocalStorage = this.userAgentService.localStorage.getItem('MI:' + solutionId + '-hideZoom');
-        if (hideZoomBtnLocalStorage === 'true') this.hideZoomBtn();
-        else showZoomBtn();
-
-        function showZoomBtn(): void {
-            self.zoomBtn.className = self.zoomBtn.className.replace(' hidden', '');
-        }
-
-        // Hides zoom button when clicked
-        this.zoomBtnListener = google.maps.event.addDomListenerOnce(this.zoomBtn, 'click', (): void => {
-            googleMap.setZoom(Math.max(18, googleMap.getZoom() + 1));
-            self.hideZoomBtn();
-        });
-        // Hides zoom button when map is dragged
-        google.maps.event.addListenerOnce(googleMap, 'dragend', (): void => {
-            self.hideZoomBtn();
-        });
-
-        // Remove zoom button when the user zooms
-        google.maps.event.addListenerOnce(googleMap, 'idle', (): void => {
-            this.mapsIndoorsService.mapsIndoors.addListener('zoom_changed', (): void => {
-                self.hideZoomBtn();
-            });
-        });
-    }
-
-    async hideZoomBtn(): Promise<void> {
-        const solutionId = await this.solutionService.getSolutionId();
-        if (this.zoomBtn.className.indexOf(' hidden') < 0) {
-            this.zoomBtn.className += ' hidden';
-        }
-        google.maps.event.removeListener(this.zoomBtnListener);
-        this.userAgentService.localStorage.setItem('MI:' + solutionId + '-hideZoom', 'true');
-    }
-    // #endregion
-
     // #region || DESTROY
     async goBack(): Promise<void> {
         const solutionName = this.solutionService.getSolutionName();
@@ -457,7 +423,6 @@ export class SearchComponent implements OnInit, OnDestroy {
             this.userAgentService.localStorage.removeItem('MI:' + solutionId);
             this.mapsIndoorsService.hideFloorSelector();
             this.clearAll();
-            this.venueService.favouredVenue = false;
             this.venueService.fitVenues = false;
             this.router.navigate([`${solutionName}/venues`]);
             this.mapsIndoorsService.isMapDirty = false;
@@ -481,7 +446,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        if (this.zoomBtn) this.hideZoomBtn();
         window['angularComponentRef'] = null;
         if (this.dialogSubscription) this.dialogSubscription.unsubscribe();
         if (this.debounceSearchSubscription) this.debounceSearchSubscription.unsubscribe();

@@ -2,7 +2,7 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subscription } from 'rxjs';
 import { LocationService } from 'src/app/services/location.service';
-import { Location } from '../../models/location.interface';
+import { Location } from '@mapsindoors/typescript-interfaces';
 
 declare const mapsindoors: any;
 

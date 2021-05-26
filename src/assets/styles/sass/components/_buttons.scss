@@ -1,55 +1,12 @@
-// Clear map 
+// Clear map
 .btn-clear-map {
     text-transform: uppercase;
     text-rendering: geometricPrecision;
 }
 
-// Return to venue
-.return-to-venue-container {
-	position: absolute;
-	z-index: 998;
-	margin-top: 10px;
-	left: 50%;
-    transform: translate(-50%, -0%);
-	//TODO: Style as other map elements with border-radius, box-shadow and so on – take a look at the floor selector
-
-	button {
-		height: 42px;
-		padding: 0 16px;
-		border-radius: 2px;
-		box-sizing: border-box;
-		display: block;
-		border: none;
-
-		color: #666666;
-		font-size: 12px;
-		font-weight: 600;
-		text-align: center;
-		line-height: 42px;
-		text-transform: uppercase;
-
-		-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
-		box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
-		background-color: rgb(255, 255, 255);
-		transition: all .3s ease;
-		cursor: pointer;
-		user-select: none;
-		
-		&:hover {
-			background: #ccc;
-			z-index: 2;
-		}
-		&.active {
-			color: black;
-			background: #f0f0f0;
-			z-index: 2;
-		}
-	}
-}
-
 // Used for directions
 .direction-btn-wrap {
-	.mat-raised-button:nth-child(2)[disabled]:not([class*='mat-elevation-z']) { 
+	.mat-raised-button:nth-child(2)[disabled]:not([class*='mat-elevation-z']) {
 		background-color: rgba(0, 0, 0, 0.12) !important;
 	}
 }

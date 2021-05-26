@@ -15,15 +15,7 @@
                 </button>
             </div>
         </mat-toolbar>
-        <div id="zoom-for-details" class="mapsindoors return-to-venue-container hidden">
-            <button class="btn-return-to-venue">{{ 'Buttons.ZoomForDetails' | translate }}</button>
-        </div>
-        <div id="return-to-venue" class="mapsindoors return-to-venue-container hidden">
-            <button class="btn-return-to-venue" (click)="returnToButtonClickHandler()">
-                {{ 'Buttons.ReturnTo' | translate }}
-                <span *ngIf="returnToValues && returnToValues.name">{{ returnToValues.name }}</span>
-            </button>
-        </div>
+
         <!-- Google map -->
         <div id="gmap" [ngClass]="{ 'small-map': isHandset }"></div>
     </mat-sidenav-content>

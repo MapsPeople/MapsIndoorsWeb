@@ -3,7 +3,7 @@ import { AppConfigService } from './app-config.service';
 import { MapsIndoorsService } from '../services/maps-indoors.service';
 import { GoogleMapService } from '../services/google-map.service';
 import { Observable, ReplaySubject } from 'rxjs';
-import { Venue } from '../shared/models/venue.interface';
+import { Building, Venue } from '@mapsindoors/typescript-interfaces';
 
 declare const mapsindoors: any;
 
@@ -14,11 +14,7 @@ export class VenueService {
 
     miVenueService = mapsindoors.services.VenuesService;
     appConfig: any;
-    venue: Venue;
-    venuesLength: number;
-    favouredVenue: boolean;
     fitVenues = true;
-    returnBtnActive = true;
 
     private venueObservable = new ReplaySubject<Venue>(1);
 
@@ -36,20 +32,11 @@ export class VenueService {
      * @returns {Promise<Venue[]>} Returns an array of venue objects.
      */
     public getVenues(): Promise<Venue[]> {
-        return new Promise((resolve, reject): void => {
-            this.miVenueService.getVenues()
-                .then((venues: Venue[]): void => {
-                    for (const venue of venues) {
-                        venue.image = this.appConfig.venueImages[venue.name.toLowerCase()];
-                    }
-                    resolve(venues);
-                })
-                .catch((err): void => {
-                    reject(err);
-                });
-        });
-
-
+        return mapsindoors.services.VenuesService.getVenues()
+            .then((venues: Venue[]) => venues.map((venue): Venue => {
+                venue.image = this.appConfig.venueImages[venue.name.toLowerCase()];
+                return venue;
+            }));
     }
 
     getVenueObservable(): Observable<any> {
@@ -72,17 +59,13 @@ export class VenueService {
      */
     setVenue(venue, appConfig, fitVenue = true): Promise<void> {
         return new Promise((resolve): void => {
-            venue.anchor.center = [].concat(venue.anchor.coordinates).reverse();
 
             for (const venueName in appConfig.venueImages) {
                 if (venue.name.toLowerCase() === venueName) {
                     venue.image = appConfig.venueImages[venue.name.toLowerCase()];
                 }
             }
-            // Used for return to "something" button
-            this.mapsIndoorsService.setVenueAsReturnToValue(venue);
-            this.returnBtnActive = true;
-            this.favouredVenue = true;
+
             this.mapsIndoorsService.mapsIndoors.setVenue(venue);
             if (fitVenue) {
                 // TODO: Figure out timing issue here when using fitVenue when starting app. For now manually fit to venue bounds.
@@ -90,57 +73,39 @@ export class VenueService {
                 // this.mapsIndoorsService.mapsIndoors.fitVenue(venue.id);
             }
 
-            Promise.all([
-                this.getVenueBoundingBox(venue),
-                this.miVenueService.getVenues()
-            ]).then(([boundingBox, venues]): void => {
-                venue.boundingBox = boundingBox;
-                venue.onlyVenue = venues.length === 1 ? true : false;
-
-                this.venue = venue;
-                this.venueObservable.next(venue);
-                resolve();
-            });
+            this.venueObservable.next(venue);
+            resolve();
         });
     }
 
     /**
-     * Get bounding box of venue.
+     * Get bounding box for venue.
      *
-     * @private
      * @param {Venue} venue The current venue.
-     * @returns {Promise<{ [key: string]: number }>} The venue bounding box.
+     * @returns {google.maps.LatLngBounds} The venue bounding box.
      */
-    private getVenueBoundingBox(venue: Venue): Promise<{ [key: string]: number }> {
-        return new Promise((resolve) => {
-            const bounds = {
-                east: -180,
-                north: -90,
-                south: 90,
-                west: 180
-            };
-            venue.geometry.coordinates.reduce((bounds, ring: any) => {
-                ring.reduce((bounds, coords) => {
-                    bounds.east = coords[0] >= bounds.east ? coords[0] : bounds.east;
-                    bounds.west = coords[0] <= bounds.west ? coords[0] : bounds.west;
-                    bounds.north = coords[1] >= bounds.north ? coords[1] : bounds.north;
-                    bounds.south = coords[1] <= bounds.south ? coords[1] : bounds.south;
-                    return bounds;
-                }, bounds);
-                return bounds;
-            }, bounds);
-            resolve(bounds);
-        });
-    }
+    getVenueBoundingBox(venue: Venue): google.maps.LatLngBounds {
+        const coordinates = venue.geometry.coordinates[0];
+        const lat = coordinates.map((point) => point[0]);
+        const lng = coordinates.map((point) => point[1]);
 
+        const bbox = { south: 90, west: 180, north: -90, east: -180 };
+        bbox.south = Math.min(bbox.south, ...lat);
+        bbox.west = Math.min(bbox.west, ...lng);
+        bbox.north = Math.max(bbox.north, ...lat);
+        bbox.east = Math.max(bbox.east, ...lng);
+
+        const venueBounds = new google.maps.LatLngBounds({ lat: bbox.west, lng: bbox.south }, { lat: bbox.east, lng: bbox.north });
+        return venueBounds;
+    }
 
     /**
      * Get a building by its id.
      *
      * @param {string} buildingId
-     * @returns {Promise<any>}
+     * @returns {Promise<Building>}
      */
-    async getBuildingById(buildingId: string): Promise<any> {
+    async getBuildingById(buildingId: string): Promise<Building> {
         const buildingRequest = this.miVenueService.getBuilding(buildingId);
         const building = await buildingRequest;
         return building;

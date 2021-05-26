@@ -40,11 +40,11 @@
             <!-- Search -->
             <div [ngClass]="'search-wrap'">
                 <!-- Origin search -->
-                <search-input #originSearchComponent *ngIf="searchParameters" (currentInputField)="setCurrentInputField('start')" (blurred)="blurInputField()" [query]="originInputValue" [parameters]="searchParameters" [placeHolder]="'Direction.From'" (loading)="loadingHandler()" (update)="searchResultsChange($event)">
+                <search-input #originSearchComponent *ngIf="searchParameters" (currentInputField)="setCurrentInputField('start')" (blurred)="blurInputField()" [query]="originInputValue" [parameters]="searchParameters" [includeGooglePlaces]="true" [countryCodeRestrictions]="searchCountryCodeRestrictions" [placeHolder]="'Direction.From'" (loading)="loadingHandler()" (update)="searchResultsChange($event)">
                 </search-input>
 
                 <!-- Destination search -->
-                <search-input #destinationSearchComponent *ngIf="searchParameters" (currentInputField)="setCurrentInputField('dest')" (blurred)="blurInputField()" [query]="destinationInputValue" [parameters]="searchParameters" [placeHolder]="'Direction.To'" (loading)="loading = true" (update)="searchResultsChange($event)">
+                <search-input #destinationSearchComponent *ngIf="searchParameters" (currentInputField)="setCurrentInputField('dest')" (blurred)="blurInputField()" [query]="destinationInputValue" [parameters]="searchParameters" [includeGooglePlaces]="true" [countryCodeRestrictions]="searchCountryCodeRestrictions" [placeHolder]="'Direction.To'" (loading)="loading = true" (update)="searchResultsChange($event)">
                 </search-input>
 
                 <!-- Stairs checkbox -->
@@ -84,7 +84,7 @@
                 <!-- List of queries -->
                 <a mat-list-item *ngFor="let location of searchResults" (click)="selectLocation(location)">
                     <span class="list-icon">
-                        <img class="material-icons" src="{{location.properties.iconUrl}}">
+                        <img class="material-icons" [src]="getIconUrl(location)">
                     </span>
                     <span class="list-text">
                         <span class="list-title">{{location.properties.name}}</span>
@@ -92,8 +92,8 @@
                         <span class="list-title-sub" *ngIf="!location.properties.subtitle">
                             <span *ngIf="location.properties.externalId">{{location.properties.externalId}}</span>
                             <span *ngIf="location.properties.floorName">Level {{location.properties.floorName}}</span>
-                            <span *ngIf="location.properties.building && !venue.onlyVenue">{{location.properties.building}}</span>
-                            <span *ngIf="location.properties.building != location.properties.venue && !venue.onlyVenue">{{location.properties.venue}}</span>
+                            <span *ngIf="location.properties.building && venuesLength > 1">{{location.properties.building}}</span>
+                            <span *ngIf="location.properties.building != location.properties.venue && venuesLength > 1">{{location.properties.venue}}</span>
                         </span>
                         <!-- Google locations -->
                         <span class="list-title-sub" *ngIf="location.properties.subtitle">

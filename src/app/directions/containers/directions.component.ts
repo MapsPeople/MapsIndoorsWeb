@@ -4,7 +4,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { TranslateService } from '@ngx-translate/core';
 import { AppConfigService } from '../../services/app-config.service';
 import { UserAgentService } from '../../services/user-agent.service';
-import { MapsIndoorsService } from '../../services/maps-indoors.service';
+import { MapsIndoorsService, FitSelectionInfo } from '../../services/maps-indoors.service';
 import { GoogleMapService } from '../../services/google-map.service';
 import { LocationService } from '../../services/location.service';
 import { VenueService } from '../../services/venue.service';
@@ -16,14 +16,12 @@ import { NotificationService } from '../../services/notification.service';
 import { TrackerService } from 'src/app/services/tracker.service';
 import { UnitSystem } from '../../shared/enums';
 
-import { Venue } from '../../shared/models/venue.interface';
-import { Location } from '../../shared/models/location.interface';
-import { BaseLocation } from '../../shared/models/baseLocation.interface';
+import { AppConfig, Location, SearchParameters, Solution, Venue } from '@mapsindoors/typescript-interfaces';
 import { SearchData } from '../components/search/searchData.interface';
-import { SearchParameters } from '../../shared/models/searchParameters.interface';
 import { Step } from '@mapsindoors/components/dist/types/types/step.interface';
 import { Leg } from '@mapsindoors/components/dist/types/types/leg.interface';
 import { StepSwitcherControl } from 'src/app/controls/step-switcher.control';
+import { UserPosition } from '../components/user-position/user-position.component';
 
 declare const mapsindoors: any;
 
@@ -41,12 +39,13 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     error: string;
     colors: any;
     loading = true;
-    appConfig: any;
+    private solution: Solution;
+    appConfig: AppConfig;
     venue: Venue;
+    public venuesLength: number;
 
     useBrowserPositioning: boolean;
     currentPositionVisible = true;
-    currentPosition: any;
 
     travelMode: string = sessionStorage.getItem('TRAVEL_MODE') || 'WALKING';
     avoidStairs = false;
@@ -59,15 +58,14 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     private miDirectionsService; // Hold instance of mapsindoors DirectionsService
     private miDirectionsRenderer; // Hold instance of mapsindoors DirectionsRenderer
 
-    searchParameters: SearchParameters = {
+    public searchParameters: SearchParameters = {
         take: 10,
-        near: {},
-        getGoogleResults: true,
-        countryCodeRestrictions: ''
     };
+    public searchCountryCodeRestrictions: string | string[];
     searchResults = [];
     isPoweredByGoogle = false;
-    originLocation: BaseLocation;
+    originLocation: Location | UserPosition;
+
     originInputValue: string;
     @ViewChild('originSearchComponent') originSearchComponent: SearchComponent;
     destinationLocation;
@@ -150,7 +148,10 @@ export class DirectionsComponent implements OnInit, OnDestroy {
         private notificationService: NotificationService,
         private trackerService: TrackerService
     ) {
-        this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
+        this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => {
+            this.appConfig = appConfig;
+            this.searchCountryCodeRestrictions = appConfig.appSettings.countryCode || '';
+        });
         this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
 
         this.isHandsetSubscription = this.userAgentService.isHandset()
@@ -204,14 +205,18 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.isInternetExplorer = this.userAgentService.IsInternetExplorer();
         this.isViewActive = true;
+        this.solutionService.getSolution().then((solution) => this.solution = solution);
+
+        this.venueService.getVenues().then(venues => {
+            this.venuesLength = venues.length;
+        });
 
         this.subscriptions
             // Venue observable
             .add(this.venueService.getVenueObservable()
                 .subscribe((venue: Venue): void => {
                     this.venue = venue;
-                    const near = `venue:${this.venue.id}`;
-                    this.populateSearchParams(near);
+                    this.searchParameters.near = `venue:${this.venue.id}`;
                 })
             );
 
@@ -287,17 +292,6 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * @description Populates search parameters used for search.
-     * @private
-     * @param {(string | Object)} near - Coordinate or venue id.
-     * @memberof DirectionsComponent
-     */
-    private populateSearchParams(near: string | Object): void {
-        this.searchParameters.near = near;
-        this.searchParameters.countryCodeRestrictions = this.appConfig.appSettings.countryCode ? this.appConfig.appSettings.countryCode : '';
-    }
-
-    /**
      * @description Returns a Promise that always resolves because origin isn't required.
      * @returns {Promise}
      */
@@ -307,7 +301,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             else if (this.route.snapshot.params.from) {
                 this.locationService.getLocationById(this.route.snapshot.params.from)
                     .then((location: Location): void => {
-                        this.originLocation = location as BaseLocation;
+                        this.originLocation = location;
                         this.originInputValue = location.properties.name;
                         resolve();
                     })
@@ -319,18 +313,20 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                 this.originInputValue = this.translateService.instant('Direction.MyPosition');
                 this.currentPositionVisible = false;
                 this.userAgentService.getCurrentPosition()
-                    .then((position): void => {
+                    .then((position: GeolocationPosition): void => {
                         if (this.originInputValue !== this.translateService.instant('Direction.MyPosition')) {
                             return; // Only populate if input hasn't changed.
                         }
 
-                        this.currentPosition = position;
-                        this.populateSearchParams({ lat: position.coords.latitude, lng: position.coords.longitude });
+                        // Search nearby users location.
+                        this.searchParameters.near = { lat: position.coords.latitude, lng: position.coords.longitude };
 
                         this.originLocation = {
-                            id: undefined,
-                            geometry: { type: 'Point', coordinates: [position.coords.longitude, position.coords.latitude] },
-                            properties: { name: this.translateService.instant('Direction.MyPosition'), floor: '0' }
+                            geometry: position,
+                            properties: {
+                                name: this.translateService.instant('Direction.MyPosition'),
+                                floor: '0'
+                            }
                         };
 
                         resolve();
@@ -344,17 +340,16 @@ export class DirectionsComponent implements OnInit, OnDestroy {
         });
     }
 
-    handleMyPositionClick(position): void {
+    /**
+     * Update properties on my position button click.
+     *
+     * @param {UserPosition} userPosition
+     */
+    handleMyPositionClick(userPosition: UserPosition): void {
         this.currentPositionVisible = false;
-
-        this.originLocation = {
-            id: undefined,
-            geometry: position.geometry,
-            properties: { name: position.name, floor: '0' }
-        };
-
-        this.originInputValue = position.name;
-        this.originSearchComponent.query = position.name; // Workaround for setting "query"
+        this.originLocation = userPosition;
+        this.originInputValue = userPosition.properties.name;
+        this.originSearchComponent.query = userPosition.properties.name; // Workaround for setting "query"
         this.getRoute();
     }
 
@@ -452,7 +447,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                             type: 'point',
                             coordinates: [results[0].geometry.location.lng(), results[0].geometry.location.lat()]
                         };
-                        self.originLocation = location as BaseLocation;
+                        self.originLocation = location;
                         self.getRoute();
                     } else {
                         console.log('Geocode was not successful for the following reason: ' + status); /* eslint-disable-line no-console */ /* TODO: Improve error handling */
@@ -500,6 +495,17 @@ export class DirectionsComponent implements OnInit, OnDestroy {
     }
 
     // #endregion
+
+    /**
+     * Get location icon URL.
+     *
+     * @param {Location} location
+     * @returns {string}
+     */
+    getIconUrl(location: Location): string {
+        return this.locationService.getLocationIconUrl(location, this.solution.types);
+    }
+
     /**
      * @description Builds a query based on the locations name, floorName, building, and venue parameter.
      * @private
@@ -526,13 +532,13 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             this._ngZone.run((): void => {
                 this.loading = true;
             });
-            this.venueService.returnBtnActive = false;
+
             this.isPoweredByGoogle = false;
             this.setUnitsPreference();
 
             const start = {
-                lat: this.locationService.getAnchorCoordinates(this.originLocation).lat(),
-                lng: this.locationService.getAnchorCoordinates(this.originLocation).lng(),
+                lat: this.locationService.getAnchorCoordinates(this.originLocation as Location).lat(),
+                lng: this.locationService.getAnchorCoordinates(this.originLocation as Location).lng(),
                 floor: this.originLocation.properties.floor
             };
 
@@ -557,6 +563,10 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
                     if (this.isViewActive) {
                         this.mapsIndoorsService.hideFloorSelector();
+
+                        // Remove Fit Selection Control when getting directions
+                        this.mapsIndoorsService.setFitSelectionInfo(null);
+
                         this._ngZone.run((): void => {
                             if (!this.hasOriginAndDestination()) {
                                 return;
@@ -589,7 +599,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
                             const myPositionTranslation: string = this.translateService.instant('Direction.MyPosition');
                             const externalLocation = this.originInputValue === myPositionTranslation || this.destinationInputValue === myPositionTranslation ? '"User location"' : 'external location';
-                            const origin = `${this.originLocation.id ? `"${this.originLocation.properties.name}" – ${this.originLocation.id}` : externalLocation}`;
+                            const origin = `${(<Location> this.originLocation).id ? `"${this.originLocation.properties.name}" – ${(<Location> this.originLocation).id}` : externalLocation}`;
                             const destination = `${this.destinationLocation.id ? `"${this.destinationLocation.properties.name}" – ${this.destinationLocation.id}` : externalLocation}`;
                             this.trackerService.sendEvent('Directions', 'Got directions', `From ${origin} to ${destination}`);
                         });
@@ -760,7 +770,19 @@ export class DirectionsComponent implements OnInit, OnDestroy {
         this.directionsRendererInstance.setRoute(null);
         this.directionsResponse = null;
         this.removeStepSwitcherMapControl();
-        this.venueService.returnBtnActive = true;
+
+        // Update Fit Selection Info
+        const locationId = this.route.snapshot.params.id || this.route.snapshot.params.to;
+        this.locationService.getLocationById(locationId).then((location) => {
+            const locationAnchorPoint = this.locationService.getAnchorCoordinates(location);
+            const currentSelectionInfo: FitSelectionInfo = {
+                name: location.properties.name,
+                coordinates: locationAnchorPoint,
+                isVenue: false
+            };
+            this.mapsIndoorsService.setFitSelectionInfo(currentSelectionInfo);
+        });
+
         this.transitAgencies = [];
         this.flattenedStepsArrayIndex = 0;
         this.flattenedStepsArray = [];

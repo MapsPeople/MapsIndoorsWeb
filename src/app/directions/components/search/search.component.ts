@@ -3,9 +3,7 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, filter, switchMap, distinctUntilChanged, tap, map } from 'rxjs/operators';
 import { SearchService } from './search.service';
 import { SearchData } from './searchData.interface';
-import { SearchParameters } from '../../../shared/models/searchParameters.interface';
-import { Location } from '../../../shared/models/location.interface';
-
+import { Location, SearchParameters } from '@mapsindoors/typescript-interfaces';
 
 @Component({
     selector: 'search-input',
@@ -19,6 +17,8 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     @Input() query: string;
     @Input() parameters: SearchParameters;
+    @Input() includeGooglePlaces = false;
+    @Input() countryCodeRestrictions: string | string[] = '';
     @Input() placeHolder: string;
 
     @Output('update') searchResults: EventEmitter<SearchData> = new EventEmitter<SearchData>();
@@ -44,7 +44,7 @@ export class SearchComponent implements OnInit, OnDestroy {
                 }),
                 filter((query): boolean => query.length > 1),
                 tap((): void => this.loading.emit()),
-                switchMap((term): Promise<Location[]> => this.searchService.searchEntries(term, this.parameters))
+                switchMap((term): Promise<Location[]> => this.searchService.searchEntries(term, this.parameters, this.includeGooglePlaces, this.countryCodeRestrictions))
             )
             .subscribe((results): void => {
                 this.searchResults.emit({ query: this.query, results: results });

@@ -3,7 +3,7 @@ mat-toolbar,
 .mapsindoors.position-control,
 .mapsindoors.floor-selector,
 .mapsindoors.print-control,
-.mapsindoors.return-to-venue-container,
+.mapsindoors.fit-selection-control,
 .gm-fullscreen-control {
     display: none !important;
 }

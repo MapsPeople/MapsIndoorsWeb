@@ -11,8 +11,8 @@ import { ThemeService } from '../services/theme.service';
 import { Subscription } from 'rxjs';
 import { TrackerService } from '../services/tracker.service';
 import { UserAgentService } from '../services/user-agent.service';
+import { Venue } from '@mapsindoors/typescript-interfaces';
 
-import { Venue } from '../shared/models/venue.interface';
 
 @Component({
     selector: 'venue-list',
@@ -46,6 +46,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.getPreviousVenue();
+        this.mapsIndoorsService.setFitSelectionInfo(null);
     }
 
     // #region || GET PREVIOUS VENUE
