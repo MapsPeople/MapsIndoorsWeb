@@ -2,7 +2,6 @@ import { Component, NgZone } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GoogleMapService } from './../services/google-map.service';
 import { MapsIndoorsService, FitSelectionInfo } from './../services/maps-indoors.service';
-import { MiLiveDataService } from './../services/mi-live-data.service';
 import { LocationService } from './../services/location.service';
 import { ThemeService } from './../services/theme.service';
 import { VenueService } from './../services/venue.service';
@@ -14,6 +13,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { TrackerService } from '../services/tracker.service';
 
 import { Location, Venue } from '@mapsindoors/typescript-interfaces';
+import { LiveDataService } from '@mapsindoors/web-shared';
 import { PrintControl } from '../controls/print.control';
 
 enum ErrorVenueId {
@@ -46,7 +46,6 @@ export class MapComponent {
         private userAgentService: UserAgentService,
         private googleMapService: GoogleMapService,
         private mapsIndoorsService: MapsIndoorsService,
-        private miLiveDataService: MiLiveDataService,
         private solutionService: SolutionService,
         private appConfigService: AppConfigService,
         private locationService: LocationService,
@@ -54,7 +53,8 @@ export class MapComponent {
         private venueService: VenueService,
         private translateService: TranslateService,
         private notificationService: NotificationService,
-        private trackerService: TrackerService
+        private trackerService: TrackerService,
+        private liveDataService: LiveDataService
     ) { }
 
     async ngOnInit(): Promise<void> {
@@ -91,7 +91,7 @@ export class MapComponent {
 
         await this.googleMapService.initMapView();
         await this.mapsIndoorsService.initMapsIndoors();
-        this.miLiveDataService.enableAll(this.mapsIndoorsService.mapsIndoors);
+        this.liveDataService.enableLiveData(this.mapsIndoorsService.mapsIndoors);
 
         this.getVenueFromUrl()
             .then((venue: Venue): void => {
