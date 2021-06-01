@@ -24,7 +24,8 @@ export class GoogleMapService {
                 zoom: 17,
                 mapTypeControl: false,
                 streetViewControl: false,
-                fullscreenControl: true
+                fullscreenControl: true,
+                clickableIcons: false
             });
             this.map = this.googleMapView.getMap();
             resolve();
