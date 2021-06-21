@@ -1,9 +1,9 @@
 import { AppConfigService } from './app-config.service';
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { UserAgentService } from './../services/user-agent.service';
 import { environment } from '../../environments/environment';
-import { Solution } from '@mapsindoors/typescript-interfaces';
+import { AppConfig, Solution } from '@mapsindoors/typescript-interfaces';
+import { Loader as GoogleMapsApiLoader } from '@googlemaps/js-api-loader';
 
 declare let mapsindoors: any;
 declare let Oidc: any;
@@ -12,40 +12,34 @@ declare let Oidc: any;
     providedIn: 'root'
 })
 export class SolutionService {
-    appConfig: any;
-    googleMapsApiTag: HTMLElement;
-    miSdkApiTag: HTMLElement;
+    private appConfig: AppConfig;
+    private miSdkApiTag: HTMLElement;
 
     constructor(
-        private router: Router,
         private appConfigService: AppConfigService,
         private userAgentService: UserAgentService
     ) {
-        this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
+        this.appConfigService.getAppConfig().subscribe((appConfig: AppConfig) => this.appConfig = appConfig);
     }
 
     /**
-     * Insert script tag for Google Maps API into the document and resolve when it is loaded.
-     * @returns {Promise<void>} Resolves when script is loaded
+     * Load the Google Maps API.
+     * @returns {Promise<void>} Resolves when the Google Maps instance is loaded.
      */
-    insertGoogleMapsAPI(): Promise<void> {
-        return new Promise<void>((resolve): void => {
-            if (this.googleMapsApiTag) {
-                return resolve();
-            }
-
-            this.googleMapsApiTag = document.createElement('script');
-            this.googleMapsApiTag.setAttribute('type', 'text/javascript');
-            this.googleMapsApiTag.setAttribute('src', '//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyBNhmxW2OntKAVs7hjxmAjFscioPcfWZSc&libraries=geometry,places');
-            document.body.appendChild(this.googleMapsApiTag);
-            this.googleMapsApiTag.onload = (): void => resolve();
+    loadGoogleMapsApi(apiKey: string): Promise<void> {
+        const loader = new GoogleMapsApiLoader({
+            apiKey: apiKey,
+            version: 'quarterly',
+            libraries: ['places', 'geometry']
         });
+
+        return loader.load();
     }
 
     /**
      * Insert script tag for MapsIndoors JavaScript SDK into the document and resolve when it is loaded.
-     * @param solutionId {string} The MapsIndoors API key
-     * @returns {Promise<void>} Resolves when script is loaded
+     * @param solutionId {string} The MapsIndoors API key.
+     * @returns {Promise<void>} Resolves when script is loaded.
      */
     insertMapsIndoorsJavaScriptSDK(solutionId: string): Promise<void> {
         return new Promise<void>((resolve): void => {
@@ -53,6 +47,7 @@ export class SolutionService {
                 mapsindoors.MapsIndoors.setMapsIndoorsApiKey(solutionId);
                 return resolve();
             }
+
             this.miSdkApiTag = document.createElement('script');
             this.miSdkApiTag.setAttribute('type', 'text/javascript');
             this.miSdkApiTag.setAttribute('src', `${environment.sdkUrl}?apikey=${solutionId}`);
@@ -107,15 +102,11 @@ export class SolutionService {
 
     setSolution(): Promise<void> {
         return new Promise((resolve) => {
-            const gmKey: string = this.appConfig.appSettings.gmKey ? this.appConfig.appSettings.gmKey : 'AIzaSyBNhmxW2OntKAVs7hjxmAjFscioPcfWZSc';
             const gaKey: string = this.appConfig.appSettings.gaKey;
 
             // App Title
             const appTitle = document.getElementsByTagName('title')[0];
             appTitle.innerHTML = this.appConfig.appSettings.title || 'MapsIndoors';
-
-            // Google Maps Key
-            this.googleMapsApiTag.setAttribute('src', `//maps.googleapis.com/maps/api/js?v=3&key=${gmKey}&libraries=geometry,places`);
 
             // Google Analytics - Tag Manger
             const gaTmScript_tag = document.createElement('script');
@@ -142,16 +133,16 @@ export class SolutionService {
             const pageViewSingleKey = 'ga(\'create\', \'UA-63919776-8\', \'auto\'); ga(\'send\', \'pageview\');';
             const pageViewMultipleKeys = `ga('create', 'UA-63919776-8', 'auto');
                 ga('create', '${gaKey}', 'auto', 'clientTracker');
-                    ga('send', 'pageview');
-                    ga('clientTracker.send', 'pageview');`;
+                ga('send', 'pageview');
+                ga('clientTracker.send', 'pageview');`;
 
             // Google Analytics - Page View
             const gaPvScript_tag = document.createElement('script');
             gaPvScript_tag.type = 'text/javascript';
             const keys: string = !gaKey ? pageViewSingleKey : pageViewMultipleKeys;
             gaPvScript_tag.innerHTML = `(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-                    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})
                 (window,document,'script','//www.google-analytics.com/analytics.js','ga');` + keys;
             document.body.appendChild(gaPvScript_tag);
 
@@ -183,7 +174,7 @@ export class SolutionService {
     }
 
     /**
-     * Gets a list of User Roles
+     * Gets a list of User Roles.
      *
      * @returns Array<AppUserRole>
      */

@@ -17,6 +17,7 @@ export class AppConfigService {
                 appConfig.appSettings.title = appConfig.appSettings.title || 'MapsIndoors';
                 appConfig.appSettings.displayAliases = JSON.parse(appConfig.appSettings.displayAliases || false);
                 this.appConfig.next(appConfig);
+
                 resolve();
             }).catch((): void => {
                 reject();
@@ -26,7 +27,6 @@ export class AppConfigService {
 
     /**
      * Get appConfig object as observable.
-     *
      * @returns {Observable<any>}
      */
     getAppConfig(): Observable<any> {
@@ -34,20 +34,30 @@ export class AppConfigService {
     }
 
     /**
-     * @description Set initial venue of app.
+     * Set initial Venue of the app.
      * @param {Venue} venue - Venue object.
-     * @memberof AppConfigService
      */
     setInitVenue(venue: Venue): void {
         this.initVenue.next(venue);
     }
 
     /**
-     * @description Get venue from app initialization.
+     * Get venue from app initialization.
      * @returns {Observable<Venue>} - Returns the Venue object.
-     * @memberof AppConfigService
      */
     getInitVenue(): Observable<Venue> {
         return this.initVenue.asObservable();
+    }
+
+    /**
+     * Get Google Maps API key or fallback to MapsIndoors API key.
+     * @returns - Returns the API key as a string.
+     */
+    getApiKey(): string {
+        const fallbackApiKey: string = 'AIzaSyBNhmxW2OntKAVs7hjxmAjFscioPcfWZSc';
+        const googleMapsApiKey: string = this.appConfig.value.appSettings?.gmKey;
+        const apiKey: string = googleMapsApiKey || fallbackApiKey;
+
+        return apiKey;
     }
 }

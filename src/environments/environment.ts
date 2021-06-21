@@ -6,7 +6,7 @@ export const environment = {
     production: false,
     version: 'DEV',
     v: 'DEV',
-    sdkUrl: 'https://app.mapsindoors.com/mapsindoors/js/sdk/4.11.0/mapsindoors-4.11.0.js.gz',
+    sdkUrl: 'https://app.mapsindoors.com/mapsindoors/js/sdk/4.12.0/mapsindoors-4.12.0.js.gz',
     sentryDsn: '',
     suggestedSolutionId: 'demo'
 };

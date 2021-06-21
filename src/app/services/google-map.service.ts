@@ -28,6 +28,7 @@ export class GoogleMapService {
                 clickableIcons: false
             });
             this.map = this.googleMapView.getMap();
+
             resolve();
         });
     }
