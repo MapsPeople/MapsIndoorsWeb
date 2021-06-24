@@ -46,7 +46,7 @@ export class AppImageComponent implements OnInit {
             return;
         }
 
-        const subdomainsToUpscale: string[] = ['api', 'v2'];
+        const subdomainsToUpscale: string[] = ['api', 'v2', 'image'];
         const url = new URL(this.src);
         const hostnamePrefix = url.hostname.split('.')[0];
         const shouldAppendScaleParam = subdomainsToUpscale.includes(hostnamePrefix);
