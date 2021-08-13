@@ -1,6 +1,6 @@
 {
   "name": "maps-indoors-webapp",
-  "version": "5.12.1",
+  "version": "5.12.4",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -48,6 +48,8 @@
     "@googlemaps/js-api-loader": "^1.11.4",
     "@ngx-translate/core": "~11.0.1",
     "@ngx-translate/http-loader": "~4.0.0",
+    "@sentry/cli": "^1.66.0",
+    "@sentry/integrations": "^6.7.1",
     "@types/googlemaps": "^3.43.3",
     "ajv": "~6.10.0",
     "classlist.js": "~1.1.20150312",
@@ -76,7 +78,7 @@
     "@mapsindoors/typescript-interfaces": "^2.0.1",
     "@mapsindoors/web-shared": "^3.1.2",
     "@ngneat/spectator": "^7.1.0",
-    "@sentry/browser": "~5.12.1",
+    "@sentry/angular": "^6.7.1",
     "@types/jest": "^26.0.21",
     "@types/node": "^14.14.41",
     "@typescript-eslint/eslint-plugin": "4.16.1",

@@ -77,9 +77,9 @@ export class DetailsComponent implements OnInit, OnDestroy {
             .subscribe((value: boolean) => this.isHandset = value);
     }
 
-    ngOnInit():void {
+    ngOnInit(): void {
         this.venueSubscription = this.venueService.getVenueObservable()
-            .subscribe((venue: Venue):void => {
+            .subscribe((venue: Venue): void => {
                 this.venue = venue;
                 if (!this.location) { // True when user comes from a direct link
                     this.setLocation();
@@ -92,10 +92,10 @@ export class DetailsComponent implements OnInit, OnDestroy {
 
     // #region || LOCATION
     /**
-	 * @description Gets and sets the location based on the URL id parameter
-	 * @memberof DetailsComponent
-	 * @private
-	 */
+     * @description Gets and sets the location based on the URL id parameter
+     * @memberof DetailsComponent
+     * @private
+     */
     private setLocation(): void {
         const id = this.route.snapshot.params.id;
         // Location id
@@ -107,7 +107,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
                     this.goBack();
                 });
         } else {
-        // Room (external) id
+            // Room (external) id
             this.locationService.getLocationByExternalId(id)
                 .then((location: Location) => this.locationService.setLocation(location))
                 .catch((err: Error): void => {
@@ -136,8 +136,8 @@ export class DetailsComponent implements OnInit, OnDestroy {
     }
 
     /**
-	 * @description Closing the sidebar
-	 */
+     * @description Closing the sidebar
+     */
     public showOnMap(): void {
         this.sidenav.close();
         this.trackerService.sendEvent('Details page', 'Show on map button', 'Show on map button was clicked', true);
@@ -153,10 +153,10 @@ export class DetailsComponent implements OnInit, OnDestroy {
 
     // #region || DESTROY
     /**
-	 * @description Return to the previous page "Search-page".
-	 * @returns {void}
-	 * @memberof DetailsComponent
-	 */
+     * @description Return to the previous page "Search-page".
+     * @returns {void}
+     * @memberof DetailsComponent
+     */
     goBack(): void {
         this.mapsIndoorsService.isMapDirty = false;
         this.mapsIndoorsService.setPageTitle();

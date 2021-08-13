@@ -10,6 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Category, Location, LocationType, Venue } from '@mapsindoors/typescript-interfaces';
 import { Point } from 'geojson';
 import { SolutionService } from './solution.service';
+import { UserPosition } from '../directions/components/user-position/user-position.component';
 declare const mapsindoors: any;
 
 @Injectable({
@@ -297,15 +298,20 @@ export class LocationService {
     /**
      * Get location anchor coordinates.
      *
-     * @param {Location} location
-     * @returns {Position}
+     * @param {(Location | UserPosition)} location
+     * @returns {google.maps.LatLng}
      */
-    public getAnchorCoordinates(location: Location): google.maps.LatLng {
-        if (location.geometry.type.toLowerCase() === 'point') {
+    public getAnchorCoordinates(location: Location | UserPosition): google.maps.LatLng {
+        // UserPosition
+        if ((<UserPosition>location).geometry.coords?.latitude) {
+            return new google.maps.LatLng((<UserPosition>location).geometry.coords.latitude, (<UserPosition>location).geometry.coords.longitude);
+        }
+
+        if ((<Location>location).geometry.type.toLowerCase() === 'point') {
             const geometry = location.geometry as Point;
             return new google.maps.LatLng(geometry.coordinates[1], geometry.coordinates[0]);
         }
 
-        return new google.maps.LatLng(location.properties.anchor.coordinates[1], location.properties.anchor.coordinates[0]);
+        return new google.maps.LatLng((<Location>location).properties.anchor.coordinates[1], (<Location>location).properties.anchor.coordinates[0]);
     }
 }

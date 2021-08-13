@@ -68,7 +68,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
 
     originInputValue: string;
     @ViewChild('originSearchComponent') originSearchComponent: SearchComponent;
-    destinationLocation;
+    destinationLocation: Location | UserPosition;
     destinationInputValue: string;
     @ViewChild('destinationSearchComponent') destinationSearchComponent: SearchComponent;
 
@@ -537,8 +537,8 @@ export class DirectionsComponent implements OnInit, OnDestroy {
             this.setUnitsPreference();
 
             const start = {
-                lat: this.locationService.getAnchorCoordinates(this.originLocation as Location).lat(),
-                lng: this.locationService.getAnchorCoordinates(this.originLocation as Location).lng(),
+                lat: this.locationService.getAnchorCoordinates(this.originLocation).lat(),
+                lng: this.locationService.getAnchorCoordinates(this.originLocation).lng(),
                 floor: this.originLocation.properties.floor
             };
 
@@ -600,7 +600,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
                             const myPositionTranslation: string = this.translateService.instant('Direction.MyPosition');
                             const externalLocation = this.originInputValue === myPositionTranslation || this.destinationInputValue === myPositionTranslation ? '"User location"' : 'external location';
                             const origin = `${(<Location> this.originLocation).id ? `"${this.originLocation.properties.name}" – ${(<Location> this.originLocation).id}` : externalLocation}`;
-                            const destination = `${this.destinationLocation.id ? `"${this.destinationLocation.properties.name}" – ${this.destinationLocation.id}` : externalLocation}`;
+                            const destination = `${(<Location> this.destinationLocation).id ? `"${this.destinationLocation.properties.name}" – ${(<Location> this.destinationLocation).id}` : externalLocation}`;
                             this.trackerService.sendEvent('Directions', 'Got directions', `From ${origin} to ${destination}`);
                         });
                     }
@@ -661,7 +661,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
      * @returns boolean true if origin and destination are set.
      */
     hasOriginAndDestination(): boolean {
-        return this.originLocation && this.destinationLocation;
+        return this.originLocation && this.destinationLocation ? true : false;
     }
 
     /**
