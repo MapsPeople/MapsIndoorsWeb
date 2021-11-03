@@ -8,8 +8,8 @@ import { TranslateService } from '@ngx-translate/core';
 export class NotificationService {
 
     constructor(
-		public snackBar: MatSnackBar,
-		private translateService: TranslateService
+        public snackBar: MatSnackBar,
+        private translateService: TranslateService
     ) { }
 
     /**
@@ -19,7 +19,7 @@ export class NotificationService {
      * @memberof NotificationService
      */
     displayNotification(value: string, duration?: number): void {
-        const milliseconds: number = duration ? duration : 4000;
+        const milliseconds: number = duration ? duration : 5000;
         // Translating notification and opens snackBar with value
         this.translateService.get(value)
             .subscribe((notificationValue: string): void => {

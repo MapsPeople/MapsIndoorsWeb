@@ -1,1 +1,1 @@
-<img class="material-icons" [src]="src" [alt]="alt" (error)="onError()"/>
+<img class="material-icons" [src]="src" [attr.alt]="alt ? alt : null" (error)="onError()"/>

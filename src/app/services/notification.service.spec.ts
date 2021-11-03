@@ -25,7 +25,7 @@ describe('NotificationService', () => {
     it('tries to open a snackbar notification', () => {
         spectator.service.displayNotification('some notification text');
         expect(spectator.service.snackBar.open).toHaveBeenCalledWith('some notification text', '', {
-            duration: 4000
+            duration: 5000
         });
     });
 });

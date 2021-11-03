@@ -59,6 +59,7 @@ export class VenuesComponent implements OnInit, OnDestroy {
             .then(async (id: string) => {
                 this.solutionId = id;
                 const storedSolution = JSON.parse(this.userAgentService.localStorage.getItem('MI:' + this.solutionId));
+
                 if (storedSolution && storedSolution.lastVenue) {
                     const venue = await this.venueService.getVenueById(storedSolution.lastVenue);
                     this.setVenue(venue);
@@ -69,8 +70,10 @@ export class VenuesComponent implements OnInit, OnDestroy {
             })
             .catch(() => {
                 this.notificationService.displayNotification(
-                    this.translateService.instant('SetSolution.InitError')
+                    this.translateService.instant('Error.IncorrectVenue')
                 );
+
+                this.getVenues();
             });
     }
     // #endregion
@@ -79,18 +82,19 @@ export class VenuesComponent implements OnInit, OnDestroy {
     getVenues(): void {
         this.venueService.getVenues()
             .then((venues: Venue[]): void => {
-                // Set Venue and navigate to search page if solution only have one venue
+                // Set Venue and navigate to search page if solution only has one venue
                 if (venues && venues.length === 1) {
                     this.setVenue(venues[0]);
                 } else if (this.venueService.fitVenues) {
                     this.fitVenuesInView(venues);
                 }
+
                 this.venues = venues;
             });
     }
 
     private async fitVenuesInView(venues): Promise<any> {
-        // If the solution have multiple venues fit them all inside bbox
+        // If the solution has multiple venues fit them all inside bbox
         let bounds = new google.maps.LatLngBounds();
         if (this.appConfig.appSettings && !this.appConfig.appSettings.defaultVenue) {
             if (venues && venues.length !== 0) {

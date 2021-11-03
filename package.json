@@ -1,6 +1,6 @@
 {
   "name": "maps-indoors-webapp",
-  "version": "5.12.4",
+  "version": "5.12.6",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -71,7 +71,7 @@
     "@angular/cli": "~11.2.9",
     "@angular/compiler-cli": "~11.2.10",
     "@angular/language-service": "~11.2.10",
-    "@mapsindoors/components": "^9.1.0",
+    "@mapsindoors/components": "^11.4.2",
     "@mapsindoors/eslint-config": "^1.1.0",
     "@mapsindoors/eslint-config-typescript": "^1.2.1",
     "@mapsindoors/midt": "^15.0.0",

@@ -1,7 +1,8 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ElementRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subscription } from 'rxjs';
 import { LocationService } from 'src/app/services/location.service';
+import { ImageService } from 'src/app/services/image.service';
 import { Location } from '@mapsindoors/typescript-interfaces';
 
 declare const mapsindoors: any;
@@ -26,6 +27,8 @@ export class LocationImgComponent implements OnChanges {
     constructor(
         private http: HttpClient,
         private locationService: LocationService,
+        private imageService: ImageService,
+        private element: ElementRef
     ) {
         this.subscriptions
             .add(this.locationService.getCurrentLocation()
@@ -64,7 +67,7 @@ export class LocationImgComponent implements OnChanges {
      * Sets the image URL
      */
     useStaticImage(): void {
-        this.image = this.imageURL;
+        this.image = this.imageService.appendQueryParameters(this.imageURL, this.element.nativeElement);
     }
 
     /**

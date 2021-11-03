@@ -70,7 +70,10 @@ export class MapsIndoorsService {
             this.solutionService.getSolution()
                 .then((solution): void => {
                     for (const type of solution.types) {
-                        this.mapsIndoors.setDisplayRule(type.name, { title: '{{name}}' });
+                        this.mapsIndoors.setDisplayRule(type.name, {
+                            title: '{{name}}',
+                            polygonStrokeOpacity: 0
+                        });
                     }
                 });
 

@@ -1,4 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ElementRef } from '@angular/core';
+import { ImageService } from 'src/app/services/image.service';
 
 @Component({
     selector: 'app-image',
@@ -9,8 +10,13 @@ export class AppImageComponent implements OnInit {
     @Input() src: string;
     @Input() alt: string;
 
+    constructor(
+        private imageService: ImageService,
+        private element: ElementRef
+    ) { }
+
     ngOnInit(): void {
-        this.appendScaleParamToSrc();
+        this.src = this.imageService.appendQueryParameters(this.src, this.element.nativeElement);
     }
 
     /**
@@ -19,41 +25,5 @@ export class AppImageComponent implements OnInit {
     public onError(): void {
         const defaultSrcOnError = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
         this.src = defaultSrcOnError;
-    }
-
-    /**
-     * Check if src is a valid URL.
-     * @private
-     * @param {string} src
-     * @returns {boolean}
-     */
-    private isUrlValid(): boolean {
-        try {
-            new URL(this.src);
-
-            return true;
-        } catch (err) {
-            return false;
-        }
-    }
-
-    /**
-     * Add a scale parameter to icon URLs.
-     * @private
-     */
-    private appendScaleParamToSrc(): void  {
-        if (this.isUrlValid() === false) {
-            return;
-        }
-
-        const subdomainsToUpscale: string[] = ['api', 'v2', 'image'];
-        const url = new URL(this.src);
-        const hostnamePrefix = url.hostname.split('.')[0];
-        const shouldAppendScaleParam = subdomainsToUpscale.includes(hostnamePrefix);
-
-        if (shouldAppendScaleParam === true) {
-            url.searchParams.set('scale', '2');
-            this.src = url.toString();
-        }
     }
 }
