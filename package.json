@@ -50,7 +50,7 @@
     "@sentry/cli": "^1.66.0",
     "@sentry/integrations": "^6.7.1",
     "@types/googlemaps": "^3.43.3",
-    "ajv": "~6.10.0",
+    "ajv": "~6.12.3",
     "angular-oauth2-oidc": "^10.0.3",
     "classlist.js": "~1.1.20150312",
     "core-js": "~2.6.8",
