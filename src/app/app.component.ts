@@ -26,13 +26,10 @@ export class AppComponent {
      * @private
      */
     private setLanguage(): void {
-        // Slice off language variations since we do not support them, e.g.
-        // "en-US" or "en-UK" will default to "en".
+        // Slice off language variations since we do not support them.
         const langCode = window.navigator.language.slice(0, 2);
-        const supportedLanguages = ['da', 'fr', 'it', 'pt', 'es'];
+        const supportedLanguages = ['da', 'fr', 'it', 'pt', 'es', 'de'];
 
-        const isLanguageSupported = supportedLanguages.includes(langCode);
-
-        isLanguageSupported ? this.translate.use(langCode) : this.translate.use('en');
+        this.translate.use(supportedLanguages.includes(langCode) ? langCode : 'en');
     }
 }

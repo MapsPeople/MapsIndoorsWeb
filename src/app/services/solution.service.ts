@@ -1,13 +1,10 @@
 import { AppConfigService } from './app-config.service';
 import { Injectable } from '@angular/core';
 import { UserAgentService } from './../services/user-agent.service';
-import { environment } from '../../environments/environment';
 import { AppConfig, Solution } from '@mapsindoors/typescript-interfaces';
 import { Loader as GoogleMapsApiLoader } from '@googlemaps/js-api-loader';
 
 declare let mapsindoors: any;
-declare let Oidc: any;
-
 @Injectable({
     providedIn: 'root'
 })
@@ -36,70 +33,6 @@ export class SolutionService {
         return loader.load();
     }
 
-    /**
-     * Insert script tag for MapsIndoors JavaScript SDK into the document and resolve when it is loaded.
-     * @param solutionId {string} The MapsIndoors API key.
-     * @returns {Promise<void>} Resolves when script is loaded.
-     */
-    insertMapsIndoorsJavaScriptSDK(solutionId: string): Promise<void> {
-        return new Promise<void>((resolve): void => {
-            if (this.miSdkApiTag) {
-                mapsindoors.MapsIndoors.setMapsIndoorsApiKey(solutionId);
-                return resolve();
-            }
-
-            this.miSdkApiTag = document.createElement('script');
-            this.miSdkApiTag.setAttribute('type', 'text/javascript');
-            this.miSdkApiTag.setAttribute('src', `${environment.sdkUrl}?apikey=${solutionId}`);
-            document.body.appendChild(this.miSdkApiTag);
-            this.miSdkApiTag.onload = (): void => resolve();
-        });
-    }
-
-    initializeAuthenticationHandler(solutionId: string): Function {
-        return ({ authClients = [], authIssuer = '' }) => {
-            const oidcScript = document.createElement('script');
-            oidcScript.setAttribute('type', 'text/javascript');
-            oidcScript.setAttribute('src', '//www.unpkg.com/oidc-client@^1/dist/oidc-client.rsa256.slim.min.js');
-            oidcScript.onload = () => {
-                const authClient = authClients[0];
-                const preferredIDP = authClient.preferredIDPs && authClient.preferredIDPs.length > 0 ? authClient.preferredIDPs[0] : '';
-                const acr_values = preferredIDP ? [`idp:${preferredIDP}`] : [];
-                //Setup the Oidc client with the auth settings in the event details
-                const client = new Oidc.OidcClient({
-                    authority: authIssuer,
-                    client_id: authClient.clientId,
-                    response_type: 'code',
-                    scope: 'openid profile account client-apis',
-                    redirect_uri: `${window.location.origin}/solution/set`,
-                    acr_values: acr_values,
-                    loadUserInfo: false
-                });
-
-                if (/[?|&|#]code=/.test(window.location.href)) {
-                    client.processSigninResponse().then((response) => {
-                        //Give the new authentication token to MapsIndoors:
-                        mapsindoors.MapsIndoors.setAuthToken(response.access_token);
-
-
-                    }).catch((err) => {
-                        //Handle authentication errors here:
-                        console.log(err);
-                    });
-                } else {
-                    const origin_uri = client.settings.redirect_uri === `${window.location.origin}${window.location.pathname}` ? `/${solutionId}` : `${window.location.pathname}${window.location.search}${window.location.hash}`;
-                    client.createSigninRequest({ state: { origin_uri } }).then(req => {
-                        this.userAgentService.localStorage.setItem('mi:apiKey', solutionId);
-                        this.userAgentService.localStorage.setItem('mi:originUri', origin_uri);
-                        window.location.href = req.url;
-                    });
-                }
-            };
-
-            document.body.appendChild(oidcScript);
-        };
-    }
-
     setSolution(): Promise<void> {
         return new Promise((resolve) => {
             const gaKey: string = this.appConfig.appSettings.gaKey;
@@ -117,13 +50,13 @@ export class SolutionService {
             const globalTagSingleKey = `window.dataLayer = window.dataLayer || [];
                 function gtag() { dataLayer.push(arguments); }
                 gtag('js', new Date());
-                gtag('config', 'UA-63919776-8');`;
+                gtag('config', 'UA-63919776-8', { 'anonymize_ip': true });`;
 
             const globalTagMultipleKeys = `window.dataLayer = window.dataLayer || [];
                 function gtag() { dataLayer.push(arguments); }
                 gtag('js', new Date());
-                gtag('config', 'UA-63919776-8');
-                gtag('config', '${gaKey}');`;
+                gtag('config', 'UA-63919776-8', { 'anonymize_ip': true });
+                gtag('config', '${gaKey}', { 'anonymize_ip': true });`;
 
             // Google Analytics - Data Layer
             const gaDlScript_tag = document.createElement('script');

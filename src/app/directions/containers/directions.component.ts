@@ -117,6 +117,7 @@ export class DirectionsComponent implements OnInit, OnDestroy {
         takeLadderToLevel: this.translateService.instant('DirectionRoute.TakeLadderToLevel'),
         takeWheelchairLiftToLevel: this.translateService.instant('DirectionRoute.TakeWheelchairLiftToLevel'),
         takeWheelchairRampToLevel: this.translateService.instant('DirectionRoute.TakeWheelchairRampToLevel'),
+        takeEscalatorToLevel: this.translateService.instant('DirectionRoute.TakeEscalatorToLevel'),
         exit: this.translateService.instant('DirectionRoute.Exit'),
         enter: this.translateService.instant('DirectionRoute.Enter'),
         stops: this.translateService.instant('DirectionRoute.Stops'),

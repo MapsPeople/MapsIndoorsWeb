@@ -18,6 +18,7 @@ import { parse as parseDuration } from 'iso8601-duration';
 import { add as addToDate, lightFormat } from 'date-fns';
 import { Location, Venue } from '@mapsindoors/typescript-interfaces';
 import { TimeInterval } from '../shared/models/timeInterval.interface';
+import { LiveDataService } from '@mapsindoors/web-shared';
 
 @Component({
     selector: 'app-details',
@@ -31,6 +32,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
     location: Location;
     displayAliases = false;
     locationPeakTime: TimeInterval;
+    public timestamp: string;
 
     loading = false;
     appConfig: any;
@@ -42,6 +44,10 @@ export class DetailsComponent implements OnInit, OnDestroy {
     isHandsetSubscription: Subscription;
     themeServiceSubscription: Subscription;
     venueSubscription: Subscription;
+
+    private get locationLiveUpdateTimestamp(): string {
+        return this.location?.liveUpdates?.get('position')?.timestamp;
+    }
 
     constructor(
         private route: ActivatedRoute,
@@ -58,21 +64,11 @@ export class DetailsComponent implements OnInit, OnDestroy {
         private googleMapService: GoogleMapService,
         private dialog: MatDialog,
         private notificationService: NotificationService,
-        private trackerService: TrackerService
+        private trackerService: TrackerService,
+        private liveDataService: LiveDataService
     ) {
         this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
         this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
-        this.locationSubscription = this.locationService.getCurrentLocation()
-            .subscribe((location: Location) => {
-                if (!Array.isArray(location.properties.categories)) {
-                    location.properties.categories = Object.values(location.properties.categories);
-                }
-
-                this.location = location;
-                this.googleMapService.openInfoWindow();
-                this.mapsIndoorsService.setPageTitle(location.properties.name);
-                this.setPeakTimeDetails(location);
-            });
         this.isHandsetSubscription = this.userAgentService.isHandset()
             .subscribe((value: boolean) => this.isHandset = value);
     }
@@ -86,9 +82,43 @@ export class DetailsComponent implements OnInit, OnDestroy {
                 }
             });
 
+        this.locationSubscription = this.locationService.getCurrentLocation()
+            .subscribe((location: Location) => {
+                if (!Array.isArray(location.properties.categories)) {
+                    location.properties.categories = Object.values(location.properties.categories);
+                }
+
+                this.location = location;
+                this.liveDataService?.liveDataManager?.removeListener('live_update_received', this.positionLiveUpdateReceived);
+
+                if (this.liveDataService.liveDataManager && this.locationLiveUpdateTimestamp) {
+                    this.timestamp = this.locationLiveUpdateTimestamp;
+                    this.liveDataService.liveDataManager
+                        .addListener('live_update_received', this.positionLiveUpdateReceived);
+                }
+
+                // If there's a timestamp, set it when changing Location otherwise set to undefined to remove Timestamp component from the view.
+                this.timestamp = this.locationLiveUpdateTimestamp;
+
+                this.googleMapService.openInfoWindow();
+                this.mapsIndoorsService.setPageTitle(location.properties.name);
+                this.setPeakTimeDetails(location);
+            });
+
         this.displayAliases = this.appConfig.appSettings.displayAliases || false;
         window['angularComponentRef'] = { component: this, zone: this._ngZone };
     }
+
+    /**
+     * Callback when a `live_update_received` is received from the SDK.
+     *
+     * @param payload
+     */
+    private positionLiveUpdateReceived = (payload): void => {
+        if (payload.domainType === 'position' && payload.id === this.location.id) {
+            this.timestamp = payload.timestamp;
+        }
+    };
 
     // #region || LOCATION
     /**
@@ -187,6 +217,7 @@ export class DetailsComponent implements OnInit, OnDestroy {
         this.themeServiceSubscription.unsubscribe();
         this.venueSubscription.unsubscribe();
         this.isHandsetSubscription.unsubscribe();
+        this.liveDataService?.liveDataManager?.removeListener('live_update_received', this.positionLiveUpdateReceived);
     }
     // #endregion
 

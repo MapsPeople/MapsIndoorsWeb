@@ -1,0 +1,33 @@
+@use '~@mapsindoors/midt/margin';
+@use '~@mapsindoors/midt/padding';
+@use '~@mapsindoors/midt/font';
+@use "~@mapsindoors/midt/build/scss/variables";
+
+.live-data {
+    @include padding.horizontal(medium);
+    @include padding.top(medium);
+
+    &__header {
+        @include font.size(large);
+        @include font.weight(large);
+    }
+
+    &__description {
+        @include margin.top(medium);
+        @include font.size(small);
+        font-weight: 200;
+        line-height: 1.5;
+    }
+
+    &__domain-type {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        margin-top: 21px;
+
+        text-transform: capitalize;
+    }
+}
+
+

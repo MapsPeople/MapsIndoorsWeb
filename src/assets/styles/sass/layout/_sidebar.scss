@@ -215,6 +215,7 @@
         display: flex;
         flex-direction: column;
 
+
         .content {
             padding: 20px 0;
             overflow-y: auto;
@@ -242,6 +243,7 @@
             display: flex;
             flex-direction: row;
             align-items: center;
+
             &.center {
                 justify-content: center;
             }

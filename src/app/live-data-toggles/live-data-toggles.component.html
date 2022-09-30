@@ -1,0 +1,11 @@
+<section class="live-data" *ngIf="activeDomainTypes?.length !== 0">
+    <h1 class="live-data__header">Live Data Domains</h1>
+    <p class="live-data__description">Choose which Live Data Domains you want to see on the map.</p>
+
+    <div *ngFor="let domainType of activeDomainTypes">
+        <div class="live-data__domain-type">
+            <p>{{ domainType.type }}</p>
+            <input class="mi-toggle" [id]="domainType.type" type="checkbox" (input)="onToggleLiveData($event)" [checked]="domainType.checked"/>
+        </div>
+    </div>
+</section>

@@ -9,7 +9,6 @@ import { MapsIndoorsService } from '../services/maps-indoors.service';
 import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 import { ThemeService } from '../services/theme.service';
 import { GoogleMapService } from '../services/google-map.service';
-import { environment } from '../../environments/environment';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -17,10 +16,13 @@ import { NotificationService } from '../services/notification.service';
 import { SearchService } from '../directions/components/search/search.service';
 import { TrackerService } from '../services/tracker.service';
 import { UserAgentService } from '../services/user-agent.service';
+import { LiveDataService } from '@mapsindoors/web-shared';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 import { Category, Location, SearchParameters, Solution, Venue } from '@mapsindoors/typescript-interfaces';
 import { CategoryService } from '../services/category.service';
 
+declare let mapsindoors: any;
 
 @Component({
     selector: 'app-search',
@@ -53,6 +55,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     endOfArray = false;
 
     isUserRolesSelectionVisible = false;
+    isLiveDataEnabled = false;
     userRolesList = [];
 
     debounceSearch: Subject<string> = new Subject<string>();
@@ -64,9 +67,19 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     dialogSubscription: Subscription;
     dialogRef: MatDialogRef<InfoDialogComponent>;
-    public appVersion: string = environment.v;
     appConfigSubscription: Subscription;
     themeServiceSubscription: Subscription;
+
+    /**
+     * Readonly boolean to validate if the user is signed in and the access token is valid.
+     *
+     * @readonly
+     * @type {boolean}
+     * @memberof SearchComponent
+     */
+    get hasValidAccessToken(): boolean {
+        return this.oauthService.hasValidAccessToken();
+    }
 
     // TODO: Should be moved into search component when implemented.
     @HostListener('document:keydown.enter', ['$event'])
@@ -93,7 +106,9 @@ export class SearchComponent implements OnInit, OnDestroy {
         private translateService: TranslateService,
         private searchService: SearchService,
         private trackerService: TrackerService,
-        private userAgentService: UserAgentService
+        private userAgentService: UserAgentService,
+        private liveDataService: LiveDataService,
+        private oauthService: OAuthService
     ) {
         this.appConfigSubscription = this.appConfigService.getAppConfig().subscribe((appConfig) => this.appConfig = appConfig);
         this.themeServiceSubscription = this.themeService.getThemeColors().subscribe((appConfigColors) => this.colors = appConfigColors);
@@ -103,6 +118,7 @@ export class SearchComponent implements OnInit, OnDestroy {
             .subscribe((value) => {
                 this.getLocationsForQuery(value);
             });
+
     }
 
     ngOnInit(): void {
@@ -125,6 +141,12 @@ export class SearchComponent implements OnInit, OnDestroy {
                 .subscribe((categories: Category[]): void => {
                     this.categoriesMenu = categories;
                 })
+            ).add(this.mapsIndoorsService.getLiveDataManagerObservable()
+                .subscribe((value) => {
+                    if (value === 'available') {
+                        this.checkLiveDataAvailability();
+                    }
+                })
             );
 
         this.SearchHintAppTitle = this.appConfig.appSettings.title;
@@ -142,6 +164,16 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.venueService.getVenues().then(venues => {
             this.venuesLength = venues.length;
         });
+    }
+
+    private checkLiveDataAvailability(): void {
+        this.liveDataService.liveDataManager.LiveDataInfo
+            .activeDomainTypes()
+            .then(activeDomainTypes => {
+                if (activeDomainTypes.length > 0) {
+                    this.isLiveDataEnabled = true;
+                }
+            });
     }
 
     // #region || SEARCH AND RESULTS
@@ -463,7 +495,6 @@ export class SearchComponent implements OnInit, OnDestroy {
             disableClose: false,
             data: {
                 appTitle: this.appConfig.appSettings.title,
-                appVersion: this.appVersion,
                 sdkVersion: this.mapsIndoorsService.mapsIndoors.__VERSION__
             }
         });
@@ -476,5 +507,18 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
     // #endregion
 
-
+    /**
+     * Helper function to open sign-out confirm dialog.
+     *
+     * @private
+     * @memberof SearchComponent
+     */
+    private openSignOutDialog(): void {
+        // eslint-disable-next-line no-alert
+        if (confirm(this.translateService.instant('Auth.ConfirmSignOut'))) {
+            mapsindoors.MapsIndoors.setAuthToken(null);
+            this.oauthService.logOut();
+            sessionStorage.clear();
+        }
+    }
 }

@@ -127,8 +127,8 @@
             </detail-field>
 
             <!-- Building and floor -->
-            <div class="content-text">
-                <mat-icon class="content-icon">location_city</mat-icon>
+            <div class="text">
+                <mat-icon class="text-icon">location_city</mat-icon>
                 <p class="line-break">
                     <span *ngIf="location.properties.floorName">{{ 'Details.Level' | translate }} {{ location.properties.floorName }}</span>
                     <span *ngIf="location.properties.building">{{ location.properties.building }}</span>
@@ -136,6 +136,11 @@
                     <span *ngIf="location.properties.venue && location.properties.building != location.properties.venue">{{ location.properties.venue }}</span>
                 </p>
             </div>
+
+            <app-timestamp
+                *ngIf="timestamp"
+                [time]="timestamp">
+            </app-timestamp>
 
             <!-- Footer -->
             <footer class="footer-content">

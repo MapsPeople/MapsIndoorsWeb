@@ -1,4 +1,5 @@
 {
+    "Auth.ConfirmSignOut": "Are you sure you want to sign out?",
     "SetSolution.Title": "Welcome to MapsIndoors",
     "SetSolution.Enter": "Enter API Key",
     "SetSolution.Go": "Go",
@@ -16,7 +17,6 @@
     "InfoDialog.Title": "About",
     "InfoDialog.AppName": "App Name",
     "InfoDialog.Supplier": "Supplier",
-    "InfoDialog.AppVersion": "App Version",
     "InfoDialog.SdkVersion": "SDK Version",
     "ShareDialog.Title": "Share location",
     "ShareDialog.Text": "Copy the link below to share the location of",
@@ -79,6 +79,7 @@
     "DirectionRoute.TakeLadderToLevel": "Take the ladder to level",
     "DirectionRoute.TakeWheelchairLiftToLevel": "Take wheelchair lift to level",
     "DirectionRoute.TakeWheelchairRampToLevel": "Take wheelchair ramp to level",
+    "DirectionRoute.TakeEscalatorToLevel": "Take escalator to level",
     "DirectionRoute.Building": "Building",
     "DirectionRoute.Venue": "Venue",
     "DirectionHint.SearchHint": "Search for locations indoors or outdoors",

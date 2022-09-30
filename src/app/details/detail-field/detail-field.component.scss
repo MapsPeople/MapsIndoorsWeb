@@ -1,6 +1,9 @@
+:host {
+    display: block;
+}
+
 .detail-field {
     display: flex;
-    padding: 16px;
 
     mat-icon {
         width: 40px;

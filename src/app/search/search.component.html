@@ -5,17 +5,24 @@
                 <header>
                     <div class="hero" [style.background-color]="colors.primary">
                         <nav class="hero-nav">
-                            <button mat-icon-button class="venue-icon" *ngIf="!filtered && venuesLength > 1" (click)="goBack()">
+                            <button mat-icon-button class="venue-icon" *ngIf="!filtered && venuesLength > 1"
+                                (click)="goBack()">
                                 <mat-icon [style.color]="colors.onPrimary" aria-label="Venues">location_city</mat-icon>
                             </button>
-                            <button mat-icon-button class="venue-back-btn" *ngIf="locationsArray.length > 0 || filtered" (click)="goBack()">
+                            <button mat-icon-button class="venue-back-btn" *ngIf="locationsArray.length > 0 || filtered"
+                                (click)="goBack()">
                                 <mat-icon [style.color]="colors.onPrimary" aria-label="Back">arrow_back</mat-icon>
                             </button>
-                            <button mat-icon-button (click)="isUserRolesSelectionVisible = !isUserRolesSelectionVisible" *ngIf="userRolesList.length > 0">
+                            <button
+                                mat-icon-button (click)="isUserRolesSelectionVisible = !isUserRolesSelectionVisible"
+                                *ngIf="userRolesList.length > 0 || isLiveDataEnabled === true">
                                 <mat-icon [style.color]="colors.onPrimary">tune</mat-icon>
                             </button>
                             <button mat-icon-button class="info-button" (click)="openInfoDialog()">
                                 <mat-icon [style.fill]="colors.onPrimary" aria-label="Info">info_outline</mat-icon>
+                            </button>
+                            <button mat-icon-button class="sign-out-button" (click)="openSignOutDialog()" *ngIf="hasValidAccessToken">
+                                <mat-icon [style.fill]="colors.onPrimary" aria-label="Sign out">logout</mat-icon>
                             </button>
                         </nav>
                         <h1 class="truncate" [style.color]="colors.onPrimary">{{ venue.venueInfo.name }}</h1>
@@ -25,8 +32,13 @@
                 <mat-toolbar [style.background-color]="colors.primary" class="search">
                     <div class="search-wrap">
                         <mat-icon [style.color]="colors.onPrimary" class="input-icon">search</mat-icon>
-                        <input id="searchInput" type="text" [placeholder]="search.category ? ('Search.SearchIn' | translate:{category: search.category}) : ('Search.SearchPlaces' | translate)" aria-label="search.category ? ('Search.SearchIn' | translate:{category: search.category}) : ('Search.SearchPlaces' | translate)" [(ngModel)]="search.query" (ngModelChange)="searchValueChanged($event)" (focus)="searchInFocus(true)" (blur)="searchInFocus(false)" />
-                        <button class="input-clear" mat-button *ngIf="search.query" matSuffix mat-icon-button aria-label="Clear" (click)="clearQuery()">
+                        <input id="searchInput" type="text"
+                            [placeholder]="search.category ? ('Search.SearchIn' | translate:{category: search.category}) : ('Search.SearchPlaces' | translate)"
+                            aria-label="search.category ? ('Search.SearchIn' | translate:{category: search.category}) : ('Search.SearchPlaces' | translate)"
+                            [(ngModel)]="search.query" (ngModelChange)="searchValueChanged($event)"
+                            (focus)="searchInFocus(true)" (blur)="searchInFocus(false)" />
+                        <button class="input-clear" mat-button *ngIf="search.query" matSuffix mat-icon-button
+                            aria-label="Clear" (click)="clearQuery()">
                             <mat-icon>close</mat-icon>
                         </button>
                     </div>
@@ -43,9 +55,11 @@
                 </div>
 
                 <!-- shows categories if searchQuery is empty  -->
-                <section class="content" *ngIf="!search.query && !search.category && !searchFocus && !locationsArray.length > 0">
+                <section class="content"
+                    *ngIf="!search.query && !search.category && !searchFocus && !locationsArray.length > 0">
                     <mat-nav-list>
-                        <a mat-list-item *ngFor="let category of categoriesMenu" (click)="getLocationsForCategory(category, $event)">
+                        <a mat-list-item *ngFor="let category of categoriesMenu"
+                            (click)="getLocationsForCategory(category, $event)">
                             <span class="list-icon">
                                 <app-image [src]="category.iconUrl"></app-image>
                             </span>
@@ -57,7 +71,8 @@
                 </section>
 
                 <!-- If search field is in focus and there are no locations yet-->
-                <section class="content" *ngIf="searchFocus && !loading && !search.category && !error && locationsArray.length < 1">
+                <section class="content"
+                    *ngIf="searchFocus && !loading && !search.category && !error && locationsArray.length < 1">
                     <div class="content-text">
                         <!-- NOTE: Search icon is added with css -->
                         <p class="search hint">{{ 'SearchHint.Hint' | translate }} {{SearchHintAppTitle}}.</p>
@@ -69,15 +84,16 @@
                     <div class="hint" class="content-text text-discreet">
                         <!-- Empty category -->
                         <p *ngIf="error === 'EmptyCategory'">
-                        {{ venue.venueInfo.name }} {{ 'SearchHint.EmptyCategory' | translate:search }} {{appConfig.appSettings.title}}.
+                            {{ venue.venueInfo.name }} {{ 'SearchHint.EmptyCategory' | translate:search }}
+                            {{appConfig.appSettings.title}}.
                         </p>
                         <!-- No results for query -->
                         <p *ngIf="error === 'NoResults'">
-                        {{ 'SearchHint.NoResults' | translate:search }}.
+                            {{ 'SearchHint.NoResults' | translate:search }}.
                         </p>
                         <!-- No results for query in category -->
                         <p *ngIf="error === 'NoResultsInCategory'">
-                        {{ 'SearchHint.NoResultsInCategory' | translate:search }}.
+                            {{ 'SearchHint.NoResultsInCategory' | translate:search }}.
                         </p>
                     </div>
                 </section>
@@ -93,8 +109,8 @@
                             <span class="list-text">
                                 <span class="list-title">{{ location.properties.name }}</span>
                                 <span class="list-title-sub">
-                                    <span *ngIf="location.properties.externalId"> {{ location.properties.externalId }}</span>
-                                    <span *ngIf="location.properties.floorName">Level {{ location.properties.floorName }}</span>
+                                    <span *ngIf="location.properties.externalId">{{ location.properties.externalId }}</span>
+                                    <span *ngIf="location.properties.floorName">{{ 'Details.Level' | translate }} {{ location.properties.floorName }}</span>
                                     <span *ngIf="location.properties.building && venuesLength > 1">{{ location.properties.building }}</span>
                                     <span *ngIf="location.properties.building != location.properties.venue && venuesLength > 1">{{ location.properties.venue }}</span>
                                 </span>
@@ -107,7 +123,8 @@
                         <span *ngIf="loadingLocations">
                             <mat-spinner></mat-spinner>
                         </span>
-                        <button mat-raised-button (click)="getMoreLocations()" *ngIf="!loadingLocations && locationsArray.length >= 50">
+                        <button mat-raised-button (click)="getMoreLocations()"
+                            *ngIf="!loadingLocations && locationsArray.length >= 50">
                             {{ 'Buttons.LoadMore' | translate }}
                         </button>
                     </div>
@@ -116,9 +133,7 @@
             </section>
         </ng-container>
 
-        <app-user-roles
-            *ngSwitchCase="true"
-            [userRolesList]="userRolesList"
+        <app-user-roles *ngSwitchCase="true" [userRolesList]="userRolesList"
             (onClose)="isUserRolesSelectionVisible = false">
         </app-user-roles>
     </ng-container>

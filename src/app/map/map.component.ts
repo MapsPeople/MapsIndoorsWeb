@@ -35,6 +35,7 @@ export class MapComponent {
     colors: object;
     venue: Venue;
     pageTitle: string;
+
     private location: Location;
     private initVenue: Venue;
     private printControlElement: PrintControl;
@@ -91,7 +92,9 @@ export class MapComponent {
 
         await this.googleMapService.initMapView();
         await this.mapsIndoorsService.initMapsIndoors();
+
         this.liveDataService.enableLiveData(this.mapsIndoorsService.mapsIndoors);
+        this.mapsIndoorsService.notifyLiveDataManagerObservers();
 
         this.getVenueFromUrl()
             .then((venue: Venue): void => {

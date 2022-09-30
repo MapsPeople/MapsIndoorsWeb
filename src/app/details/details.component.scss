@@ -1,0 +1,37 @@
+@use '~@mapsindoors/midt/font';
+@use '~@mapsindoors/midt/padding';
+@use "~@mapsindoors/midt/build/scss/variables";
+
+.content-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    @include padding.horizontal(medium);
+
+    .content {
+        overflow-y: auto;
+        overflow-x: hidden;
+        flex: 1;
+
+        > * {
+            @include padding.vertical(medium);
+        }
+    }
+
+    .text {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        // Used for long text fields like description
+        .text-icon {
+            width: variables.$spacing-xx-large;
+            height: variables.$spacing-xx-large;
+            color: rgba(0, 0, 0, 0.54);
+
+            @include padding.right(medium);
+            @include font.size(xx-large);
+
+        }
+    }
+}

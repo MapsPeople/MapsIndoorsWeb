@@ -1,0 +1,30 @@
+@use '~@mapsindoors/midt/color';
+@use '~@mapsindoors/midt/font';
+@use '~@mapsindoors/midt/padding';
+@use "~@mapsindoors/midt/build/scss/variables";
+
+:host {
+    display: inline-block;
+}
+
+.timestamp-content {
+    display: flex;
+    align-items: center;
+    gap: variables.$spacing-medium;
+
+    img {
+        @include padding.vertical(xx-small);
+        @include padding.left(xx-small);
+        @include padding.right(xxx-small);
+    }
+
+    &__emphasize {
+        @include font.weight(x-large);
+    }
+
+    &__lessen {
+        @include color.gray(60);
+        @include font.weight(medium);
+        @include font.size(x-small);
+    }
+}

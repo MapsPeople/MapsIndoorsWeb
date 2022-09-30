@@ -1,6 +1,6 @@
 {
   "name": "maps-indoors-webapp",
-  "version": "5.12.6",
+  "version": "5.16.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -12,8 +12,7 @@
     "build-prod-patch": "npm version patch && npm run build-prod",
     "build-prod-minor": "npm version minor && npm run build-prod",
     "build-prod-major": "npm version major && npm run build-prod",
-    "postbuild-prod": "git push --follow-tags",
-    "prepare-dev": "git submodule update --init --recursive && cd modules/sdk && npm ci"
+    "postbuild-prod": "git push --follow-tags"
   },
   "private": true,
   "jest": {
@@ -23,8 +22,7 @@
     ],
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules/",
-      "<rootDir>/dist/",
-      "<rootDir>/modules/"
+      "<rootDir>/dist/"
     ],
     "globals": {
       "ts-jest": {
@@ -46,12 +44,14 @@
     "@angular/platform-browser-dynamic": "~11.2.10",
     "@angular/router": "~11.2.10",
     "@googlemaps/js-api-loader": "^1.11.4",
+    "@mapsindoors/css": "^1.0.0",
     "@ngx-translate/core": "~11.0.1",
     "@ngx-translate/http-loader": "~4.0.0",
     "@sentry/cli": "^1.66.0",
     "@sentry/integrations": "^6.7.1",
     "@types/googlemaps": "^3.43.3",
     "ajv": "~6.10.0",
+    "angular-oauth2-oidc": "^10.0.3",
     "classlist.js": "~1.1.20150312",
     "core-js": "~2.6.8",
     "rxjs": "~6.6.6",
@@ -71,12 +71,12 @@
     "@angular/cli": "~11.2.9",
     "@angular/compiler-cli": "~11.2.10",
     "@angular/language-service": "~11.2.10",
-    "@mapsindoors/components": "^11.4.2",
+    "@mapsindoors/components": "^11.14.0",
     "@mapsindoors/eslint-config": "^1.1.0",
     "@mapsindoors/eslint-config-typescript": "^1.2.1",
     "@mapsindoors/midt": "^15.0.0",
-    "@mapsindoors/typescript-interfaces": "^2.0.1",
-    "@mapsindoors/web-shared": "^3.1.2",
+    "@mapsindoors/typescript-interfaces": "^2.1.2",
+    "@mapsindoors/web-shared": "^3.2.2",
     "@ngneat/spectator": "^7.1.0",
     "@sentry/angular": "^6.7.1",
     "@types/jest": "^26.0.21",

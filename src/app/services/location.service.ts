@@ -274,8 +274,10 @@ export class LocationService {
      */
     getLocationIconUrl(location: Location, locationTypes: LocationType[]): string {
         // Location icon
-        if (location.properties.displayRule && location.properties.displayRule.icon && location.properties.displayRule.icon.length > 0) {
-            return location.properties.displayRule.icon;
+        if (location?.properties?.displayRule?.icon instanceof HTMLImageElement) {
+            return location.properties.displayRule.icon.src;
+        } else if (location?.properties?.displayRule?.icon > '') {
+            return location?.properties?.displayRule?.icon;
         }
 
         // Location type icon

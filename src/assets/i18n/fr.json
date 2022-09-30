@@ -1,4 +1,5 @@
 {
+    "Auth.ConfirmSignOut": "Êtes-vous sûr de vouloir vous déconnecter?",
     "SetSolution.Title": "Bienvenue sur MapsIndoors",
     "SetSolution.Enter": "Entrez la clé API",
     "SetSolution.Go": "Aller",
@@ -16,7 +17,6 @@
     "InfoDialog.Title": "A propos",
     "InfoDialog.AppName": "Nom de l'application",
     "InfoDialog.Supplier": "Fournisseur",
-    "InfoDialog.AppVersion": "Version de l'application",
     "InfoDialog.SdkVersion": "Version du SDK",
     "ShareDialog.Title": "Emplacement partagé",
     "ShareDialog.Text": "Copiez le lien ci-dessous pour partager l'emplacement de",
@@ -79,6 +79,7 @@
     "DirectionRoute.TakeLadderToLevel": "Empruntez l'escalier pour rejoindre le niveau",
     "DirectionRoute.TakeWheelchairLiftToLevel": "Prenez l’élévateur pour fauteuil roulant jusqu’au niveau",
     "DirectionRoute.TakeWheelchairRampToLevel": "Prenez la rampe pour fauteuil roulant jusqu’au niveau",
+    "DirectionRoute.TakeEscalatorToLevel": "Empruntez l'escalier roulant jusqu'au niveau",
     "DirectionRoute.Building": "Bâtiment",
     "DirectionRoute.Venue": "Lieu",
     "DirectionHint.SearchHint": "Rechercher des emplacements à l'intérieur ou à l'extérieur",

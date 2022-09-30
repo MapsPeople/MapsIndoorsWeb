@@ -27,6 +27,7 @@ import { environment } from './../environments/environment';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
 // Components
 import { VenuesComponent } from './venues/venues.component';
 import { SearchComponent } from './search/search.component';
@@ -40,9 +41,11 @@ import { LocationImgComponent } from './shared/components/location-img/location-
 import { DetailFieldComponent } from './details/detail-field/detail-field.component';
 import { AppImageComponent } from './shared/components/app-image/app-image.component';
 import { UserRolesComponent } from './search/user-roles/user-roles.component';
+import { TimestampComponent } from './details/timestamp/timestamp.component';
 
 // Modules
 import { DirectionsModule } from './directions/directions.module';
+import { OAuthModule } from 'angular-oauth2-oidc';
 
 // Services
 import { AppConfigService } from './services/app-config.service';
@@ -52,6 +55,7 @@ import { RoutingStateService } from './services/routing-state.service';
 // Pipes
 import { DistancePipe } from './pipes/distance.pipe';
 import { errorHandlerFactory } from './app.error-handler';
+import { LiveDataTogglesComponent } from './live-data-toggles/live-data-toggles.component';
 
 @NgModule({
     declarations: [
@@ -68,7 +72,9 @@ import { errorHandlerFactory } from './app.error-handler';
         DistancePipe,
         DetailFieldComponent,
         AppImageComponent,
-        UserRolesComponent
+        UserRolesComponent,
+        LiveDataTogglesComponent,
+        TimestampComponent
     ],
     imports: [
         BrowserModule,
@@ -99,7 +105,8 @@ import { errorHandlerFactory } from './app.error-handler';
                 deps: [HttpClient]
             }
         }),
-        DirectionsModule
+        DirectionsModule,
+        OAuthModule.forRoot()
     ],
     exports: [
         MatButtonModule,

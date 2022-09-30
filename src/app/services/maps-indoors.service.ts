@@ -31,6 +31,7 @@ export class MapsIndoorsService {
 
     private isHandsetSubscription: Subscription;
     private pageTitle = new BehaviorSubject<string>('');
+    private liveDataManagerSubject = new BehaviorSubject('');
 
     private fitSelectionControlElement: FitSelectionControl;
 
@@ -65,17 +66,6 @@ export class MapsIndoorsService {
 
             this.mapsIndoors.setDisplayRule(['MI_BUILDING', 'MI_VENUE'], { visible: false });
             this.setSelectedUserRolesFromLocalStorage();
-
-            // Set tittle attribute for map POI's
-            this.solutionService.getSolution()
-                .then((solution): void => {
-                    for (const type of solution.types) {
-                        this.mapsIndoors.setDisplayRule(type.name, {
-                            title: '{{name}}',
-                            polygonStrokeOpacity: 0
-                        });
-                    }
-                });
 
             // Add position control to the map and setup listeners on the user agent service.
             if (this.appConfig.appSettings.positioningDisabled !== '1') {
@@ -242,5 +232,19 @@ export class MapsIndoorsService {
      */
     public clearMapFilter(fitView = false): void {
         this.mapsIndoors.filter(null, fitView);
+    }
+    /**
+     * Notify all observers of liveDataManagerSubject when the live data manager is accessible.
+     * @memberof MapsIndoorsService
+     */
+    public notifyLiveDataManagerObservers(): void {
+        this.liveDataManagerSubject.next('available');
+    }
+
+    /**
+     * Get the live data manager observable.
+     */
+    public getLiveDataManagerObservable(): Observable<string> {
+        return this.liveDataManagerSubject.asObservable();
     }
 }

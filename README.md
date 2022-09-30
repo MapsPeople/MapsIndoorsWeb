@@ -2,7 +2,7 @@
 A [MapsIndoors](https://www.mapspeople.com/mapsindoors/) powered showcase app free to use and adapt to your needs.
 
 ## Getting Started
-Before you begin, make sure your development environment includes Node.js, npm package manager and [Angular CLI globally](https://angular.io/cli#installing-angular-cli).
+Before you begin, make sure your development environment includes Node.js version 16 with the NPM package manager.
 
 Using a terminal/shell in the project folder, run the following commands:
 

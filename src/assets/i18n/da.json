@@ -1,4 +1,5 @@
 {
+    "Auth.ConfirmSignOut": "Er du sikker på du vil logge ud?",
     "SetSolution.Title": "Velkommen til MapsIndoors",
     "SetSolution.Enter": "Indtast API-nøgle",
     "SetSolution.Go": "Go",
@@ -16,7 +17,6 @@
     "InfoDialog.Title": "App-information",
     "InfoDialog.AppName": "Appnavn",
     "InfoDialog.Supplier": "Leverandør",
-    "InfoDialog.AppVersion": "App-version",
     "InfoDialog.SdkVersion": "SDK-version",
     "ShareDialog.Title": "Del placering",
     "ShareDialog.Text": "Kopier linket nedenfor for at dele",
@@ -79,6 +79,7 @@
     "DirectionRoute.TakeLadderToLevel": "Tag stigen til niveau",
     "DirectionRoute.TakeWheelchairLiftToLevel": "Tag kørestolsliften til niveau",
     "DirectionRoute.TakeWheelchairRampToLevel": "Tag kørestolsrampen til niveau",
+    "DirectionRoute.TakeEscalatorToLevel": "Tag rulletrappen til niveau",
     "DirectionRoute.Building": "Bygning",
     "DirectionRoute.Venue": "Venue",
     "DirectionHint.SearchHint": "Søg efter indendørs og udendørs lokationer",

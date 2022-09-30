@@ -25,26 +25,11 @@
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets",
-              {
-                "glob": "mapsindoors.dev.*",
-                "ignore": [
-                  "package.json"
-                ],
-                "input": "./modules/sdk/release/",
-                "output": "/assets/sdk/"
-              },
-              {
-                "glob": "*",
-                "ignore": [
-                  "package.json"
-                ],
-                "input": "./modules/sdk/node_modules/@MapsIndoors/micommon/bin/",
-                "output": "/assets/sdk/"
-              }
+              "src/assets"
             ],
             "styles": [
-              "src/assets/styles/sass/main.scss"
+              "src/assets/styles/sass/main.scss",
+              "node_modules/@mapsindoors/css/toggle.css"
             ],
             "scripts": []
           },
@@ -78,23 +63,7 @@
             "development": {
               "assets": [
                 "src/favicon.ico",
-                "src/assets",
-                {
-                  "glob": "mapsindoors.dev.*",
-                  "ignore": [
-                    "package.json"
-                  ],
-                  "input": "./modules/sdk/release/",
-                  "output": "/assets/sdk/"
-                },
-                {
-                  "glob": "*",
-                  "ignore": [
-                    "package.json"
-                  ],
-                  "input": "./modules/sdk/node_modules/@MapsIndoors/micommon/bin/",
-                  "output": "/assets/sdk/"
-                }
+                "src/assets"
               ],
               "budgets": [
                 {
